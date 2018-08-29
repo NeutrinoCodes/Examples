@@ -2,7 +2,7 @@
 
 #define DT                        0.001f                                        // Time delta [s].
 #define SAFEDIV(X, Y, EPSILON)    (X)/(Y + EPSILON)
-
+/*
 float4 fix_projective_space(float4 vector)
 {
   vector *= float4(1.0f, 1.0f, 1.0f, 0.0f);                                     // Nullifying 4th projective component...
@@ -13,7 +13,7 @@ float4 fix_projective_space(float4 vector)
 
   return vector;
 }
-
+*/
 float4 assign_color(float4 color, float4 position)
 {
   color = fabs(P);                                                              // Calculating |P|...
@@ -22,14 +22,14 @@ float4 assign_color(float4 color, float4 position)
   color *= float4(0.0f, 0.0f, 0.5f, 0.0f);                                      // Setting color.z = 0.5*|P|...
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  color += float4(0.0f, 0.2f, 0.3f, 1.0f);                                      // Adding colormap offset and adjusting alpha component...
+  color += float4(0.0f, 0.4f, 0.5f, 1.0f);                                      // Adding colormap offset and adjusting alpha component...
   barrier(CLK_GLOBAL_MEM_FENCE);
 }
 
 __kernel void thekernel(__global float4*    position,
                         __global float4*    color,
                         __global float4*    position_old,
-                        __global float4*    velocity_by_dt,
+                        __global float4*    velocity,
                         __global float4*    acceleration,
                         __global float4*    gravity,
                         __global float4*    stiffness,
@@ -54,7 +54,7 @@ __kernel void thekernel(__global float4*    position,
   ////////////////////////////////////////////////////////////////////////////////
   float4      Po  = position_old[gid];                                          // Old particle position.
   float4      P   = position[gid];                                              // Current particle position.
-  float4      Vdt = velocity_by_dt[gid];                                        // Current particle velocity*dt.
+  float4      V   = velocity[gid];                                              // Current particle velocity.
   float4      A   = acceleration[gid];                                          // Current particle acceleration.
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -80,10 +80,10 @@ __kernel void thekernel(__global float4*    position,
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////// SYNERGIC MOLECULE: LINKED PARTICLE POSITIONS /////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      Pl_1 = positions[il_1];                                           // 1st linked particle position.
-  float4      Pl_2 = positions[il_2];                                           // 2nd linked particle position.
-  float4      Pl_3 = positions[il_3];                                           // 3rd linked particle position.
-  float4      Pl_4 = positions[il_4];                                           // 4th linked particle position.
+  float4      Pl_1 = position[il_1];                                           // 1st linked particle position.
+  float4      Pl_2 = position[il_2];                                           // 2nd linked particle position.
+  float4      Pl_3 = position[il_3];                                           // 3rd linked particle position.
+  float4      Pl_4 = position[il_4];                                           // 4th linked particle position.
 
   ////////////////////////////////////////////////////////////////////////////////
   //////////////// SYNERGIC MOLECULE: LINK RESTING DISTANCES /////////////////////
@@ -181,27 +181,25 @@ __kernel void thekernel(__global float4*    position,
   // have to calculate: P = P + V*DT + A*DT^2.
   // In machine numbers, (X/DT)*DT is not exactly X due to a numerical
   // representation having a finite number of decimals.
-  Vdt = (P - Po);                                                               // Calculating current velocity*dt...
   A = F/m;                                                                      // Calculating current acceleration...
-  Po = P;                                                                       // Updating old position...
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  P += Vdt + A*DT*DT;                                                           // Calculating and updating new position...
+  P += V*DT + A*DT*DT/2;                                                           // Calculating and updating new position...
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  fix_projective_space(Po);
-  fix_projective_space(P);
-  fix_projective_space(V);
-  fix_projective_space(A);
+  //fix_projective_space(Po);
+  //fix_projective_space(P);
+  //fix_projective_space(V);
+  //fix_projective_space(A);
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  assign_color(col, P);
+  //assign_color(col, P);
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  Positions_old[iPC] = Po;                                                      // Updating OpenCL array...
-  Positions[iPC] = P;                                                           // Updating OpenCL array...
-  Velocities[iPC] = V;                                                          // Updating OpenCL array...
-  Accelerations[iPC] = A;                                                       // Updating OpenCL array...
-  Colors[iPC] = col;
+  position_old[gid] = Po;                                                      // Updating OpenCL array...
+  position[gid] = P;                                                           // Updating OpenCL array...
+  velocity[gid] = V;                                                          // Updating OpenCL array...
+  acceleration[gid] = A;                                                       // Updating OpenCL array...
+  color[gid] = col;
   barrier(CLK_GLOBAL_MEM_FENCE);
 }
