@@ -2,27 +2,26 @@
 
 #define DT                        0.001f                                        // Time delta [s].
 #define SAFEDIV(X, Y, EPSILON)    (X)/(Y + EPSILON)
-/*
-float4 fix_projective_space(float4 vector)
+
+void fix_projective_space(float4* vector)
 {
-  vector *= float4(1.0f, 1.0f, 1.0f, 0.0f);                                     // Nullifying 4th projective component...
+  *vector *= (float4)(1.0f, 1.0f, 1.0f, 0.0f);                                     // Nullifying 4th projective component...
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  vector += float4(0.0f, 0.0f, 0.0f, 1.0f);                                     // Setting 4th projective component to "1.0f"...
+  *vector += (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                     // Setting 4th projective component to "1.0f"...
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  return vector;
 }
-*/
-float4 assign_color(float4 color, float4 position)
+
+void assign_color(float4* color, float4* position)
 {
-  color = fabs(P);                                                              // Calculating |P|...
+  *color = fabs(*position);                                                              // Calculating |P|...
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  color *= float4(0.0f, 0.0f, 0.5f, 0.0f);                                      // Setting color.z = 0.5*|P|...
+  *color *= (float4)(0.0f, 0.0f, 0.5f, 0.0f);                                      // Setting color.z = 0.5*|P|...
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  color += float4(0.0f, 0.4f, 0.5f, 1.0f);                                      // Adding colormap offset and adjusting alpha component...
+  *color += (float4)(0.0f, 0.3f, 0.4f, 1.0f);                                      // Adding colormap offset and adjusting alpha component...
   barrier(CLK_GLOBAL_MEM_FENCE);
 }
 
@@ -133,9 +132,6 @@ __kernel void thekernel(__global float4*    position,
   float4      sl_3 = SAFEDIV(ll_3 - rl_3, ll_3, epsilon);                       // 3rd link strain.
   float4      sl_4 = SAFEDIV(ll_4 - rl_4, ll_4, epsilon);                       // 4th link strain.
 
-  //col = fabs(sR + sU + sL + sD)/4;
-  //col.r = 0.2f;
-
   barrier(CLK_GLOBAL_MEM_FENCE);
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -187,13 +183,13 @@ __kernel void thekernel(__global float4*    position,
   P += V*DT + A*DT*DT/2;                                                           // Calculating and updating new position...
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  //fix_projective_space(Po);
-  //fix_projective_space(P);
-  //fix_projective_space(V);
-  //fix_projective_space(A);
+  fix_projective_space(&Po);
+  fix_projective_space(&P);
+  fix_projective_space(&V);
+  fix_projective_space(&A);
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  //assign_color(col, P);
+  assign_color(&col, &P);
   barrier(CLK_GLOBAL_MEM_FENCE);
 
   position_old[gid] = Po;                                                      // Updating OpenCL array...
