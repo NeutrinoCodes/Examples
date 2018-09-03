@@ -25,6 +25,86 @@ void assign_color(float4* color, float4* position)
   barrier(CLK_GLOBAL_MEM_FENCE);
 }
 
+
+void compute_link_displacements(float4 Pl_1, float4 Pl_2, float4 Pl_3, float4 Pl_4, float4 P,
+                        float4 rl_1, float4 rl_2, float4 rl_3, float4 rl_4, float4 fr,
+                        float4* Dl_1, float4* Dl_2, float4* Dl_3, float4* Dl_4)
+{
+  ////////////////////////////////////////////////////////////////////////////////
+  ////////////////// SYNERGIC MOLECULE: LINKED PARTICLE VECTOR ///////////////////
+  ////////////////////////////////////////////////////////////////////////////////
+  float4      Ll_1 = Pl_1 - P;                                                  // 1st linked particle vector.
+  float4      Ll_2 = Pl_2 - P;                                                  // 2nd linked particle vector.
+  float4      Ll_3 = Pl_3 - P;                                                  // 3rd linked particle vector.
+  float4      Ll_4 = Pl_4 - P;                                                  // 4th linked particle vector.
+
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
+  ////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////// SYNERGIC MOLECULE: LINK LENGTH ///////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
+  float4      ll_1 = length(Ll_1);                                              // 1st link length.
+  float4      ll_2 = length(Ll_2);                                              // 2nd link length.
+  float4      ll_3 = length(Ll_3);                                              // 3rd link length.
+  float4      ll_4 = length(Ll_4);                                              // 4th link length.
+
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
+  ////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////// SYNERGIC MOLECULE: LINK STRAIN ///////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
+  float4      epsilon = fr + (float4)(1.0f, 1.0f, 1.0f, 1.0f);                  // Safety margin for division.
+  float4      sl_1 = SAFEDIV(ll_1 - rl_1, ll_1, epsilon);                       // 1st link strain.
+  float4      sl_2 = SAFEDIV(ll_2 - rl_2, ll_2, epsilon);                       // 2nd link strain.
+  float4      sl_3 = SAFEDIV(ll_3 - rl_3, ll_3, epsilon);                       // 3rd link strain.
+  float4      sl_4 = SAFEDIV(ll_4 - rl_4, ll_4, epsilon);                       // 4th link strain.
+
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
+  ////////////////////////////////////////////////////////////////////////////////
+  //////////////// SYNERGIC MOLECULE: LINKED PARTICLE DISPLACEMENT ///////////////
+  ////////////////////////////////////////////////////////////////////////////////
+  *Dl_1 = sl_1*Ll_1;                                                            // 1st linked particle displacement.
+  *Dl_2 = sl_2*Ll_2;                                                            // 2nd linked particle displacement.
+  *Dl_3 = sl_3*Ll_3;                                                            // 3rd linked particle displacement.
+  *Dl_4 = sl_4*Ll_4;                                                            // 4th linked particle displacement.
+}
+
+
+float4 compute_particle_force(float4 kl_1, float4 kl_2, float4 kl_3, float4 kl_4,
+                              float4 Dl_1, float4 Dl_2, float4 Dl_3, float4 Dl_4,
+                              float4 c, float4 V, float4 m, float4 G, float4 fr)
+{
+  ////////////////////////////////////////////////////////////////////////////////
+  //////////////////////// SYNERGIC MOLECULE: ELASTIC FORCE //////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
+  float4      Fe   = (kl_1*Dl_1 + kl_2*Dl_2 + kl_3*Dl_3 + kl_4*Dl_4);           // Elastic force applied to the particle.
+
+  ////////////////////////////////////////////////////////////////////////////////
+  //////////////////////// SYNERGIC MOLECULE: VISCOUS FORCE //////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
+  float4      Fv   = -c*V;                                                      // Viscous force applied to the particle.
+
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
+  ////////////////////////////////////////////////////////////////////////////////
+  ///////////////////// SYNERGIC MOLECULE: GRAVITATIONAL FORCE ///////////////////
+  ////////////////////////////////////////////////////////////////////////////////
+  float4      Fg   = m*G;                                                       // Gravitational force applied to the particle.
+
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
+  ////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////// SYNERGIC MOLECULE: TOTAL FORCE ///////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
+  float4      F    = fr*(Fe + Fv + Fg);                                         // Total force applied to the particle.
+
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
+  return F;
+}
+
+
 __kernel void thekernel(__global float4*    position,
                         __global float4*    color,
                         __global float4*    position_old,
@@ -41,7 +121,6 @@ __kernel void thekernel(__global float4*    position,
                         __global int*       index_friend_4,                     // Indexes of "#4 friend" particles.
                         __global float4*    freedom)
 {
-  float4      epsilon;
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////// GLOBAL INDEX /////////////////////////////////
@@ -103,70 +182,18 @@ __kernel void thekernel(__global float4*    position,
 
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  ////////////////////////////////////////////////////////////////////////////////
-  ////////////////// SYNERGIC MOLECULE: LINKED PARTICLE VECTOR ///////////////////
-  ////////////////////////////////////////////////////////////////////////////////
-  float4      Ll_1 = Pl_1 - P;                                                  // 1st linked particle vector.
-  float4      Ll_2 = Pl_2 - P;                                                  // 2nd linked particle vector.
-  float4      Ll_3 = Pl_3 - P;                                                  // 3rd linked particle vector.
-  float4      Ll_4 = Pl_4 - P;                                                  // 4th linked particle vector.
+  float4      Dl_1;                                                             // 1st linked particle displacement.
+  float4      Dl_2;
+  float4      Dl_3;
+  float4      Dl_4;
+
+  compute_link_displacements(Pl_1, Pl_2, Pl_3, Pl_4, P, rl_1, rl_2, rl_3,
+                                  rl_4, fr, &Dl_1, &Dl_2, &Dl_3, &Dl_4);
 
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  ////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////// SYNERGIC MOLECULE: LINK LENGTH ///////////////////////
-  ////////////////////////////////////////////////////////////////////////////////
-  float4      ll_1 = length(Ll_1);                                              // 1st link length.
-  float4      ll_2 = length(Ll_2);                                              // 2nd link length.
-  float4      ll_3 = length(Ll_3);                                              // 3rd link length.
-  float4      ll_4 = length(Ll_4);                                              // 4th link length.
-
-  barrier(CLK_GLOBAL_MEM_FENCE);
-
-  ////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////// SYNERGIC MOLECULE: LINK STRAIN ///////////////////////
-  ////////////////////////////////////////////////////////////////////////////////
-           epsilon = fr + (float4)(1.0f, 1.0f, 1.0f, 1.0f);                     // Safety margin for division.
-  float4      sl_1 = SAFEDIV(ll_1 - rl_1, ll_1, epsilon);                       // 1st link strain.
-  float4      sl_2 = SAFEDIV(ll_2 - rl_2, ll_2, epsilon);                       // 2nd link strain.
-  float4      sl_3 = SAFEDIV(ll_3 - rl_3, ll_3, epsilon);                       // 3rd link strain.
-  float4      sl_4 = SAFEDIV(ll_4 - rl_4, ll_4, epsilon);                       // 4th link strain.
-
-  barrier(CLK_GLOBAL_MEM_FENCE);
-
-  ////////////////////////////////////////////////////////////////////////////////
-  //////////////// SYNERGIC MOLECULE: LINKED PARTICLE DISPLACEMENT ///////////////
-  ////////////////////////////////////////////////////////////////////////////////
-  float4      Dl_1 = sl_1*Ll_1;                                                 // 1st linked particle displacement.
-  float4      Dl_2 = sl_2*Ll_2;                                                 // 2nd linked particle displacement.
-  float4      Dl_3 = sl_3*Ll_3;                                                 // 3rd linked particle displacement.
-  float4      Dl_4 = sl_4*Ll_4;                                                 // 4th linked particle displacement.
-
-  barrier(CLK_GLOBAL_MEM_FENCE);
-
-  ////////////////////////////////////////////////////////////////////////////////
-  //////////////////////// SYNERGIC MOLECULE: ELASTIC FORCE //////////////////////
-  ////////////////////////////////////////////////////////////////////////////////
-  float4      Fe   = (kl_1*Dl_1 + kl_2*Dl_2 + kl_3*Dl_3 + kl_4*Dl_4);           // Elastic force applied to the particle.
-
-  ////////////////////////////////////////////////////////////////////////////////
-  //////////////////////// SYNERGIC MOLECULE: VISCOUS FORCE //////////////////////
-  ////////////////////////////////////////////////////////////////////////////////
-  float4      Fv   = -c*V;                                                      // Viscous force applied to the particle.
-
-  barrier(CLK_GLOBAL_MEM_FENCE);
-
-  ////////////////////////////////////////////////////////////////////////////////
-  ///////////////////// SYNERGIC MOLECULE: GRAVITATIONAL FORCE ///////////////////
-  ////////////////////////////////////////////////////////////////////////////////
-  float4      Fg   = m*G;                                                       // Gravitational force applied to the particle.
-
-  barrier(CLK_GLOBAL_MEM_FENCE);
-
-  ////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////// SYNERGIC MOLECULE: TOTAL FORCE ///////////////////////
-  ////////////////////////////////////////////////////////////////////////////////
-  float4      F    = fr*(Fe + Fv + Fg);                                         // Total force applied to the particle.
+  float4 F = compute_particle_force(kl_1, kl_2, kl_3, kl_4, Dl_1, Dl_2, Dl_3, Dl_4,
+                            c, V, m, G, fr);
 
   barrier(CLK_GLOBAL_MEM_FENCE);
 
