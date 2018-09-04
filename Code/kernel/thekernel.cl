@@ -5,23 +5,23 @@
 
 void fix_projective_space(float4* vector)
 {
-  *vector *= (float4)(1.0f, 1.0f, 1.0f, 0.0f);                                     // Nullifying 4th projective component...
+  *vector *= (float4)(1.0f, 1.0f, 1.0f, 0.0f);                                  // Nullifying 4th projective component...
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  *vector += (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                     // Setting 4th projective component to "1.0f"...
+  *vector += (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                  // Setting 4th projective component to "1.0f"...
   barrier(CLK_GLOBAL_MEM_FENCE);
 
 }
 
 void assign_color(float4* color, float4* position)
 {
-  *color = fabs(*position);                                                              // Calculating |P|...
+  *color = fabs(*position);                                                     // Calculating |P|...
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  *color *= (float4)(0.0f, 0.0f, 0.5f, 0.0f);                                      // Setting color.z = 0.5*|P|...
+  *color *= (float4)(0.0f, 0.0f, 0.5f, 0.0f);                                   // Setting color.z = 0.5*|P|...
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  *color += (float4)(0.0f, 0.3f, 0.4f, 1.0f);                                      // Adding colormap offset and adjusting alpha component...
+  *color += (float4)(0.0f, 0.3f, 0.4f, 1.0f);                                   // Adding colormap offset and adjusting alpha component...
   barrier(CLK_GLOBAL_MEM_FENCE);
 }
 
@@ -207,7 +207,58 @@ __kernel void thekernel(__global float4*    position,
   A = F/m;                                                                      // Calculating current acceleration...
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  P += V*DT + A*DT*DT/2;                                                           // Calculating and updating new position...
+  P += V*DT + A*DT*DT/2.0f;                                                           // Calculating and updating new position...
+
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
+  // update positions in memory
+  position[gid] = P;
+
+  // save velocity at time t_n
+  float4 Vn;
+  Vn = V;
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
+  // compute veelocity used for computation of acceleration at t_(n+1)
+  V += A*DT;
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
+  // compute new acceleration based on velocity estimate at t_(n+1)
+  compute_link_displacements(Pl_1, Pl_2, Pl_3, Pl_4, P, rl_1, rl_2, rl_3,
+                                  rl_4, fr, &Dl_1, &Dl_2, &Dl_3, &Dl_4);
+
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
+  float4 Fnew = compute_particle_force(kl_1, kl_2, kl_3, kl_4, Dl_1, Dl_2, Dl_3, Dl_4,
+                            c, V, m, G, fr);
+
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
+  float4 Anew = Fnew/m;
+
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
+  // predictor step: velocity at time t_(n+1) based on new forces
+  V = Vn + DT*(A+Anew)/2.0f;
+
+  // compute new acceleration based on predicted velocity at t_(n+1)
+  //compute_link_displacements(Pl_1, Pl_2, Pl_3, Pl_4, P, rl_1, rl_2, rl_3,
+  //                                rl_4, fr, &Dl_1, &Dl_2, &Dl_3, &Dl_4);
+
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
+  Fnew = compute_particle_force(kl_1, kl_2, kl_3, kl_4, Dl_1, Dl_2, Dl_3, Dl_4,
+                            c, V, m, G, fr);
+
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
+  Anew = Fnew/m;
+
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
+  // corrector step
+  V = Vn + DT*(A+Anew)/2.0f;
+
   barrier(CLK_GLOBAL_MEM_FENCE);
 
   fix_projective_space(&Po);
