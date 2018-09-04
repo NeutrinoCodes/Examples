@@ -214,6 +214,15 @@ __kernel void thekernel(__global float4*    position,
   // update positions in memory
   position[gid] = P;
 
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
+  Pl_1 = position[il_1];                                           // 1st linked particle position.
+  Pl_2 = position[il_2];                                           // 2nd linked particle position.
+  Pl_3 = position[il_3];                                           // 3rd linked particle position.
+  Pl_4 = position[il_4];                                           // 4th linked particle position.
+
+  barrier(CLK_GLOBAL_MEM_FENCE);
+
   // save velocity at time t_n
   float4 Vn;
   Vn = V;
