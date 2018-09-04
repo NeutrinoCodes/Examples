@@ -1,6 +1,6 @@
 /// @file
 
-#define DT                        0.001f                                        // Time delta [s].
+#define DT                        0.002f                                        // Time delta [s].
 #define SAFEDIV(X, Y, EPSILON)    (X)/(Y + EPSILON)
 
 void fix_projective_space(float4* vector)
@@ -18,10 +18,10 @@ void assign_color(float4* color, float4* position)
   *color = fabs(*position);                                                     // Calculating |P|...
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  *color *= (float4)(0.0f, 0.0f, 0.5f, 0.0f);                                   // Setting color.z = 0.5*|P|...
+  *color *= (float4)(0.0f, 0.0f, 1.0f, 0.0f);                                   // Setting color.z = 0.5*|P|...
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  *color += (float4)(0.0f, 0.3f, 0.4f, 1.0f);                                   // Adding colormap offset and adjusting alpha component...
+  *color += (float4)(0.4f, 0.0f, 0.0f, 1.0f);                                   // Adding colormap offset and adjusting alpha component...
   barrier(CLK_GLOBAL_MEM_FENCE);
 }
 
@@ -250,12 +250,9 @@ __kernel void thekernel(__global float4*    position,
   // predictor step: velocity at time t_(n+1) based on new forces
   V = Vn + DT*(A+Anew)/2.0f;
 
-  // compute new acceleration based on predicted velocity at t_(n+1)
-  //compute_link_displacements(Pl_1, Pl_2, Pl_3, Pl_4, P, rl_1, rl_2, rl_3,
-  //                                rl_4, fr, &Dl_1, &Dl_2, &Dl_3, &Dl_4);
-
   barrier(CLK_GLOBAL_MEM_FENCE);
 
+  // compute new acceleration based on predicted velocity at t_(n+1)
   Fnew = compute_particle_force(kl_1, kl_2, kl_3, kl_4, Dl_1, Dl_2, Dl_3, Dl_4,
                             c, V, m, G, fr);
 
