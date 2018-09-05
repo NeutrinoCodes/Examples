@@ -2,6 +2,11 @@
 
 #define DT                        0.002f                                        // Time delta [s].
 #define SAFEDIV(X, Y, EPSILON)    (X)/(Y + EPSILON)
+#define RMIN                      0.4f                                          // Offset red channel for colormap
+#define RMAX                      0.5f                                          // Maximum red channel for colormap
+#define BMIN                      0.0f                                          // Offset blue channel for colormap
+#define BMAX                      1.0f                                          // Maximum blue channel for colormap
+#define SCALE                     1.5f                                          // Scale factor for plot
 
 void fix_projective_space(float4* vector)
 {
@@ -13,15 +18,20 @@ void fix_projective_space(float4* vector)
 
 }
 
+/** Assign color based on a custom colormap.
+*/
 void assign_color(float4* color, float4* position)
 {
-  *color = fabs(*position);                                                     // Calculating |P|...
+  // Taking the component-wise absolute value of the position vector...
+  float4 p = fabs(*position)*SCALE;
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  *color *= (float4)(0.0f, 0.0f, 1.0f, 0.0f);                                   // Setting color.z = 0.5*|P|...
+  // Extracting the z-component of the displacement...
+  p *= (float4)(0.0f, 0.0f, 1.0f, 0.0f);
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  *color += (float4)(0.4f, 0.0f, 0.0f, 1.0f);                                   // Adding colormap offset and adjusting alpha component...
+  // Setting color based on linear-interpolation colormap and adjusting alpha component...
+  *color = (float4)(RMIN+(RMAX-RMIN)*p.z, 0.0f, BMIN+(BMAX-BMIN)*p.z, 1.0f);
   barrier(CLK_GLOBAL_MEM_FENCE);
 }
 
@@ -107,7 +117,6 @@ float4 compute_particle_force(float4 kl_1, float4 kl_2, float4 kl_3, float4 kl_4
 
 __kernel void thekernel(__global float4*    position,
                         __global float4*    color,
-                        __global float4*    position_old,
                         __global float4*    velocity,
                         __global float4*    acceleration,
                         __global float4*    gravity,
@@ -130,7 +139,6 @@ __kernel void thekernel(__global float4*    position,
   ////////////////////////////////////////////////////////////////////////////////
   /////////////////// SYNERGIC MOLECULE: KINEMATIC VARIABLES /////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      Po  = position_old[gid];                                          // Old particle position.
   float4      P   = position[gid];                                              // Current particle position.
   float4      V   = velocity[gid];                                              // Current particle velocity.
   float4      A   = acceleration[gid];                                          // Current particle acceleration.
@@ -200,32 +208,28 @@ __kernel void thekernel(__global float4*    position,
   //////////////////////////////////////////////////////////////////////////////
   /////////////////////////////// VERLET INTEGRATION ///////////////////////////
   //////////////////////////////////////////////////////////////////////////////
-  // We define Vdt = (P - Po) instead of V = (P - Po)/DT because later we will
-  // have to calculate: P = P + V*DT + A*DT^2.
-  // In machine numbers, (X/DT)*DT is not exactly X due to a numerical
-  // representation having a finite number of decimals.
-  A = F/m;                                                                      // Calculating current acceleration...
+  A = F/m;                                                                      // Calculating acceleration at time t_n...
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  P += V*DT + A*DT*DT/2.0f;                                                           // Calculating and updating new position...
+  // Calculating and updating position of the center particle...
+  P += V*DT + A*DT*DT/2.0f;
 
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  // update positions in memory
+  // Update positions in memory
   position[gid] = P;
 
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  Pl_1 = position[il_1];                                           // 1st linked particle position.
-  Pl_2 = position[il_2];                                           // 2nd linked particle position.
-  Pl_3 = position[il_3];                                           // 3rd linked particle position.
-  Pl_4 = position[il_4];                                           // 4th linked particle position.
+  Pl_1 = position[il_1];                                                        // 1st linked particle position.
+  Pl_2 = position[il_2];                                                        // 2nd linked particle position.
+  Pl_3 = position[il_3];                                                        // 3rd linked particle position.
+  Pl_4 = position[il_4];                                                        // 4th linked particle position.
 
   barrier(CLK_GLOBAL_MEM_FENCE);
 
   // save velocity at time t_n
-  float4 Vn;
-  Vn = V;
+  float4 Vn = V;
   barrier(CLK_GLOBAL_MEM_FENCE);
 
   // compute veelocity used for computation of acceleration at t_(n+1)
@@ -267,7 +271,6 @@ __kernel void thekernel(__global float4*    position,
 
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  fix_projective_space(&Po);
   fix_projective_space(&P);
   fix_projective_space(&V);
   fix_projective_space(&A);
@@ -276,7 +279,6 @@ __kernel void thekernel(__global float4*    position,
   assign_color(&col, &P);
   barrier(CLK_GLOBAL_MEM_FENCE);
 
-  position_old[gid] = Po;                                                      // Updating OpenCL array...
   position[gid] = P;                                                           // Updating OpenCL array...
   velocity[gid] = V;                                                          // Updating OpenCL array...
   acceleration[gid] = A;                                                       // Updating OpenCL array...
