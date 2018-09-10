@@ -1,6 +1,6 @@
 /// @file
 
-#define DT                        0.001f                                        // Time delta [s].
+#define DT                        0.010f                                        // Time delta [s].
 #define SAFEDIV(X, Y, EPSILON)    (X)/(Y + EPSILON)
 #define RMIN                      0.4f                                          // Offset red channel for colormap
 #define RMAX                      0.5f                                          // Maximum red channel for colormap
@@ -161,7 +161,7 @@ __kernel void thekernel(__global float4*    position,
   int         il_3 = index_friend_3[gid];                                       // Setting indexes of 3rd linked particle...
   int         il_4 = index_friend_4[gid];                                       // Setting indexes of 4th linked particle...
 
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////// SYNERGIC MOLECULE: LINKED PARTICLE POSITIONS /////////////////
@@ -188,7 +188,7 @@ __kernel void thekernel(__global float4*    position,
   float4      kl_3 = stiffness[il_3];                                           // 3rd link stiffness.
   float4      kl_4 = stiffness[il_4];                                           // 4th link stiffness.
 
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   float4      Dl_1;                                                             // 1st linked particle displacement.
   float4      Dl_2;
@@ -198,23 +198,23 @@ __kernel void thekernel(__global float4*    position,
   compute_link_displacements(Pl_1, Pl_2, Pl_3, Pl_4, P, rl_1, rl_2, rl_3,
                                   rl_4, fr, &Dl_1, &Dl_2, &Dl_3, &Dl_4);
 
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   float4 F = compute_particle_force(kl_1, kl_2, kl_3, kl_4, Dl_1, Dl_2, Dl_3, Dl_4,
                             c, V, m, G, fr);
 
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   //////////////////////////////////////////////////////////////////////////////
   /////////////////////////////// VERLET INTEGRATION ///////////////////////////
   //////////////////////////////////////////////////////////////////////////////
   A = F/m;                                                                      // Calculating acceleration at time t_n...
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   // Calculating and updating position of the center particle...
   P += V*DT + A*DT*DT/2.0f;
 
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   // Update positions in memory
   position[gid] = P;
@@ -226,62 +226,62 @@ __kernel void thekernel(__global float4*    position,
   Pl_3 = position[il_3];                                                        // 3rd linked particle position.
   Pl_4 = position[il_4];                                                        // 4th linked particle position.
 
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   // save velocity at time t_n
   float4 Vn = V;
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   // compute veelocity used for computation of acceleration at t_(n+1)
   V += A*DT;
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   // compute new acceleration based on velocity estimate at t_(n+1)
   compute_link_displacements(Pl_1, Pl_2, Pl_3, Pl_4, P, rl_1, rl_2, rl_3,
                                   rl_4, fr, &Dl_1, &Dl_2, &Dl_3, &Dl_4);
 
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   float4 Fnew = compute_particle_force(kl_1, kl_2, kl_3, kl_4, Dl_1, Dl_2, Dl_3, Dl_4,
                             c, V, m, G, fr);
 
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   float4 Anew = Fnew/m;
 
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   // predictor step: velocity at time t_(n+1) based on new forces
   V = Vn + DT*(A+Anew)/2.0f;
 
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   // compute new acceleration based on predicted velocity at t_(n+1)
   Fnew = compute_particle_force(kl_1, kl_2, kl_3, kl_4, Dl_1, Dl_2, Dl_3, Dl_4,
                             c, V, m, G, fr);
 
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   Anew = Fnew/m;
 
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   // corrector step
   V = Vn + DT*(A+Anew)/2.0f;
 
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   fix_projective_space(&P);
   fix_projective_space(&V);
   fix_projective_space(&A);
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   assign_color(&col, &P);
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  //barrier(CLK_GLOBAL_MEM_FENCE);
 
   position[gid] = P;                                                           // Updating OpenCL array...
   velocity[gid] = V;                                                          // Updating OpenCL array...
   acceleration[gid] = A;                                                       // Updating OpenCL array...
   color[gid] = col;
-  barrier(CLK_GLOBAL_MEM_FENCE);
+//  barrier(CLK_GLOBAL_MEM_FENCE);
 }
