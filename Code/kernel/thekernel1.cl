@@ -1,6 +1,6 @@
 /// @file
 
-#define DT                        0.001f                                        // Time delta [s].
+#define DT                        0.0005f                                        // Time delta [s].
 #define SAFEDIV(X, Y, EPSILON)    (X)/(Y + EPSILON)
 #define RMIN                      0.4f                                          // Offset red channel for colormap
 #define RMAX                      0.5f                                          // Maximum red channel for colormap
@@ -100,8 +100,11 @@ float4 compute_particle_force(float4 kl_1, float4 kl_2, float4 kl_3, float4 kl_4
 
 __kernel void thekernel(__global float4*    position,
                         __global float4*    color,
+                        __global float4*    position_int,
                         __global float4*    velocity,
+                        __global float4*    velocity_int,
                         __global float4*    acceleration,
+                        __global float4*    acceleration_int,
                         __global float4*    gravity,
                         __global float4*    stiffness,
                         __global float4*    resting,
@@ -192,58 +195,8 @@ __kernel void thekernel(__global float4*    position,
   P += V*DT + A*DT*DT/2.0f;
 
   // update positions in global memory
-  position[gid] = P;
+  position_int[gid] = P;
+  velocity_int[gid] = V;
+  acceleration_int[gid] = A;
 
-  barrier(CLK_GLOBAL_MEM_FENCE);
-
-  // read linked particles positions at time t_(n+1) from global memory
-  Pl_1 = position[il_1];
-  Pl_2 = position[il_2];
-  Pl_3 = position[il_3];
-  Pl_4 = position[il_4];
-
-  // save velocity at time t_n
-  float4 Vn = V;
-
-  // compute velocity used for computation of acceleration at t_(n+1)
-  V += A*DT;
-
-  // compute new acceleration based on velocity estimate at t_(n+1)
-  compute_link_displacements(Pl_1, Pl_2, Pl_3, Pl_4, P, rl_1, rl_2, rl_3,
-                                  rl_4, fr, &Dl_1, &Dl_2, &Dl_3, &Dl_4);
-
-  float4 Fnew = compute_particle_force(kl_1, kl_2, kl_3, kl_4, Dl_1, Dl_2, Dl_3, Dl_4,
-                            c, V, m, G, fr);
-
-  float4 Anew = Fnew/m;
-
-  // predictor step: velocity at time t_(n+1) based on new forces
-  V = Vn + DT*(A+Anew)/2.0f;
-
-  // compute new acceleration based on predicted velocity at t_(n+1)
-  Fnew = compute_particle_force(kl_1, kl_2, kl_3, kl_4, Dl_1, Dl_2, Dl_3, Dl_4,
-                            c, V, m, G, fr);
-
-  Anew = Fnew/m;
-
-  // corrector step
-  V = Vn + DT*(A+Anew)/2.0f;
-
-  // set 4th component to 1
-  fix_projective_space(&P);
-  fix_projective_space(&V);
-  fix_projective_space(&A);
-
-  assign_color(&col, &P);
-
-  // update data arrays in memory (with data at time t_(n+1))
-  position[gid] = P;
-  velocity[gid] = V;
-  acceleration[gid] = A;
-  color[gid] = col;
-
-  // wait for all the work-items to update the data arrays before executing
-  // the kernel again (WARNING: barriers only have effect on work-items
-  // belonging to the same work-group.)
-  barrier(CLK_GLOBAL_MEM_FENCE);
 }
