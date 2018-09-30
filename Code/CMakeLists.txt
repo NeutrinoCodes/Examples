@@ -54,13 +54,12 @@ if(LINUX)
   target_link_libraries(cloth "-lOpenGL" "-lOpenCL" "-lGLEW" "-lglfw" "-lm")
 endif(LINUX)
 
-message("DONE configuring GCC!")
-
-
 # Type: "make run" to run the executable.
 add_custom_target(run
-    COMMAND ${CMAKE_HOME_DIRECTORY}/build/linux/cloth
+    COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cloth
     VERBATIM )
+
+message("DONE configuring GCC!")
 
 message("")
 message("################################################################################")
