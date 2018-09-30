@@ -54,7 +54,13 @@ if(LINUX)
   target_link_libraries(cloth "-lOpenGL" "-lOpenCL" "-lGLEW" "-lglfw" "-lm")
 endif(LINUX)
 
-message("GCC build started!")
+message("DONE configuring GCC!")
+
+
+# Type: "make run" to run the executable.
+add_custom_target(run
+    COMMAND ${CMAKE_HOME_DIRECTORY}/build/linux/cloth
+    VERBATIM )
 
 message("")
 message("################################################################################")
@@ -64,7 +70,7 @@ message("")
 
 # Type: "make doc" in order to build the Doxygen documentation of the project.
 
-#message("Checking if Doxygen is installed...")
+message("Checking if Doxygen is installed...")
 find_package(Doxygen)
 if (DOXYGEN_FOUND)
     message("Setting input and output files...")
@@ -73,7 +79,7 @@ if (DOXYGEN_FOUND)
 
     message("Requesting to configure the file...")
     configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
-    message("Doxygen build started!")
+    message("DONE configuring Doxygen!")
 
     add_custom_target(doc
         COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
