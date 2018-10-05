@@ -56,7 +56,8 @@ endif(LINUX)
 
 # Type: "make run" to run the executable.
 add_custom_target(run
-    COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cloth
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    COMMAND cloth
     VERBATIM )
 
 message("DONE configuring GCC!")
