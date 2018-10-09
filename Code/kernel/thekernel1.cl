@@ -1,35 +1,6 @@
 /// @file
 
-#define DT                        0.001f                                        // Time delta [s].
 #define SAFEDIV(X, Y, EPSILON)    (X)/(Y + EPSILON)
-#define RMIN                      0.4f                                          // Offset red channel for colormap
-#define RMAX                      0.5f                                          // Maximum red channel for colormap
-#define BMIN                      0.0f                                          // Offset blue channel for colormap
-#define BMAX                      1.0f                                          // Maximum blue channel for colormap
-#define SCALE                     1.5f                                          // Scale factor for plot
-
-void fix_projective_space(float4* vector)
-{
-  *vector *= (float4)(1.0f, 1.0f, 1.0f, 0.0f);                                  // Nullifying 4th projective component...
-
-  *vector += (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                  // Setting 4th projective component to "1.0f"...
-}
-
-/** Assign color based on a custom colormap.
-*/
-void assign_color(float4* color, float4* position)
-{
-  // Taking the component-wise absolute value of the position vector...
-  float4 p = fabs(*position)*SCALE;
-
-  // Extracting the z-component of the displacement...
-  p *= (float4)(0.0f, 0.0f, 1.0f, 0.0f);
-
-  // Setting color based on linear-interpolation colormap and adjusting alpha component...
-  *color = (float4)(RMIN+(RMAX-RMIN)*p.z, 0.0f, BMIN+(BMAX-BMIN)*p.z, 1.0f);
-
-}
-
 
 void compute_link_displacements(float4 Pl_1, float4 Pl_2, float4 Pl_3, float4 Pl_4, float4 P,
                         float4 rl_1, float4 rl_2, float4 rl_3, float4 rl_4, float4 fr,
@@ -54,7 +25,7 @@ void compute_link_displacements(float4 Pl_1, float4 Pl_2, float4 Pl_3, float4 Pl
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// SYNERGIC MOLECULE: LINK STRAIN ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      epsilon = fr + (float4)(1.0f, 1.0f, 1.0f, 1.0f);                  // Safety margin for division.
+  float4      epsilon = fr - (float4)(1.0f, 1.0f, 1.0f, 1.0f);                  // Safety margin for division.
   float4      sl_1 = SAFEDIV(ll_1 - rl_1, ll_1, epsilon);                       // 1st link strain.
   float4      sl_2 = SAFEDIV(ll_2 - rl_2, ll_2, epsilon);                       // 2nd link strain.
   float4      sl_3 = SAFEDIV(ll_3 - rl_3, ll_3, epsilon);                       // 3rd link strain.
@@ -114,7 +85,8 @@ __kernel void thekernel(__global float4*    position,
                         __global int*       index_friend_2,                     // Indexes of "#2 friend" particles.
                         __global int*       index_friend_3,                     // Indexes of "#3 friend" particles.
                         __global int*       index_friend_4,                     // Indexes of "#4 friend" particles.
-                        __global float4*    freedom)
+                        __global float4*    freedom,
+                        __global float*     DT)
 {
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -176,6 +148,9 @@ __kernel void thekernel(__global float4*    position,
   /////////////////////////////// VERLET INTEGRATION ///////////////////////////
   //////////////////////////////////////////////////////////////////////////////
 
+  // time step
+  float dt = *DT;
+
   // linked particles displacements
   float4      Dl_1;
   float4      Dl_2;
@@ -192,7 +167,7 @@ __kernel void thekernel(__global float4*    position,
   A = F/m;
 
   // Calculating and updating position of the center particle...
-  P += V*DT + A*DT*DT/2.0f;
+  P += V*dt + A*dt*dt/2.0f;
 
   // update positions in global memory
   position_int[gid] = P;

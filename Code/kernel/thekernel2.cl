@@ -1,6 +1,5 @@
 /// @file
 
-#define DT                        0.001f                                        // Time delta [s].
 #define SAFEDIV(X, Y, EPSILON)    (X)/(Y + EPSILON)
 #define RMIN                      0.4f                                          // Offset red channel for colormap
 #define RMAX                      0.5f                                          // Maximum red channel for colormap
@@ -54,7 +53,7 @@ void compute_link_displacements(float4 Pl_1, float4 Pl_2, float4 Pl_3, float4 Pl
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// SYNERGIC MOLECULE: LINK STRAIN ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      epsilon = fr + (float4)(1.0f, 1.0f, 1.0f, 1.0f);                  // Safety margin for division.
+  float4      epsilon = fr - (float4)(1.0f, 1.0f, 1.0f, 1.0f);                  // Safety margin for division.
   float4      sl_1 = SAFEDIV(ll_1 - rl_1, ll_1, epsilon);                       // 1st link strain.
   float4      sl_2 = SAFEDIV(ll_2 - rl_2, ll_2, epsilon);                       // 2nd link strain.
   float4      sl_3 = SAFEDIV(ll_3 - rl_3, ll_3, epsilon);                       // 3rd link strain.
@@ -114,7 +113,8 @@ __kernel void thekernel(__global float4*    position,
                         __global int*       index_friend_2,                     // Indexes of "#2 friend" particles.
                         __global int*       index_friend_3,                     // Indexes of "#3 friend" particles.
                         __global int*       index_friend_4,                     // Indexes of "#4 friend" particles.
-                        __global float4*    freedom)
+                        __global float4*    freedom,
+                        __global float*     DT)
 {
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -176,6 +176,9 @@ __kernel void thekernel(__global float4*    position,
   /////////////////////////////// VERLET INTEGRATION ///////////////////////////
   //////////////////////////////////////////////////////////////////////////////
 
+  // time step
+  float dt = *DT;
+
   // linked particles displacements
   float4      Dl_1;
   float4      Dl_2;
@@ -186,7 +189,7 @@ __kernel void thekernel(__global float4*    position,
   float4 Vn = V;
 
   // compute velocity used for computation of acceleration at t_(n+1)
-  V += A*DT;
+  V += A*dt;
 
   // compute new acceleration based on velocity estimate at t_(n+1)
   compute_link_displacements(Pl_1, Pl_2, Pl_3, Pl_4, P, rl_1, rl_2, rl_3,
@@ -198,7 +201,7 @@ __kernel void thekernel(__global float4*    position,
   float4 Anew = Fnew/m;
 
   // predictor step: velocity at time t_(n+1) based on new forces
-  V = Vn + DT*(A+Anew)/2.0f;
+  V = Vn + dt*(A+Anew)/2.0f;
 
   // compute new acceleration based on predicted velocity at t_(n+1)
   Fnew = compute_particle_force(kl_1, kl_2, kl_3, kl_4, Dl_1, Dl_2, Dl_3, Dl_4,
@@ -207,7 +210,7 @@ __kernel void thekernel(__global float4*    position,
   Anew = Fnew/m;
 
   // corrector step
-  V = Vn + DT*(A+Anew)/2.0f;
+  V = Vn + dt*(A+Anew)/2.0f;
 
   // set 4th component to 1
   fix_projective_space(&P);
