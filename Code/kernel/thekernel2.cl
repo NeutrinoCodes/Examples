@@ -54,18 +54,18 @@ void compute_link_displacements(float4 Pl_1, float4 Pl_2, float4 Pl_3, float4 Pl
   ///////////////////////// SYNERGIC MOLECULE: LINK STRAIN ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   float4      epsilon = fr - (float4)(1.0f, 1.0f, 1.0f, 1.0f);                  // Safety margin for division.
-  float4      sl_1 = SAFEDIV(ll_1 - rl_1, ll_1, epsilon);                       // 1st link strain.
-  float4      sl_2 = SAFEDIV(ll_2 - rl_2, ll_2, epsilon);                       // 2nd link strain.
-  float4      sl_3 = SAFEDIV(ll_3 - rl_3, ll_3, epsilon);                       // 3rd link strain.
-  float4      sl_4 = SAFEDIV(ll_4 - rl_4, ll_4, epsilon);                       // 4th link strain.
+  float4      sl_1 = ll_1 - rl_1;                                               // 1st link strain.
+  float4      sl_2 = ll_2 - rl_2;                                               // 2nd link strain.
+  float4      sl_3 = ll_3 - rl_3;                                               // 3rd link strain.
+  float4      sl_4 = ll_4 - rl_4;                                               // 4th link strain.
 
   ////////////////////////////////////////////////////////////////////////////////
   //////////////// SYNERGIC MOLECULE: LINKED PARTICLE DISPLACEMENT ///////////////
   ////////////////////////////////////////////////////////////////////////////////
-  *Dl_1 = sl_1*Ll_1;                                                            // 1st linked particle displacement.
-  *Dl_2 = sl_2*Ll_2;                                                            // 2nd linked particle displacement.
-  *Dl_3 = sl_3*Ll_3;                                                            // 3rd linked particle displacement.
-  *Dl_4 = sl_4*Ll_4;                                                            // 4th linked particle displacement.
+  *Dl_1 = sl_1*SAFEDIV(Ll_1, ll_1, epsilon);                                                            // 1st linked particle displacement.
+  *Dl_2 = sl_2*SAFEDIV(Ll_2, ll_2, epsilon);                                                            // 2nd linked particle displacement.
+  *Dl_3 = sl_3*SAFEDIV(Ll_3, ll_3, epsilon);                                                          // 3rd linked particle displacement.
+  *Dl_4 = sl_4*SAFEDIV(Ll_4, ll_4, epsilon);                                                             // 4th linked particle displacement.
 }
 
 

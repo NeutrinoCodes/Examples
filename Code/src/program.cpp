@@ -6,8 +6,8 @@
 #define Y_MIN           -1.0f
 #define X_MAX           1.0f
 #define Y_MAX           1.0f
-#define SIZE_X          21
-#define SIZE_Y          21
+#define SIZE_X          201
+#define SIZE_Y          201
 #define NUM_POINTS      (SIZE_X*SIZE_Y)
 #define DX              (float)((X_MAX-X_MIN)/SIZE_X)
 #define DY              (float)((Y_MAX-Y_MIN)/SIZE_Y)
@@ -56,17 +56,17 @@ void setup()
   // Thickness, volume density, Young's modulus, viscosity
   float h = 1e-2;
   float rho = 1e3;
-  float E = 1e6;
-  float mu = 500.0;
+  float E = 1e5;
+  float mu = 700.0;
 
   // Model parameters (mass, gravity, stiffness, damping)
   float m = rho*h*DX*DY;
   float g = 10.0f;
-  float k = E*h*SIZE_Y*SIZE_Y*DY/DX;
+  float k = E*h*DY/DX;
   float c = mu*h*DX*DY;
 
   // Time step
-  dt->x[0] = 1.0*sqrt(m/k);
+  dt->x[0] = 0.8*sqrt(m/k);
 
   q1->init();                                                                    // Initializing OpenCL queue...
 
@@ -99,7 +99,7 @@ void setup()
 
       gravity->x[i + SIZE_X*j] = 0.0f;                                          // Setting "x" gravity...
       gravity->y[i + SIZE_X*j] = 0.0f;                                          // Setting "y" gravity...
-      gravity->z[i + SIZE_X*j] = g;                                         // Setting "z" gravity...
+      gravity->z[i + SIZE_X*j] = -g;                                         // Setting "z" gravity...
       gravity->w[i + SIZE_X*j] = 1.0f;                                          // Setting "w" gravity...
 
       stiffness->x[i + SIZE_X*j] = k;                                   // Setting "x" stiffness...
@@ -292,6 +292,39 @@ void setup()
   dt->set(k2,17);                                                        // Setting kernel argument #15...
 }
 
+void post_process(queue* q, point4* position)
+{
+  // Save vertical position of midpoint every 10 time steps
+  if(time_step_number%50 == 0)
+  {
+    float t;
+    float x[4*NUM_POINTS];
+    float y;
+    cl_int err;
+
+    t = simulation_time;
+
+    // Read vector of positions at time t
+    err = clEnqueueReadBuffer(q->thequeue, position->buffer,
+                              CL_TRUE, 0, 4*sizeof(cl_float)*NUM_POINTS,
+                              x, 0, NULL, NULL);
+    if(err < 0)
+    {
+      printf("\nError:  %s\n", get_error(err));
+      exit(EXIT_FAILURE);
+    }
+
+    // Vertical position (z-component) of midpoint
+    y = x[4*(NUM_POINTS-1)/2+2];
+
+    // Format output string and write to CSV file
+    char buffer [100];
+    snprintf(buffer, sizeof buffer, "%f,%f\n", t, y);
+    printf("T = %f\n", simulation_time);
+    write_file("out.csv", buffer);
+  }
+}
+
 void loop()
 {
   position->push(q1, k1, 0);                                                     // Pushing kernel argument #0...
@@ -316,6 +349,8 @@ void loop()
   k1->execute(q1, WAIT);
 
   k2->execute(q1, WAIT);
+
+  post_process(q1, position);
 
   position->pop(q1, k2, 0);                                                      // Popping kernel argument #0...
   color->pop(q1, k2, 1);                                                         // Popping kernel argument #1...
