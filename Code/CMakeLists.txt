@@ -9,8 +9,8 @@ message("")
 
 # Type: "make" in order to build the project.
 
-message("Setting LINUX variable, according to an existing LINUX (but not APPLE) OS...")
 if(UNIX AND NOT APPLE)
+  message("Setting LINUX variable, according to an existing LINUX (but not APPLE) OS...")
   set(LINUX TRUE)
 endif()
 
@@ -19,20 +19,34 @@ project (cloth)
 
 message("Creating a SOURCES variable with a link to all cpp files to compile...")
 set(SOURCES
-$ENV{NEUTRINO_PATH}/Code/src/main.cpp
-$ENV{NEUTRINO_PATH}/Code/src/openclgl.cpp
+$ENV{NEUTRINO_PATH}/Code/src/color4.cpp
+$ENV{NEUTRINO_PATH}/Code/src/device.cpp
+$ENV{NEUTRINO_PATH}/Code/src/float1.cpp
+$ENV{NEUTRINO_PATH}/Code/src/float4.cpp
+$ENV{NEUTRINO_PATH}/Code/src/font.cpp
+$ENV{NEUTRINO_PATH}/Code/src/info.cpp
+$ENV{NEUTRINO_PATH}/Code/src/int1.cpp
+$ENV{NEUTRINO_PATH}/Code/src/int4.cpp
+$ENV{NEUTRINO_PATH}/Code/src/kernel.cpp
 $ENV{NEUTRINO_PATH}/Code/src/linear_algebra.cpp
+$ENV{NEUTRINO_PATH}/Code/src/neutrino.cpp
+$ENV{NEUTRINO_PATH}/Code/src/opencl.cpp
+$ENV{NEUTRINO_PATH}/Code/src/path.cpp
+$ENV{NEUTRINO_PATH}/Code/src/platform.cpp
+$ENV{NEUTRINO_PATH}/Code/src/point4.cpp
 $ENV{NEUTRINO_PATH}/Code/src/projective_geometry.cpp
-$ENV{NEUTRINO_PATH}/Code/src/utilities.cpp
-${CMAKE_HOME_DIRECTORY}/src/program.cpp)
+$ENV{NEUTRINO_PATH}/Code/src/queue.cpp
+$ENV{NEUTRINO_PATH}/Code/src/text4.cpp
+$ENV{NEUTRINO_PATH}/Code/src/window.cpp
+${CMAKE_HOME_DIRECTORY}/src/main.cpp)
 
-message("Setting directory for the Mac executable...")
 if(APPLE)
+  message("Setting directory for the Mac executable...")
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/build/mac)
 endif(APPLE)
 
-message("Setting directory for the Linux executable...")
 if(LINUX)
+  message("Setting directory for the Linux executable...")
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/build/linux)
 endif(LINUX)
 
@@ -42,15 +56,13 @@ add_executable(cloth ${SOURCES})
 message("Setting the directories that should be included in the build command...")
 target_include_directories(cloth PRIVATE $ENV{NEUTRINO_PATH}/Code/include)
 
-message("Setting the Mac libraries that should be linked in the build command...")
 if(APPLE)
-  message("Setting the libraries that should be linked in the build command...")
+  message("Setting the Mac libraries that should be linked in the build command...")
   target_link_libraries(cloth "-framework OpenGL" "-framework OpenCL" "-lGLEW" "-lglfw" "-lm")
 endif(APPLE)
 
-message("Setting the Linux libraries that should be linked in the build command...")
 if(LINUX)
-  message("Setting the libraries that should be linked in the build command...")
+  message("Setting the Linux libraries that should be linked in the build command...")
   target_link_libraries(cloth "-lOpenGL" "-lOpenCL" "-lGLEW" "-lglfw" "-lm")
 endif(LINUX)
 
@@ -59,6 +71,10 @@ add_custom_target(run
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
     COMMAND cloth
     VERBATIM )
+
+message("Limiting number of reported gcc errors...[# = 20]")
+set(GCC_MAX_ERRORS "-fmax-errors=20")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_MAX_ERRORS}")
 
 message("DONE configuring GCC!")
 
@@ -70,7 +86,7 @@ message("")
 
 # Type: "make doc" in order to build the Doxygen documentation of the project.
 
-message("Checking if Doxygen is installed...")
+message("Checking whether Doxygen is installed...")
 find_package(Doxygen)
 if (DOXYGEN_FOUND)
     message("Setting input and output files...")
