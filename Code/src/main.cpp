@@ -24,12 +24,10 @@
 #include "opencl.hpp"
 #include "queue.hpp"
 #include "kernel.hpp"
-/*
 #include "int1.hpp"
 #include "int4.hpp"
 #include "float1.hpp"
 #include "float4.hpp"
-*/
 
 int main()
 {
@@ -123,8 +121,8 @@ int main()
   /////////////////////// INITIALIZING OPENCL DATA OBJECTS ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   position->init(baseline, NODES);
-  position_int->init(baseline, NODES);
   color->init(baseline, NODES);
+  position_int->init(baseline, NODES);
   velocity->init(baseline, NODES);
   velocity_int->init(baseline, NODES);
   acceleration->init(baseline, NODES);
@@ -146,7 +144,7 @@ int main()
   ////////////////////////////////////////////////////////////////////////////////
   position->set_arg(K[0], 0);
   color->set_arg(K[0], 1);
-  position_int->set_arg(K[0], 2);                                               .
+  position_int->set_arg(K[0], 2);
   velocity->set_arg(K[0], 3);
   velocity_int->set_arg(K[0], 4);
   acceleration->set_arg(K[0], 5);
@@ -209,11 +207,11 @@ int main()
   simulation_time = 0.0f;
   time_step_number = 0;
 
-  y = Y_MIN;
+  y = YMIN;
 
   for (j = 0; j < NODES_Y; j++)
   {
-    x = X_MIN;
+    x = XMIN;
 
     for (i = 0; i < NODES_X; i++)
     {
