@@ -13,11 +13,11 @@
 #define XMAX           1.0
 #define YMIN          -1.0
 #define YMAX           1.0
-#define NODES_X        100
-#define NODES_Y        100
+#define NODES_X        202
+#define NODES_Y        202
 #define NODES          NODES_X*NODES_Y                                          // Number of nodes.
-#define DX             (XMAX - XMIN)/(float)(NODES_X - 1)
-#define DY             (YMAX - YMIN)/(float)(NODES_Y - 1)
+#define DX             (float)((XMAX - XMIN)/(NODES_X - 1))
+#define DY             (float)((YMAX - YMIN)/(NODES_Y - 1))
 
 #include "neutrino.hpp"
 #include "window.hpp"
@@ -66,10 +66,8 @@ int main()
   float   simulation_time;                                                      // Simulation time.
   int     time_step_number;                                                     // Time step index.
 
-  size_t    i;
-  size_t    j;
-  float x;
-  float y;
+  size_t  i;
+  size_t  j;
 
   ////////////////////////////////////////////////////////////////////////////////
   //////////////////// INITIALIZING NEUTRINO, OPENGL and OPENCL //////////////////
@@ -207,11 +205,8 @@ int main()
   simulation_time = 0.0f;
   time_step_number = 0;
 
-  y = YMIN;
-
   for (j = 0; j < NODES_Y; j++)
   {
-    x = XMIN;
 
     for (i = 0; i < NODES_X; i++)
     {
@@ -232,8 +227,8 @@ int main()
       stiffness->set_w(i + NODES_X*j, 1.0f);                                    // Setting "w" stiffness...
 
       resting->set_x(i + NODES_X*j, DX);                                        // Setting "x" resting position...
-      resting->set_y(i + NODES_X*j, DY);                                        // Setting "y" resting position...
-      resting->set_z(i + NODES_X*j, 0.0f);                                        // Setting "z" resting position...
+      resting->set_y(i + NODES_X*j, DX);                                        // Setting "y" resting position...
+      resting->set_z(i + NODES_X*j, DX);                                        // Setting "z" resting position...
       resting->set_w(i + NODES_X*j, 1.0f);                                      // Setting "w" resting position...
 
       friction->set_x(i + NODES_X*j, c);                                        // Setting "x" friction...
@@ -258,9 +253,9 @@ int main()
 
       if ((i != 0) && (i != (NODES_X - 1)) && (j != 0) && (j != (NODES_Y - 1))) // When on bulk:
       {
-        index_PR->set_x(i + NODES_X*j, (i + 1)  + NODES_X*j);
+        index_PR->set_x(i + NODES_X*j, (i + 1) + NODES_X*j);
         index_PU->set_x(i + NODES_X*j, i       + NODES_X*(j + 1));
-        index_PL->set_x(i + NODES_X*j, (i - 1)  + NODES_X*j);
+        index_PL->set_x(i + NODES_X*j, (i - 1) + NODES_X*j);
         index_PD->set_x(i + NODES_X*j, i       + NODES_X*(j - 1));
       }
 
@@ -279,71 +274,70 @@ int main()
 
       if ((i == 0) && (j != 0) && (j != (NODES_Y - 1)))                         // When on left border (excluding extremes):
       {
-        index_PR->set_x(i + NODES_X*j, (i + 1)  + NODES_X*j);
+        index_PR->set_x(i + NODES_X*j, (i + 1) + NODES_X*j);
         index_PU->set_x(i + NODES_X*j, i       + NODES_X*(j + 1));
-        index_PL->set_x(i + NODES_X*j, i + NODES_X*j);
-        index_PD->set_x(i + NODES_X*j,  i       + NODES_X*(j - 1));
+        index_PL->set_x(i + NODES_X*j, i       + NODES_X*j);
+        index_PD->set_x(i + NODES_X*j, i       + NODES_X*(j - 1));
       }
 
       if ((i == (NODES_X - 1)) && (j != 0) && (j != (NODES_Y - 1)))             // When on right border (excluding extremes):
       {
-        index_PR->set_x(i + NODES_X*j, i + NODES_X*j);
-        index_PU->set_x(i + NODES_X*j, i + NODES_X*(j + 1));
-        index_PL->set_x(i + NODES_X*j, (i - 1)  + NODES_X*j);
+        index_PR->set_x(i + NODES_X*j, i       + NODES_X*j);
+        index_PU->set_x(i + NODES_X*j, i       + NODES_X*(j + 1));
+        index_PL->set_x(i + NODES_X*j, (i - 1) + NODES_X*j);
         index_PD->set_x(i + NODES_X*j, i       + NODES_X*(j - 1));
       }
 
       if ((j == 0) && (i != 0) && (i != (NODES_X - 1)))                         // When on bottom border (excluding extremes):
       {
-        index_PR->set_x(i + NODES_X*j, (i + 1)  + NODES_X*j);
+        index_PR->set_x(i + NODES_X*j, (i + 1) + NODES_X*j);
         index_PU->set_x(i + NODES_X*j, i       + NODES_X*(j + 1));
-        index_PL->set_x(i + NODES_X*j, (i - 1)  + NODES_X*j);
-        index_PD->set_x(i + NODES_X*j, i + NODES_X*j);
+        index_PL->set_x(i + NODES_X*j, (i - 1) + NODES_X*j);
+        index_PD->set_x(i + NODES_X*j, i       + NODES_X*j);
       }
 
-      if ((j == (NODES_Y - 1)) && (i != 0) && (i != (NODES_X - 1)))               // When on high border (excluding extremes):
+      if ((j == (NODES_Y - 1)) && (i != 0) && (i != (NODES_X - 1)))             // When on high border (excluding extremes):
       {
-        index_PR->set_x(i + NODES_X*j, (i + 1)  + NODES_X*j);
-        index_PU->set_x(i + NODES_X*j, i + NODES_X*j);
-        index_PL->set_x(i + NODES_X*j, (i - 1)  + NODES_X*j);
+        index_PR->set_x(i + NODES_X*j, (i + 1) + NODES_X*j);
+        index_PU->set_x(i + NODES_X*j, i       + NODES_X*j);
+        index_PL->set_x(i + NODES_X*j, (i - 1) + NODES_X*j);
         index_PD->set_x(i + NODES_X*j, i       + NODES_X*(j - 1));
       }
 
       if ((i == 0) && (j == 0))                                                 // When on bottom left corner:
       {
-        index_PR->set_x(i + NODES_X*j, (i + 1)  + NODES_X*j);
-        index_PU->set_x(i + NODES_X*j,  i       + NODES_X*(j + 1));
-        index_PL->set_x(i + NODES_X*j, i + NODES_X*j);
-        index_PD->set_x(i + NODES_X*j, i + NODES_X*j);
+        index_PR->set_x(i + NODES_X*j, (i + 1) + NODES_X*j);
+        index_PU->set_x(i + NODES_X*j, i       + NODES_X*(j + 1));
+        index_PL->set_x(i + NODES_X*j, i       + NODES_X*j);
+        index_PD->set_x(i + NODES_X*j, i       + NODES_X*j);
       }
 
       if ((i == (NODES_X - 1)) && (j == 0))                                     // When on bottom right corner:
       {
-        index_PR->set_x(i + NODES_X*j, i + NODES_X*j);
+        index_PR->set_x(i + NODES_X*j, i       + NODES_X*j);
         index_PU->set_x(i + NODES_X*j, i       + NODES_X*(j + 1));
-        index_PL->set_x(i + NODES_X*j, (i - 1)  + NODES_X*j);
-        index_PD->set_x(i + NODES_X*j, i + NODES_X*j);
+        index_PL->set_x(i + NODES_X*j, (i - 1) + NODES_X*j);
+        index_PD->set_x(i + NODES_X*j, i       + NODES_X*j);
       }
 
       if ((i == 0) && (j == (NODES_Y - 1)))                                     // When on top left corner:
       {
-        index_PR->set_x(i + NODES_X*j, (i + 1)  + NODES_X*j);
-        index_PU->set_x(i + NODES_X*j, i + NODES_X*j);
-        index_PL->set_x(i + NODES_X*j, i + NODES_X*j);
+        index_PR->set_x(i + NODES_X*j, (i + 1) + NODES_X*j);
+        index_PU->set_x(i + NODES_X*j, i       + NODES_X*j);
+        index_PL->set_x(i + NODES_X*j, i       + NODES_X*j);
         index_PD->set_x(i + NODES_X*j, i       + NODES_X*(j - 1));
       }
 
       if ((i == (NODES_X - 1)) && (j == (NODES_Y - 1)))                         // When on top right corner:
       {
-        index_PR->set_x(i + NODES_X*j, i + NODES_X*j);
-        index_PU->set_x(i + NODES_X*j, i + NODES_X*j);
-        index_PL->set_x(i + NODES_X*j, (i - 1)  + NODES_X*j);
+        index_PR->set_x(i + NODES_X*j, i       + NODES_X*j);
+        index_PU->set_x(i + NODES_X*j, i       + NODES_X*j);
+        index_PL->set_x(i + NODES_X*j, (i - 1) + NODES_X*j);
         index_PD->set_x(i + NODES_X*j, i       + NODES_X*(j - 1));
       }
 
-      x += DX;
     }
-    y += DY;
+
   }
 
   ////////////////////////////////////////////////////////////////////////////////
