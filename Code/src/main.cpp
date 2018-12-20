@@ -13,8 +13,8 @@
 #define XMAX           1.0
 #define YMIN          -1.0
 #define YMAX           1.0
-#define NODES_X        202
-#define NODES_Y        202
+#define NODES_X        200
+#define NODES_Y        200
 #define NODES          NODES_X*NODES_Y                                          // Number of nodes.
 #define DX             (float)((XMAX - XMIN)/(NODES_X - 1))
 #define DY             (float)((YMAX - YMIN)/(NODES_Y - 1))
