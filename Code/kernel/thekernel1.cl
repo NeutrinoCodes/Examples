@@ -81,10 +81,10 @@ __kernel void thekernel(__global float4*    position,
                         __global float4*    resting,
                         __global float4*    friction,
                         __global float4*    mass,
-                        __global int*       index_friend_1,                     // Indexes of "#1 friend" particles.
-                        __global int*       index_friend_2,                     // Indexes of "#2 friend" particles.
-                        __global int*       index_friend_3,                     // Indexes of "#3 friend" particles.
-                        __global int*       index_friend_4,                     // Indexes of "#4 friend" particles.
+                        __global long*       index_friend_1,                     // Indexes of "#1 friend" particles.
+                        __global long*       index_friend_2,                     // Indexes of "#2 friend" particles.
+                        __global long*       index_friend_3,                     // Indexes of "#3 friend" particles.
+                        __global long*       index_friend_4,                     // Indexes of "#4 friend" particles.
                         __global float4*    freedom,
                         __global float*     DT)
 {
@@ -92,7 +92,7 @@ __kernel void thekernel(__global float4*    position,
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////// GLOBAL INDEX /////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  unsigned int gid = get_global_id(0);                                          // Setting global index "gid"...
+  unsigned long gid = get_global_id(0);                                          // Setting global index "gid"...
 
   ////////////////////////////////////////////////////////////////////////////////
   /////////////////// SYNERGIC MOLECULE: KINEMATIC VARIABLES /////////////////////
@@ -114,10 +114,10 @@ __kernel void thekernel(__global float4*    position,
   ////////////////////// SYNERGIC MOLECULE: LINK INDEXES /////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   // NOTE: 1. the index of a non-existing particle friend must be set to the index of the particle.
-  int         il_1 = index_friend_1[gid];                                       // Setting indexes of 1st linked particle...
-  int         il_2 = index_friend_2[gid];                                       // Setting indexes of 2nd linked particle...
-  int         il_3 = index_friend_3[gid];                                       // Setting indexes of 3rd linked particle...
-  int         il_4 = index_friend_4[gid];                                       // Setting indexes of 4th linked particle...
+  long         il_1 = index_friend_1[gid];                                       // Setting indexes of 1st linked particle...
+  long         il_2 = index_friend_2[gid];                                       // Setting indexes of 2nd linked particle...
+  long         il_3 = index_friend_3[gid];                                       // Setting indexes of 3rd linked particle...
+  long         il_4 = index_friend_4[gid];                                       // Setting indexes of 4th linked particle...
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////// SYNERGIC MOLECULE: LINKED PARTICLE POSITIONS /////////////////

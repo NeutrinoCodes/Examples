@@ -216,129 +216,129 @@ int main()
     for (i = 0; i < NODES_X; i++)
     {
       // Setting "x" initial position...
-      position->set_x(i + NODES_Y*j, x);
-      position->set_y(i + NODES_Y*j, y);
-      position->set_z(i + NODES_Y*j, 0.0f);
-      position->set_w(i + NODES_Y*j, 1.0f);
+      position->set_x(i + NODES_X*j, XMIN + i*DX);
+      position->set_y(i + NODES_X*j, YMIN + j*DY);
+      position->set_z(i + NODES_X*j, 0.0f);
+      position->set_w(i + NODES_X*j, 1.0f);
 
-      gravity->set_x(i + NODES_Y*j, 0.0f);                                      // Setting "x" gravity...
-      gravity->set_y(i + NODES_Y*j, 0.0f);                                      // Setting "y" gravity...
-      gravity->set_z(i + NODES_Y*j, -g);                                        // Setting "z" gravity...
-      gravity->set_w(i + NODES_Y*j, 1.0f);                                      // Setting "w" gravity...
+      gravity->set_x(i + NODES_X*j, 0.0f);                                      // Setting "x" gravity...
+      gravity->set_y(i + NODES_X*j, 0.0f);                                      // Setting "y" gravity...
+      gravity->set_z(i + NODES_X*j, -g);                                        // Setting "z" gravity...
+      gravity->set_w(i + NODES_X*j, 1.0f);                                      // Setting "w" gravity...
 
-      stiffness->set_x(i + NODES_Y*j, k);                                       // Setting "x" stiffness...
-      stiffness->set_y(i + NODES_Y*j, k);                                       // Setting "y" stiffness...
-      stiffness->set_z(i + NODES_Y*j, k);                                       // Setting "z" stiffness...
-      stiffness->set_w(i + NODES_Y*j, 1.0f);                                    // Setting "w" stiffness...
+      stiffness->set_x(i + NODES_X*j, k);                                       // Setting "x" stiffness...
+      stiffness->set_y(i + NODES_X*j, k);                                       // Setting "y" stiffness...
+      stiffness->set_z(i + NODES_X*j, k);                                       // Setting "z" stiffness...
+      stiffness->set_w(i + NODES_X*j, 1.0f);                                    // Setting "w" stiffness...
 
-      resting->set_x(i + NODES_Y*j, DX);                                        // Setting "x" resting position...
-      resting->set_y(i + NODES_Y*j, DX);                                        // Setting "y" resting position...
-      resting->set_z(i + NODES_Y*j, DX);                                        // Setting "z" resting position...
-      resting->set_w(i + NODES_Y*j, 1.0f);                                      // Setting "w" resting position...
+      resting->set_x(i + NODES_X*j, DX);                                        // Setting "x" resting position...
+      resting->set_y(i + NODES_X*j, DY);                                        // Setting "y" resting position...
+      resting->set_z(i + NODES_X*j, 0.0f);                                        // Setting "z" resting position...
+      resting->set_w(i + NODES_X*j, 1.0f);                                      // Setting "w" resting position...
 
-      friction->set_x(i + NODES_Y*j, c);                                        // Setting "x" friction...
-      friction->set_y(i + NODES_Y*j, c);                                        // Setting "y" friction...
-      friction->set_z(i + NODES_Y*j, c);                                        // Setting "z" friction...
-      friction->set_w(i + NODES_Y*j, 1.0f);                                     // Setting "w" friction...
+      friction->set_x(i + NODES_X*j, c);                                        // Setting "x" friction...
+      friction->set_y(i + NODES_X*j, c);                                        // Setting "y" friction...
+      friction->set_z(i + NODES_X*j, c);                                        // Setting "z" friction...
+      friction->set_w(i + NODES_X*j, 1.0f);                                     // Setting "w" friction...
 
-      mass->set_x(i + NODES_Y*j, m);                                            // Setting "x" mass...
-      mass->set_y(i + NODES_Y*j, m);                                            // Setting "y" mass...
-      mass->set_z(i + NODES_Y*j, m);                                            // Setting "z" mass...
-      mass->set_w(i + NODES_Y*j, 1.0f);                                         // Setting "w" mass...
+      mass->set_x(i + NODES_X*j, m);                                            // Setting "x" mass...
+      mass->set_y(i + NODES_X*j, m);                                            // Setting "y" mass...
+      mass->set_z(i + NODES_X*j, m);                                            // Setting "z" mass...
+      mass->set_w(i + NODES_X*j, 1.0f);                                         // Setting "w" mass...
 
-      color->set_r(i + NODES_Y*j, 1.0f);                                        // Setting "x" initial color...
-      color->set_g(i + NODES_Y*j, 0.0f);                                        // Setting "y" initial color...
-      color->set_b(i + NODES_Y*j, 0.0f);                                        // Setting "z" initial color...
-      color->set_a(i + NODES_Y*j, 1.0f);                                        // Setting "w" initial color...
+      color->set_r(i + NODES_X*j, 1.0f);                                        // Setting "x" initial color...
+      color->set_g(i + NODES_X*j, 0.0f);                                        // Setting "y" initial color...
+      color->set_b(i + NODES_X*j, 0.0f);                                        // Setting "z" initial color...
+      color->set_a(i + NODES_X*j, 1.0f);                                        // Setting "w" initial color...
 
-      freedom->set_x(i + NODES_Y*j, 1.0f);
-      freedom->set_y(i + NODES_Y*j, 1.0f);
-      freedom->set_z(i + NODES_Y*j, 1.0f);
-      freedom->set_w(i + NODES_Y*j, 1.0f);
+      freedom->set_x(i + NODES_X*j, 1.0f);
+      freedom->set_y(i + NODES_X*j, 1.0f);
+      freedom->set_z(i + NODES_X*j, 1.0f);
+      freedom->set_w(i + NODES_X*j, 1.0f);
 
       if ((i != 0) && (i != (NODES_X - 1)) && (j != 0) && (j != (NODES_Y - 1))) // When on bulk:
       {
-        index_PR->set_x(i + NODES_Y*j, (i + 1)  + NODES_Y*j);
-        index_PU->set_x(i + NODES_Y*j, i       + NODES_Y*(j + 1));
-        index_PL->set_x(i + NODES_Y*j, (i - 1)  + NODES_Y*j);
-        index_PD->set_x(i + NODES_Y*j, i       + NODES_Y*(j - 1));
+        index_PR->set_x(i + NODES_X*j, (i + 1)  + NODES_X*j);
+        index_PU->set_x(i + NODES_X*j, i       + NODES_X*(j + 1));
+        index_PL->set_x(i + NODES_X*j, (i - 1)  + NODES_X*j);
+        index_PD->set_x(i + NODES_X*j, i       + NODES_X*(j - 1));
       }
 
       else                                                                      // When on all borders:
       {
-        gravity->set_x(i + NODES_Y*j, 0.0f);                                    // Setting "x" gravity...
-        gravity->set_y(i + NODES_Y*j, 0.0f);                                    // Setting "y" gravity...
-        gravity->set_z(i + NODES_Y*j, 0.0f);                                    // Setting "z" gravity...
-        gravity->set_w(i + NODES_Y*j, 1.0f);                                    // Setting "w" gravity...
+        gravity->set_x(i + NODES_X*j, 0.0f);                                    // Setting "x" gravity...
+        gravity->set_y(i + NODES_X*j, 0.0f);                                    // Setting "y" gravity...
+        gravity->set_z(i + NODES_X*j, 0.0f);                                    // Setting "z" gravity...
+        gravity->set_w(i + NODES_X*j, 1.0f);                                    // Setting "w" gravity...
 
-        freedom->set_x(i + NODES_Y*j, 0.0f);
-        freedom->set_y(i + NODES_Y*j, 0.0f);
-        freedom->set_z(i + NODES_Y*j, 0.0f);
-        freedom->set_w(i + NODES_Y*j, 0.0f);
+        freedom->set_x(i + NODES_X*j, 0.0f);
+        freedom->set_y(i + NODES_X*j, 0.0f);
+        freedom->set_z(i + NODES_X*j, 0.0f);
+        freedom->set_w(i + NODES_X*j, 0.0f);
       }
 
       if ((i == 0) && (j != 0) && (j != (NODES_Y - 1)))                         // When on left border (excluding extremes):
       {
-        index_PR->set_x(i + NODES_Y*j, (i + 1)  + NODES_Y*j);
-        index_PU->set_x(i + NODES_Y*j, i       + NODES_Y*(j + 1));
-        index_PL->set_x(i + NODES_Y*j, i + NODES_Y*j);
-        index_PD->set_x(i + NODES_Y*j,  i       + NODES_Y*(j - 1));
+        index_PR->set_x(i + NODES_X*j, (i + 1)  + NODES_X*j);
+        index_PU->set_x(i + NODES_X*j, i       + NODES_X*(j + 1));
+        index_PL->set_x(i + NODES_X*j, i + NODES_X*j);
+        index_PD->set_x(i + NODES_X*j,  i       + NODES_X*(j - 1));
       }
 
       if ((i == (NODES_X - 1)) && (j != 0) && (j != (NODES_Y - 1)))             // When on right border (excluding extremes):
       {
-        index_PR->set_x(i + NODES_Y*j, i + NODES_Y*j);
-        index_PU->set_x(i + NODES_Y*j, i + NODES_Y*(j + 1));
-        index_PL->set_x(i + NODES_Y*j, (i - 1)  + NODES_Y*j);
-        index_PD->set_x(i + NODES_Y*j, i       + NODES_Y*(j - 1));
+        index_PR->set_x(i + NODES_X*j, i + NODES_X*j);
+        index_PU->set_x(i + NODES_X*j, i + NODES_X*(j + 1));
+        index_PL->set_x(i + NODES_X*j, (i - 1)  + NODES_X*j);
+        index_PD->set_x(i + NODES_X*j, i       + NODES_X*(j - 1));
       }
 
       if ((j == 0) && (i != 0) && (i != (NODES_X - 1)))                         // When on bottom border (excluding extremes):
       {
-        index_PR->set_x(i + NODES_Y*j, (i + 1)  + NODES_Y*j);
-        index_PU->set_x(i + NODES_Y*j, i       + NODES_Y*(j + 1));
-        index_PL->set_x(i + NODES_Y*j, (i - 1)  + NODES_Y*j);
-        index_PD->set_x(i + NODES_Y*j, i + NODES_Y*j);
+        index_PR->set_x(i + NODES_X*j, (i + 1)  + NODES_X*j);
+        index_PU->set_x(i + NODES_X*j, i       + NODES_X*(j + 1));
+        index_PL->set_x(i + NODES_X*j, (i - 1)  + NODES_X*j);
+        index_PD->set_x(i + NODES_X*j, i + NODES_X*j);
       }
 
       if ((j == (NODES_Y - 1)) && (i != 0) && (i != (NODES_X - 1)))               // When on high border (excluding extremes):
       {
-        index_PR->set_x(i + NODES_Y*j, (i + 1)  + NODES_Y*j);
-        index_PU->set_x(i + NODES_Y*j, i + NODES_Y*j);
-        index_PL->set_x(i + NODES_Y*j, (i - 1)  + NODES_Y*j);
-        index_PD->set_x(i + NODES_Y*j, i       + NODES_Y*(j - 1));
+        index_PR->set_x(i + NODES_X*j, (i + 1)  + NODES_X*j);
+        index_PU->set_x(i + NODES_X*j, i + NODES_X*j);
+        index_PL->set_x(i + NODES_X*j, (i - 1)  + NODES_X*j);
+        index_PD->set_x(i + NODES_X*j, i       + NODES_X*(j - 1));
       }
 
       if ((i == 0) && (j == 0))                                                 // When on bottom left corner:
       {
-        index_PR->set_x(i + NODES_Y*j, (i + 1)  + NODES_Y*j);
-        index_PU->set_x(i + NODES_Y*j,  i       + NODES_Y*(j + 1));
-        index_PL->set_x(i + NODES_Y*j, i + NODES_Y*j);
-        index_PD->set_x(i + NODES_Y*j, i + NODES_Y*j);
+        index_PR->set_x(i + NODES_X*j, (i + 1)  + NODES_X*j);
+        index_PU->set_x(i + NODES_X*j,  i       + NODES_X*(j + 1));
+        index_PL->set_x(i + NODES_X*j, i + NODES_X*j);
+        index_PD->set_x(i + NODES_X*j, i + NODES_X*j);
       }
 
       if ((i == (NODES_X - 1)) && (j == 0))                                     // When on bottom right corner:
       {
-        index_PR->set_x(i + NODES_Y*j, i + NODES_Y*j);
-        index_PU->set_x(i + NODES_Y*j, i       + NODES_Y*(j + 1));
-        index_PL->set_x(i + NODES_Y*j, (i - 1)  + NODES_Y*j);
-        index_PD->set_x(i + NODES_Y*j, i + NODES_Y*j);
+        index_PR->set_x(i + NODES_X*j, i + NODES_X*j);
+        index_PU->set_x(i + NODES_X*j, i       + NODES_X*(j + 1));
+        index_PL->set_x(i + NODES_X*j, (i - 1)  + NODES_X*j);
+        index_PD->set_x(i + NODES_X*j, i + NODES_X*j);
       }
 
       if ((i == 0) && (j == (NODES_Y - 1)))                                     // When on top left corner:
       {
-        index_PR->set_x(i + NODES_Y*j, (i + 1)  + NODES_Y*j);
-        index_PU->set_x(i + NODES_Y*j, i + NODES_Y*j);
-        index_PL->set_x(i + NODES_Y*j, i + NODES_Y*j);
-        index_PD->set_x(i + NODES_Y*j, i       + NODES_Y*(j - 1));
+        index_PR->set_x(i + NODES_X*j, (i + 1)  + NODES_X*j);
+        index_PU->set_x(i + NODES_X*j, i + NODES_X*j);
+        index_PL->set_x(i + NODES_X*j, i + NODES_X*j);
+        index_PD->set_x(i + NODES_X*j, i       + NODES_X*(j - 1));
       }
 
       if ((i == (NODES_X - 1)) && (j == (NODES_Y - 1)))                         // When on top right corner:
       {
-        index_PR->set_x(i + NODES_Y*j, i + NODES_Y*j);
-        index_PU->set_x(i + NODES_Y*j, i + NODES_Y*j);
-        index_PL->set_x(i + NODES_Y*j, (i - 1)  + NODES_Y*j);
-        index_PD->set_x(i + NODES_Y*j, i       + NODES_Y*(j - 1));
+        index_PR->set_x(i + NODES_X*j, i + NODES_X*j);
+        index_PU->set_x(i + NODES_X*j, i + NODES_X*j);
+        index_PL->set_x(i + NODES_X*j, (i - 1)  + NODES_X*j);
+        index_PD->set_x(i + NODES_X*j, i       + NODES_X*(j - 1));
       }
 
       x += DX;
@@ -423,6 +423,7 @@ int main()
   delete    index_PL;
   delete    index_PR;
   delete    index_PU;
+  delete    freedom;
   delete    dt;
 
   delete[]  Q;
