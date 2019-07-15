@@ -1,49 +1,63 @@
 /// @file
 
-#define USE_OPENGL    true                                                      // Set to "true" to use OpenGL-OpenCL interop.
+// MESH:
+#define XMIN        -1.0                                                        // XMIN spatial boundary [m].
+#define XMAX        +1.0                                                        // XMAX spatial boundary [m].
+#define YMIN        -1.0                                                        // YMIN spatial boundary [m].
+#define YMAX        +1.0                                                        // YMAX spatial boundary [m].
+#define NODES_X     100                                                         // Number of nodes in "X" direction [#].
+#define NODES_Y     100                                                         // Number of nodes in "Y" direction [#].
+#define NODES       NODES_X* NODES_Y                                            // Total number of nodes [#].
+#define DX          (float)((XMAX - XMIN)/(NODES_X - 1))                        // DX mesh spatial size [m].
+#define DY          (float)((YMAX - YMIN)/(NODES_Y - 1))                        // DY mesh spatial size [m].
 
-#define SIZE_WINDOW_X 800                                                       // Window x-size [px].
-#define SIZE_WINDOW_Y 600                                                       // Window y-size [px].
-#define WINDOW_NAME   "cloth 2.0"                                               // Window name.
+// OPENGL:
+#define INTEROP     true                                                        // "true" = use OpenGL-OpenCL interoperability.
+#define GUI_SIZE_X  800                                                         // Window x-size [px].
+#define GUI_SIZE_Y  600                                                         // Window y-size [px].
+#define GUI_NAME    "neutrino 3.0"                                              // Window name.
+//#define SHADER_HOME \
+//  "/run/media/ezor/LINUX/BookhouseBoys/ezor/Neutrino/Code/shader"
+#define SHADER_HOME \
+  "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/ElasticCloth/Code/shader"
+#define SHADER_VERT "voxel_vertex.vert"                                         // OpenGL vertex shader.
+#define SHADER_GEOM "voxel_geometry.geom"                                       // OpenGL geometry shader.
+#define SHADER_FRAG "voxel_fragment.frag"                                       // OpenGL fragment shader.
 
-#define QUEUE_NUM     1
+// OPENCL:
+#define QUEUE_NUM   1                                                           // # of OpenCL queues [#].
+#define KERNEL_NUM  2                                                           // # of OpenCL kernel [#].
+#define KERNEL_SX   NODES                                                       // Dimension of OpenCL kernel (i-index).
+#define KERNEL_SY   0                                                           // Dimension of OpenCL kernel (j-index).
+#define KERNEL_SZ   0                                                           // Dimension of OpenCL kernel (k-index).
+//#define KERNEL_HOME \
+//  "/run/media/ezor/LINUX/BookhouseBoys/ezor/Neutrino/Code/kernel"               // OpenCL kernel header files directory.
+#define KERNEL_HOME \
+  "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/ElasticCloth/Code/kernel"
+#define K1_FILE     "thekernel1.cl"                                             // OpenCL kernel.
+#define K2_FILE     "thekernel2.cl"                                             // OpenCL kernel.
 
-#define KERNEL_NUM    2
-#define KERNEL_DIM    1
-
-#define XMIN          -1.0
-#define XMAX          1.0
-#define YMIN          -1.0
-#define YMAX          1.0
-#define NODES_X       200
-#define NODES_Y       200
-#define NODES         NODES_X* NODES_Y                                          // Number of nodes.
-#define DX            (float)((XMAX - XMIN)/(NODES_X - 1))
-#define DY            (float)((YMAX - YMIN)/(NODES_Y - 1))
-
-#include "neutrino.hpp"
-#include "window.hpp"
+// INCLUDES:
+#include "opengl.hpp"
 #include "opencl.hpp"
-#include "queue.hpp"
-#include "kernel.hpp"
-#include "int1.hpp"
-#include "int4.hpp"
-#include "float1.hpp"
-#include "float4.hpp"
 
 int main ()
 {
-  neutrino* baseline         = new neutrino ();                                 // The Neutrino object.
-  window*   gui              = new window ();                                   // The gui window object.
-  opencl*   cl               = new opencl ();                                   // The OpenCL context object.
+  neutrino* bas              = new neutrino ();                                 // Neutrino baseline.
+  opengl*   gui              = new opengl ();                                   // OpenGL context.
+  opencl*   ctx              = new opencl ();                                   // OpenCL context.
+  shader*   S                = new shader ();                                   // OpenGL shader program.
+  point*    P                = new point ();                                    // OpenGL point.
+  color*    C                = new color ();                                    // OpenGL color.
+  float1*   t                = new float1 ();                                   // Time [s].
+  queue*    Q                = new queue ();                                    // OpenCL queue.
+  kernel*   K1               = new kernel ();                                   // OpenCL kernel array.
+  kernel*   K2               = new kernel ();                                   // OpenCL kernel array.
+  size_t    i;                                                                  // "x" direction index.
+  size_t    j;                                                                  // "y" direction index.
 
-  queue**   Q                = new queue*[QUEUE_NUM];                           // OpenCL queue.
-
-  size_t**  K_size           = new size_t*[KERNEL_NUM];                         // OpenCL kernel dimensions array...
-  kernel**  K                = new kernel*[KERNEL_NUM];                         // OpenCL kernel array...
-
-  point4*   position         = new point4 ();                                   // Position.
-  color4*   color            = new color4 ();                                   // Particle color.
+  point*    position         = new point ();                                    // Position.
+  color*    color            = new color ();                                    // Particle color.
   float4*   velocity         = new float4 ();                                   // Velocity.
   float4*   acceleration     = new float4 ();                                   // Acceleration.
 
@@ -68,117 +82,77 @@ int main ()
   float     simulation_time;                                                    // Simulation time.
   int       time_step_number;                                                   // Time step index.
 
-  size_t    i;
-  size_t    j;
-
   ////////////////////////////////////////////////////////////////////////////////
-  //////////////////// INITIALIZING NEUTRINO, OPENGL and OPENCL //////////////////
+  ///////////////////////////////// INITIALIZATION ///////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  baseline  -> init (QUEUE_NUM, KERNEL_NUM, USE_OPENGL);                        // Initializing neutrino...
-  gui       -> init (baseline, SIZE_WINDOW_X, SIZE_WINDOW_Y, WINDOW_NAME);      // Initializing window...
-  cl        -> init (baseline, gui -> glfw_window, GPU);                        // Initializing OpenCL context...
+  bas->init (QUEUE_NUM, KERNEL_NUM, INTEROP);                                   // Initializing Neutrino baseline...
+  gui->init (bas, GUI_SIZE_X, GUI_SIZE_Y, GUI_NAME);                            // Initializing OpenGL context...
+  ctx->init (bas, gui, GPU);                                                    // Initializing OpenCL context...
+  S->init (bas, SHADER_HOME, SHADER_VERT, SHADER_GEOM, SHADER_FRAG);            // Initializing OpenGL shader...
+  position->init (NODES);                                                       // Initializing OpenGL point array...
+  color->init (NODES);                                                          // Initializing OpenGL color array...
+  position_int->init (NODES);
+  velocity->init (NODES);
+  velocity_int->init (NODES);
+  acceleration->init (NODES);
+  gravity->init (NODES);
+  stiffness->init (NODES);
+  resting->init (NODES);
+  friction->init (NODES);
+  mass->init (NODES);
+  index_PR->init (NODES);
+  index_PU->init (NODES);
+  index_PL->init (NODES);
+  index_PD->init (NODES);
+  freedom->init (NODES);
+  t->init (NODES);                                                              // Initializing time...
+  Q->init (bas);                                                                // Initializing OpenCL queue...
+  K1->init (bas, KERNEL_HOME, K1_FILE, KERNEL_SX, KERNEL_SY, KERNEL_SZ);        // Initializing OpenCL kernel K1...
+  K2->init (bas, KERNEL_HOME, K2_FILE, KERNEL_SX, KERNEL_SY, KERNEL_SZ);        // Initializing OpenCL kernel K2...
 
-  ////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////// INITIALIZING OPENCL QUEUES /////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////
-  for(i = 0; i < QUEUE_NUM; i++)                                                // For each OpenCL queue:
-  {
-    Q[i] = new queue ();                                                        // OpenCL queue.
-    Q[i]    -> init (baseline);                                                 // Initializing OpenCL queue...
-  }
 
-  ////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////// INITIALIZING OPENCL KERNELS /////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////
-  for(j = 0; j < KERNEL_NUM; j++)                                               // For each OpenCL kernel:
-  {
-    K_size[j] = new size_t[KERNEL_DIM];                                         // OpenCL kernel dimensions.
-
-    for(i = 0; i < KERNEL_DIM; i++)                                             // Setting all kernel sizes...
-    {
-      K_size[j][i] = NODES;                                                     // Setting size of each kernel dimension...
-    }
-
-  }
-
-  K[0] = new kernel ();                                                         // OpenCL kernel.
-  K[0]    -> init (
-                   baseline,                                                    // Neutrino baseline.
-                   "../../kernel/thekernel1.cl",                                // Kernel file name.
-                   K_size[0],                                                   // Kernel dimensions array.
-                   KERNEL_DIM                                                   // Kernel dimension.
-                  );
-
-  K[1] = new kernel ();                                                         // OpenCL kernel.
-  K[1]    -> init (
-                   baseline,                                                    // Neutrino baseline.
-                   "../../kernel/thekernel2.cl",                                // Kernel file name.
-                   K_size[1],                                                   // Kernel dimensions array.
-                   KERNEL_DIM                                                   // Kernel dimension.
-                  );
-
-  ////////////////////////////////////////////////////////////////////////////////
-  /////////////////////// INITIALIZING OPENCL DATA OBJECTS ///////////////////////
-  ////////////////////////////////////////////////////////////////////////////////
-  position -> init (baseline, NODES);
-  color -> init (baseline, NODES);
-  position_int -> init (baseline, NODES);
-  velocity -> init (baseline, NODES);
-  velocity_int -> init (baseline, NODES);
-  acceleration -> init (baseline, NODES);
-  acceleration_int -> init (baseline, NODES);
-  gravity -> init (baseline, NODES);
-  stiffness -> init (baseline, NODES);
-  resting -> init (baseline, NODES);
-  friction -> init (baseline, NODES);
-  mass -> init (baseline, NODES);
-  index_PR -> init (baseline, NODES);
-  index_PU -> init (baseline, NODES);
-  index_PL -> init (baseline, NODES);
-  index_PD -> init (baseline, NODES);
-  freedom -> init (baseline, NODES);
-  dt -> init (baseline, 1);
+  dt->init (baseline, 1);
 
   ////////////////////////////////////////////////////////////////////////////////
   //////////////////////// SETTING OPENCL KERNEL ARGUMENTS ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  position -> set_arg (K[0], 0);
-  color -> set_arg (K[0], 1);
-  position_int -> set_arg (K[0], 2);
-  velocity -> set_arg (K[0], 3);
-  velocity_int -> set_arg (K[0], 4);
-  acceleration -> set_arg (K[0], 5);
-  acceleration_int -> set_arg (K[0], 6);
-  gravity -> set_arg (K[0], 7);
-  stiffness -> set_arg (K[0], 8);
-  resting -> set_arg (K[0], 9);
-  friction -> set_arg (K[0], 10);
-  mass -> set_arg (K[0], 11);
-  index_PR -> set_arg (K[0], 12);
-  index_PU -> set_arg (K[0], 13);
-  index_PL -> set_arg (K[0], 14);
-  index_PD -> set_arg (K[0], 15);
-  freedom -> set_arg (K[0], 16);
-  dt -> set_arg (K[0], 17);
+  K1->setarg (position, 0);                                                     // Setting kernel argument "0"...
+  K1->setarg (color, 1);                                                        // Setting kernel argument "1"...
+  K1->setarg (position_int, 2);
+  K1->setarg (velocity, 3);
+  K1->setarg (velocity_int, 4);
+  K1->setarg (acceleration, 5);
+  K1->setarg (acceleration_int, 6);
+  K1->setarg (gravity, 7);
+  K1->setarg (stiffness, 8);
+  K1->setarg (resting, 9);
+  K1->setarg (friction, 10);
+  K1->setarg (mass, 11);
+  K1->setarg (index_PR, 12);
+  K1->setarg (index_PU, 13);
+  K1->setarg (index_PL, 14);
+  K1->setarg (index_PD, 15);
+  K1->setarg (freedom, 16);
+  K1->setarg (dt, 17);
 
-  position -> set_arg (K[1], 0);
-  color -> set_arg (K[1], 1);
-  position_int -> set_arg (K[1], 2);
-  velocity -> set_arg (K[1], 3);
-  velocity_int -> set_arg (K[1], 4);
-  acceleration -> set_arg (K[1], 5);
-  acceleration_int -> set_arg (K[1], 6);
-  gravity -> set_arg (K[1], 7);
-  stiffness -> set_arg (K[1], 8);
-  resting -> set_arg (K[1], 9);
-  friction -> set_arg (K[1], 10);
-  mass -> set_arg (K[1], 11);
-  index_PR -> set_arg (K[1], 12);
-  index_PU -> set_arg (K[1], 13);
-  index_PL -> set_arg (K[1], 14);
-  index_PD -> set_arg (K[1], 15);
-  freedom -> set_arg (K[1], 16);
-  dt -> set_arg (K[1], 17);
+  K2->setarg (position, 0);                                                     // Setting kernel argument "0"...
+  K2->setarg (color, 1);                                                        // Setting kernel argument "1"...
+  K2->setarg (position_int, 2);
+  K2->setarg (velocity, 3);
+  K2->setarg (velocity_int, 4);
+  K2->setarg (acceleration, 5);
+  K2->setarg (acceleration_int, 6);
+  K2->setarg (gravity, 7);
+  K2->setarg (stiffness, 8);
+  K2->setarg (resting, 9);
+  K2->setarg (friction, 10);
+  K2->setarg (mass, 11);
+  K2->setarg (index_PR, 12);
+  K2->setarg (index_PU, 13);
+  K2->setarg (index_PL, 14);
+  K2->setarg (index_PD, 15);
+  K2->setarg (freedom, 16);
+  K2->setarg (dt, 17);
 
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////////// SETTING OPENCL DATA OBJECTS /////////////////////////
@@ -196,12 +170,12 @@ int main ()
   float k   = E*h*DY/DX;
   float c   = mu*h*DX*DY;
 
-  dt -> set_x (0, 0.8*sqrt (m/k));                                              // Setting time step...
+  dt->set_x (0, 0.8*sqrt (m/k));                                                // Setting time step...
 
   // Print info on time step (critical DT for stability)
   float cDT = sqrt (m/k);
   printf ("Critical DT = %f\n", cDT);
-  printf ("Simulation DT = %f\n", dt -> get_x (0));
+  printf ("Simulation DT = %f\n", dt->get_x (0));
 
   // Set initial time to zero
   simulation_time  = 0.0f;
@@ -213,129 +187,129 @@ int main ()
     for(i = 0; i < NODES_X; i++)
     {
       // Setting "x" initial position...
-      position -> set_x (i + NODES_X*j, XMIN + i*DX);
-      position -> set_y (i + NODES_X*j, YMIN + j*DY);
-      position -> set_z (i + NODES_X*j, 0.0f);
-      position -> set_w (i + NODES_X*j, 1.0f);
+      position->set_x (i + NODES_X*j, XMIN + i*DX);
+      position->set_y (i + NODES_X*j, YMIN + j*DY);
+      position->set_z (i + NODES_X*j, 0.0f);
+      position->set_w (i + NODES_X*j, 1.0f);
 
-      gravity -> set_x (i + NODES_X*j, 0.0f);                                   // Setting "x" gravity...
-      gravity -> set_y (i + NODES_X*j, 0.0f);                                   // Setting "y" gravity...
-      gravity -> set_z (i + NODES_X*j, -g);                                     // Setting "z" gravity...
-      gravity -> set_w (i + NODES_X*j, 1.0f);                                   // Setting "w" gravity...
+      gravity->set_x (i + NODES_X*j, 0.0f);                                     // Setting "x" gravity...
+      gravity->set_y (i + NODES_X*j, 0.0f);                                     // Setting "y" gravity...
+      gravity->set_z (i + NODES_X*j, -g);                                       // Setting "z" gravity...
+      gravity->set_w (i + NODES_X*j, 1.0f);                                     // Setting "w" gravity...
 
-      stiffness -> set_x (i + NODES_X*j, k);                                    // Setting "x" stiffness...
-      stiffness -> set_y (i + NODES_X*j, k);                                    // Setting "y" stiffness...
-      stiffness -> set_z (i + NODES_X*j, k);                                    // Setting "z" stiffness...
-      stiffness -> set_w (i + NODES_X*j, 1.0f);                                 // Setting "w" stiffness...
+      stiffness->set_x (i + NODES_X*j, k);                                      // Setting "x" stiffness...
+      stiffness->set_y (i + NODES_X*j, k);                                      // Setting "y" stiffness...
+      stiffness->set_z (i + NODES_X*j, k);                                      // Setting "z" stiffness...
+      stiffness->set_w (i + NODES_X*j, 1.0f);                                   // Setting "w" stiffness...
 
-      resting -> set_x (i + NODES_X*j, DX);                                     // Setting "x" resting position...
-      resting -> set_y (i + NODES_X*j, DX);                                     // Setting "y" resting position...
-      resting -> set_z (i + NODES_X*j, DX);                                     // Setting "z" resting position...
-      resting -> set_w (i + NODES_X*j, 1.0f);                                   // Setting "w" resting position...
+      resting->set_x (i + NODES_X*j, DX);                                       // Setting "x" resting position...
+      resting->set_y (i + NODES_X*j, DX);                                       // Setting "y" resting position...
+      resting->set_z (i + NODES_X*j, DX);                                       // Setting "z" resting position...
+      resting->set_w (i + NODES_X*j, 1.0f);                                     // Setting "w" resting position...
 
-      friction -> set_x (i + NODES_X*j, c);                                     // Setting "x" friction...
-      friction -> set_y (i + NODES_X*j, c);                                     // Setting "y" friction...
-      friction -> set_z (i + NODES_X*j, c);                                     // Setting "z" friction...
-      friction -> set_w (i + NODES_X*j, 1.0f);                                  // Setting "w" friction...
+      friction->set_x (i + NODES_X*j, c);                                       // Setting "x" friction...
+      friction->set_y (i + NODES_X*j, c);                                       // Setting "y" friction...
+      friction->set_z (i + NODES_X*j, c);                                       // Setting "z" friction...
+      friction->set_w (i + NODES_X*j, 1.0f);                                    // Setting "w" friction...
 
-      mass -> set_x (i + NODES_X*j, m);                                         // Setting "x" mass...
-      mass -> set_y (i + NODES_X*j, m);                                         // Setting "y" mass...
-      mass -> set_z (i + NODES_X*j, m);                                         // Setting "z" mass...
-      mass -> set_w (i + NODES_X*j, 1.0f);                                      // Setting "w" mass...
+      mass->set_x (i + NODES_X*j, m);                                           // Setting "x" mass...
+      mass->set_y (i + NODES_X*j, m);                                           // Setting "y" mass...
+      mass->set_z (i + NODES_X*j, m);                                           // Setting "z" mass...
+      mass->set_w (i + NODES_X*j, 1.0f);                                        // Setting "w" mass...
 
-      color -> set_r (i + NODES_X*j, 1.0f);                                     // Setting "x" initial color...
-      color -> set_g (i + NODES_X*j, 0.0f);                                     // Setting "y" initial color...
-      color -> set_b (i + NODES_X*j, 0.0f);                                     // Setting "z" initial color...
-      color -> set_a (i + NODES_X*j, 1.0f);                                     // Setting "w" initial color...
+      color->set_r (i + NODES_X*j, 1.0f);                                       // Setting "x" initial color...
+      color->set_g (i + NODES_X*j, 0.0f);                                       // Setting "y" initial color...
+      color->set_b (i + NODES_X*j, 0.0f);                                       // Setting "z" initial color...
+      color->set_a (i + NODES_X*j, 1.0f);                                       // Setting "w" initial color...
 
-      freedom -> set_x (i + NODES_X*j, 1.0f);
-      freedom -> set_y (i + NODES_X*j, 1.0f);
-      freedom -> set_z (i + NODES_X*j, 1.0f);
-      freedom -> set_w (i + NODES_X*j, 1.0f);
+      freedom->set_x (i + NODES_X*j, 1.0f);
+      freedom->set_y (i + NODES_X*j, 1.0f);
+      freedom->set_z (i + NODES_X*j, 1.0f);
+      freedom->set_w (i + NODES_X*j, 1.0f);
 
       if((i != 0) && (i != (NODES_X - 1)) && (j != 0) && (j != (NODES_Y - 1)))  // When on bulk:
       {
-        index_PR -> set_x (i + NODES_X*j, (i + 1) + NODES_X*j);
-        index_PU -> set_x (i + NODES_X*j, i + NODES_X*(j + 1));
-        index_PL -> set_x (i + NODES_X*j, (i - 1) + NODES_X*j);
-        index_PD -> set_x (i + NODES_X*j, i + NODES_X*(j - 1));
+        index_PR->set_x (i + NODES_X*j, (i + 1) + NODES_X*j);
+        index_PU->set_x (i + NODES_X*j, i + NODES_X*(j + 1));
+        index_PL->set_x (i + NODES_X*j, (i - 1) + NODES_X*j);
+        index_PD->set_x (i + NODES_X*j, i + NODES_X*(j - 1));
       }
 
       else                                                                      // When on all borders:
       {
-        gravity -> set_x (i + NODES_X*j, 0.0f);                                 // Setting "x" gravity...
-        gravity -> set_y (i + NODES_X*j, 0.0f);                                 // Setting "y" gravity...
-        gravity -> set_z (i + NODES_X*j, 0.0f);                                 // Setting "z" gravity...
-        gravity -> set_w (i + NODES_X*j, 1.0f);                                 // Setting "w" gravity...
+        gravity->set_x (i + NODES_X*j, 0.0f);                                   // Setting "x" gravity...
+        gravity->set_y (i + NODES_X*j, 0.0f);                                   // Setting "y" gravity...
+        gravity->set_z (i + NODES_X*j, 0.0f);                                   // Setting "z" gravity...
+        gravity->set_w (i + NODES_X*j, 1.0f);                                   // Setting "w" gravity...
 
-        freedom -> set_x (i + NODES_X*j, 0.0f);
-        freedom -> set_y (i + NODES_X*j, 0.0f);
-        freedom -> set_z (i + NODES_X*j, 0.0f);
-        freedom -> set_w (i + NODES_X*j, 0.0f);
+        freedom->set_x (i + NODES_X*j, 0.0f);
+        freedom->set_y (i + NODES_X*j, 0.0f);
+        freedom->set_z (i + NODES_X*j, 0.0f);
+        freedom->set_w (i + NODES_X*j, 0.0f);
       }
 
       if((i == 0) && (j != 0) && (j != (NODES_Y - 1)))                          // When on left border (excluding extremes):
       {
-        index_PR -> set_x (i + NODES_X*j, (i + 1) + NODES_X*j);
-        index_PU -> set_x (i + NODES_X*j, i + NODES_X*(j + 1));
-        index_PL -> set_x (i + NODES_X*j, i + NODES_X*j);
-        index_PD -> set_x (i + NODES_X*j, i + NODES_X*(j - 1));
+        index_PR->set_x (i + NODES_X*j, (i + 1) + NODES_X*j);
+        index_PU->set_x (i + NODES_X*j, i + NODES_X*(j + 1));
+        index_PL->set_x (i + NODES_X*j, i + NODES_X*j);
+        index_PD->set_x (i + NODES_X*j, i + NODES_X*(j - 1));
       }
 
       if((i == (NODES_X - 1)) && (j != 0) && (j != (NODES_Y - 1)))              // When on right border (excluding extremes):
       {
-        index_PR -> set_x (i + NODES_X*j, i + NODES_X*j);
-        index_PU -> set_x (i + NODES_X*j, i + NODES_X*(j + 1));
-        index_PL -> set_x (i + NODES_X*j, (i - 1) + NODES_X*j);
-        index_PD -> set_x (i + NODES_X*j, i + NODES_X*(j - 1));
+        index_PR->set_x (i + NODES_X*j, i + NODES_X*j);
+        index_PU->set_x (i + NODES_X*j, i + NODES_X*(j + 1));
+        index_PL->set_x (i + NODES_X*j, (i - 1) + NODES_X*j);
+        index_PD->set_x (i + NODES_X*j, i + NODES_X*(j - 1));
       }
 
       if((j == 0) && (i != 0) && (i != (NODES_X - 1)))                          // When on bottom border (excluding extremes):
       {
-        index_PR -> set_x (i + NODES_X*j, (i + 1) + NODES_X*j);
-        index_PU -> set_x (i + NODES_X*j, i + NODES_X*(j + 1));
-        index_PL -> set_x (i + NODES_X*j, (i - 1) + NODES_X*j);
-        index_PD -> set_x (i + NODES_X*j, i + NODES_X*j);
+        index_PR->set_x (i + NODES_X*j, (i + 1) + NODES_X*j);
+        index_PU->set_x (i + NODES_X*j, i + NODES_X*(j + 1));
+        index_PL->set_x (i + NODES_X*j, (i - 1) + NODES_X*j);
+        index_PD->set_x (i + NODES_X*j, i + NODES_X*j);
       }
 
       if((j == (NODES_Y - 1)) && (i != 0) && (i != (NODES_X - 1)))              // When on high border (excluding extremes):
       {
-        index_PR -> set_x (i + NODES_X*j, (i + 1) + NODES_X*j);
-        index_PU -> set_x (i + NODES_X*j, i + NODES_X*j);
-        index_PL -> set_x (i + NODES_X*j, (i - 1) + NODES_X*j);
-        index_PD -> set_x (i + NODES_X*j, i + NODES_X*(j - 1));
+        index_PR->set_x (i + NODES_X*j, (i + 1) + NODES_X*j);
+        index_PU->set_x (i + NODES_X*j, i + NODES_X*j);
+        index_PL->set_x (i + NODES_X*j, (i - 1) + NODES_X*j);
+        index_PD->set_x (i + NODES_X*j, i + NODES_X*(j - 1));
       }
 
       if((i == 0) && (j == 0))                                                  // When on bottom left corner:
       {
-        index_PR -> set_x (i + NODES_X*j, (i + 1) + NODES_X*j);
-        index_PU -> set_x (i + NODES_X*j, i + NODES_X*(j + 1));
-        index_PL -> set_x (i + NODES_X*j, i + NODES_X*j);
-        index_PD -> set_x (i + NODES_X*j, i + NODES_X*j);
+        index_PR->set_x (i + NODES_X*j, (i + 1) + NODES_X*j);
+        index_PU->set_x (i + NODES_X*j, i + NODES_X*(j + 1));
+        index_PL->set_x (i + NODES_X*j, i + NODES_X*j);
+        index_PD->set_x (i + NODES_X*j, i + NODES_X*j);
       }
 
       if((i == (NODES_X - 1)) && (j == 0))                                      // When on bottom right corner:
       {
-        index_PR -> set_x (i + NODES_X*j, i + NODES_X*j);
-        index_PU -> set_x (i + NODES_X*j, i + NODES_X*(j + 1));
-        index_PL -> set_x (i + NODES_X*j, (i - 1) + NODES_X*j);
-        index_PD -> set_x (i + NODES_X*j, i + NODES_X*j);
+        index_PR->set_x (i + NODES_X*j, i + NODES_X*j);
+        index_PU->set_x (i + NODES_X*j, i + NODES_X*(j + 1));
+        index_PL->set_x (i + NODES_X*j, (i - 1) + NODES_X*j);
+        index_PD->set_x (i + NODES_X*j, i + NODES_X*j);
       }
 
       if((i == 0) && (j == (NODES_Y - 1)))                                      // When on top left corner:
       {
-        index_PR -> set_x (i + NODES_X*j, (i + 1) + NODES_X*j);
-        index_PU -> set_x (i + NODES_X*j, i + NODES_X*j);
-        index_PL -> set_x (i + NODES_X*j, i + NODES_X*j);
-        index_PD -> set_x (i + NODES_X*j, i + NODES_X*(j - 1));
+        index_PR->set_x (i + NODES_X*j, (i + 1) + NODES_X*j);
+        index_PU->set_x (i + NODES_X*j, i + NODES_X*j);
+        index_PL->set_x (i + NODES_X*j, i + NODES_X*j);
+        index_PD->set_x (i + NODES_X*j, i + NODES_X*(j - 1));
       }
 
       if((i == (NODES_X - 1)) && (j == (NODES_Y - 1)))                          // When on top right corner:
       {
-        index_PR -> set_x (i + NODES_X*j, i + NODES_X*j);
-        index_PU -> set_x (i + NODES_X*j, i + NODES_X*j);
-        index_PL -> set_x (i + NODES_X*j, (i - 1) + NODES_X*j);
-        index_PD -> set_x (i + NODES_X*j, i + NODES_X*(j - 1));
+        index_PR->set_x (i + NODES_X*j, i + NODES_X*j);
+        index_PU->set_x (i + NODES_X*j, i + NODES_X*j);
+        index_PL->set_x (i + NODES_X*j, (i - 1) + NODES_X*j);
+        index_PD->set_x (i + NODES_X*j, i + NODES_X*(j - 1));
       }
 
     }
@@ -345,58 +319,58 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////
   //////////////////////// PUSHING OPENCL KERNEL ARGUMENTS ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  position          -> acquire_gl (Q[0],0);
-  position          -> push (Q[0], 0);
-  position          -> release_gl (Q[0], 0);
-  color             -> acquire_gl (Q[0], 1);
-  color             -> push (Q[0], 1);
-  color             -> release_gl (Q[0], 1);
+  position->acquire_gl (Q[0],0);
+  position->push (Q[0], 0);
+  position->release_gl (Q[0], 0);
+  color->acquire_gl (Q[0], 1);
+  color->push (Q[0], 1);
+  color->release_gl (Q[0], 1);
 
-  position_int      -> push (Q[0], 2);
-  velocity          -> push (Q[0], 3);
-  velocity_int      -> push (Q[0], 4);
-  acceleration      -> push (Q[0], 5);
-  acceleration_int  -> push (Q[0], 6);
-  gravity           -> push (Q[0], 7);
-  stiffness         -> push (Q[0], 8);
-  resting           -> push (Q[0], 9);
-  friction          -> push (Q[0], 10);
-  mass              -> push (Q[0], 11);
-  index_PR          -> push (Q[0], 12);
-  index_PU          -> push (Q[0], 13);
-  index_PL          -> push (Q[0], 14);
-  index_PD          -> push (Q[0], 15);
-  freedom           -> push (Q[0], 16);
-  dt                -> push (Q[0], 17);
+  position_int->push (Q[0], 2);
+  velocity->push (Q[0], 3);
+  velocity_int->push (Q[0], 4);
+  acceleration->push (Q[0], 5);
+  acceleration_int->push (Q[0], 6);
+  gravity->push (Q[0], 7);
+  stiffness->push (Q[0], 8);
+  resting->push (Q[0], 9);
+  friction->push (Q[0], 10);
+  mass->push (Q[0], 11);
+  index_PR->push (Q[0], 12);
+  index_PU->push (Q[0], 13);
+  index_PL->push (Q[0], 14);
+  index_PD->push (Q[0], 15);
+  freedom->push (Q[0], 16);
+  dt->push (Q[0], 17);
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////// MAIN LOOP ////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  while(!gui -> closed ())                                                      // Opening window...
+  while(!gui->closed ())                                                        // Opening window...
   {
-    baseline  -> get_tic ();                                                    // Getting "tic" [us]...
+    baseline->get_tic ();                                                       // Getting "tic" [us]...
 
-    gui       -> clear ();                                                      // Clearing window...
-    gui       -> poll_events ();                                                // Polling window events...
+    gui->clear ();                                                              // Clearing window...
+    gui->poll_events ();                                                        // Polling window events...
 
-    position  -> acquire_gl (Q[0], 0);
-    color     -> acquire_gl (Q[0], 1);
+    position->acquire_gl (Q[0], 0);
+    color->acquire_gl (Q[0], 1);
 
-    K[0]      -> execute (Q[0], WAIT);
+    K[0]->execute (Q[0], WAIT);
 
-    K[1]      -> execute (Q[0], WAIT);
+    K[1]->execute (Q[0], WAIT);
 
-    position  -> release_gl (Q[0], 0);
-    color     -> release_gl (Q[0], 1);
+    position->release_gl (Q[0], 0);
+    color->release_gl (Q[0], 1);
 
-    gui       -> plot (position, color, STYLE_POINT);
-    gui       -> refresh ();                                                    // Refreshing window...
+    gui->plot (position, color, STYLE_POINT);
+    gui->refresh ();                                                            // Refreshing window...
 
     // Update simulation time
-    simulation_time  += dt -> get_x (0);
+    simulation_time  += dt->get_x (0);
     time_step_number += 1;
 
-    baseline  -> get_toc ();                                                    // Getting "toc" [us]...
+    baseline->get_toc ();                                                       // Getting "toc" [us]...
   }
 
   delete    baseline;
