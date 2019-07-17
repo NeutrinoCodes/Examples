@@ -19,25 +19,19 @@ project (cloth)
 
 message("Creating a SOURCES variable with a link to all cpp files to compile...")
 set(SOURCES
-$ENV{NEUTRINO_PATH}/Code/src/color4.cpp
+
 $ENV{NEUTRINO_PATH}/Code/src/device.cpp
-$ENV{NEUTRINO_PATH}/Code/src/float1.cpp
-$ENV{NEUTRINO_PATH}/Code/src/float4.cpp
-$ENV{NEUTRINO_PATH}/Code/src/font.cpp
-$ENV{NEUTRINO_PATH}/Code/src/info.cpp
-$ENV{NEUTRINO_PATH}/Code/src/int1.cpp
-$ENV{NEUTRINO_PATH}/Code/src/int4.cpp
+$ENV{NEUTRINO_PATH}/Code/src/host_datatypes.cpp
 $ENV{NEUTRINO_PATH}/Code/src/kernel.cpp
 $ENV{NEUTRINO_PATH}/Code/src/linear_algebra.cpp
 $ENV{NEUTRINO_PATH}/Code/src/neutrino.cpp
 $ENV{NEUTRINO_PATH}/Code/src/opencl.cpp
-$ENV{NEUTRINO_PATH}/Code/src/path.cpp
+$ENV{NEUTRINO_PATH}/Code/src/opengl.cpp
 $ENV{NEUTRINO_PATH}/Code/src/platform.cpp
-$ENV{NEUTRINO_PATH}/Code/src/point4.cpp
 $ENV{NEUTRINO_PATH}/Code/src/projective_geometry.cpp
 $ENV{NEUTRINO_PATH}/Code/src/queue.cpp
-$ENV{NEUTRINO_PATH}/Code/src/text4.cpp
-$ENV{NEUTRINO_PATH}/Code/src/window.cpp
+$ENV{NEUTRINO_PATH}/Code/src/shader.cpp
+$ENV{NEUTRINO_PATH}/Code/src/glad.c
 ${CMAKE_HOME_DIRECTORY}/src/main.cpp)
 
 if(APPLE)
