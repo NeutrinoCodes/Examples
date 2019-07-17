@@ -38,15 +38,15 @@
 #define K2_FILE     "thekernel2.cl"                                             // OpenCL kernel.
 
 // SIMULATION PARAMETERS:
-#define H           1e-2                                                        // Cloth's thickness [m].
-#define RHO         1e3                                                         // Cloth's mass density [kg/m^3].
-#define E           1e5                                                         // Cloth's Young modulus [kg/(m*s^2)].
+#define H           0.01                                                        // Cloth's thickness [m].
+#define RHO         100                                                         // Cloth's mass density [kg/m^3].
+#define E           100000                                                      // Cloth's Young modulus [kg/(m*s^2)].
 #define MU          700.0                                                       // Cloth's viscosity [Pa*s].
-#define M           RHO* H* DX* DY                                              // Cloth's mass [kg].
+#define MASS        RHO* H* DX* DY                                              // Cloth's mass [kg].
 #define G           9.81                                                        // External gravity field [m/s^2].
 #define K           E* H* DY/DX                                                 // Cloth's elastic constant [kg/s^2].
 #define C           MU* H* DX* DY                                               // Cloth's damping [kg*s*m].
-#define CDT         sqrt (M/K)                                                  // Critical time step [s].
+#define CDT         sqrt (MASS/K)                                               // Critical time step [s].
 #define DT          0.8*CDT                                                     // Simulation time step [s].
 
 // INCLUDES:
@@ -67,7 +67,7 @@ int main ()
   size_t    j;                                                                  // "y" direction index.
 
   point*    position         = new point ();                                    // Position.
-  color*    color            = new color ();                                    // Particle color.
+  color*    particle_color   = new color ();                                    // Particle color.
   float4*   velocity         = new float4 ();                                   // Velocity.
   float4*   acceleration     = new float4 ();                                   // Acceleration.
 
@@ -104,7 +104,7 @@ int main ()
   K2->init (bas, KERNEL_HOME, K2_FILE, KERNEL_SX, KERNEL_SY, KERNEL_SZ);        // Initializing OpenCL kernel K2...
 
   position->init (NODES);                                                       // Initializing OpenGL point array...
-  color->init (NODES);                                                          // Initializing OpenGL color array...
+  particle_color->init (NODES);                                                 // Initializing OpenGL color array...
   velocity->init (NODES);
   acceleration->init (NODES);
 
@@ -133,7 +133,7 @@ int main ()
   //////////////////////// SETTING OPENCL KERNEL ARGUMENTS ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   K1->setarg (position, 0);                                                     // Setting kernel argument "0"...
-  K1->setarg (color, 1);                                                        // Setting kernel argument "1"...
+  K1->setarg (particle_color, 1);                                               // Setting kernel argument "1"...
   K1->setarg (position_int, 2);
   K1->setarg (velocity, 3);
   K1->setarg (velocity_int, 4);
@@ -152,7 +152,7 @@ int main ()
   K1->setarg (dt, 17);
 
   K2->setarg (position, 0);                                                     // Setting kernel argument "0"...
-  K2->setarg (color, 1);                                                        // Setting kernel argument "1"...
+  K2->setarg (particle_color, 1);                                               // Setting kernel argument "1"...
   K2->setarg (position_int, 2);
   K2->setarg (velocity, 3);
   K2->setarg (velocity_int, 4);
@@ -173,136 +173,139 @@ int main ()
   printf ("Critical DT = %f [s]\n", CDT);
   printf ("Simulation DT = %f [s]\n", DT);
 
+  position->name       = "voxel_center";                                        // Setting variable name in OpenGL shader...
+  particle_color->name = "voxel_color";                                         // Setting variable name in OpenGL shader...
+
   for(j = 0; j < NODES_Y; j++)
   {
     for(i = 0; i < NODES_X; i++)
     {
       // Setting "x" initial position...
-      position->data[i + NODES_X*j].x  = XMIN + i*DX;
-      position->data[i + NODES_X*j].y  = YMIN + j*DY;
-      position->data[i + NODES_X*j].z  = 0.0;
-      position->data[i + NODES_X*j].w  = 1.0;
+      position->data[i + NODES_X*j].x       = XMIN + i*DX;
+      position->data[i + NODES_X*j].y       = YMIN + j*DY;
+      position->data[i + NODES_X*j].z       = 0.0;
+      position->data[i + NODES_X*j].w       = 1.0;
 
-      gravity->data[i + NODES_X*j].x   = 0.0;                                   // Setting "x" gravity...
-      gravity->data[i + NODES_X*j].y   = 0.0;                                   // Setting "y" gravity...
-      gravity->data[i + NODES_X*j].z   = -G;                                    // Setting "z" gravity...
-      gravity->data[i + NODES_X*j].w   = 1.0;                                   // Setting "w" gravity...
+      gravity->data[i + NODES_X*j].x        = 0.0;                              // Setting "x" gravity...
+      gravity->data[i + NODES_X*j].y        = 0.0;                              // Setting "y" gravity...
+      gravity->data[i + NODES_X*j].z        = -G;                               // Setting "z" gravity...
+      gravity->data[i + NODES_X*j].w        = 1.0;                              // Setting "w" gravity...
 
-      stiffness->data[i + NODES_X*j].x = K;                                     // Setting "x" stiffness...
-      stiffness->data[i + NODES_X*j].y = K;                                     // Setting "y" stiffness...
-      stiffness->data[i + NODES_X*j].z = K;                                     // Setting "z" stiffness...
-      stiffness->data[i + NODES_X*j].w = 1.0;                                   // Setting "w" stiffness...
+      stiffness->data[i + NODES_X*j].x      = K;                                // Setting "x" stiffness...
+      stiffness->data[i + NODES_X*j].y      = K;                                // Setting "y" stiffness...
+      stiffness->data[i + NODES_X*j].z      = K;                                // Setting "z" stiffness...
+      stiffness->data[i + NODES_X*j].w      = 1.0;                              // Setting "w" stiffness...
 
-      resting->data[i + NODES_X*j].x   = DX;                                    // Setting "x" resting position...
-      resting->data[i + NODES_X*j].y   = DX;                                    // Setting "y" resting position...
-      resting->data[i + NODES_X*j].z   = DX;                                    // Setting "z" resting position...
-      resting->data[i + NODES_X*j].w   = 1.0;                                   // Setting "w" resting position...
+      resting->data[i + NODES_X*j].x        = DX;                               // Setting "x" resting position...
+      resting->data[i + NODES_X*j].y        = DX;                               // Setting "y" resting position...
+      resting->data[i + NODES_X*j].z        = DX;                               // Setting "z" resting position...
+      resting->data[i + NODES_X*j].w        = 1.0;                              // Setting "w" resting position...
 
-      friction->data[i + NODES_X*j].x  = C;                                     // Setting "x" friction...
-      friction->data[i + NODES_X*j].y  = C;                                     // Setting "y" friction...
-      friction->data[i + NODES_X*j].z  = C;                                     // Setting "z" friction...
-      friction->data[i + NODES_X*j].w  = 1.0;                                   // Setting "w" friction...
+      friction->data[i + NODES_X*j].x       = C;                                // Setting "x" friction...
+      friction->data[i + NODES_X*j].y       = C;                                // Setting "y" friction...
+      friction->data[i + NODES_X*j].z       = C;                                // Setting "z" friction...
+      friction->data[i + NODES_X*j].w       = 1.0;                              // Setting "w" friction...
 
-      mass->data[i + NODES_X*j].x      = M;                                     // Setting "x" mass...
-      mass->data[i + NODES_X*j].y      = M;                                     // Setting "y" mass...
-      mass->data[i + NODES_X*j].z      = M;                                     // Setting "z" mass...
-      mass->data[i + NODES_X*j].w      = 1.0;                                   // Setting "w" mass...
+      mass->data[i + NODES_X*j].x           = MASS;                             // Setting "x" mass...
+      mass->data[i + NODES_X*j].y           = MASS;                             // Setting "y" mass...
+      mass->data[i + NODES_X*j].z           = MASS;                             // Setting "z" mass...
+      mass->data[i + NODES_X*j].w           = 1.0;                              // Setting "w" mass...
 
-      color->data[i + NODES_X*j].x     = 1.0;                                   // Setting "x" initial color...
-      color->data[i + NODES_X*j].y     = 0.0;                                   // Setting "y" initial color...
-      color->data[i + NODES_X*j].z     = 0.0;                                   // Setting "z" initial color...
-      color->data[i + NODES_X*j].w     = 1.0;                                   // Setting "w" initial color...
+      particle_color->data[i + NODES_X*j].r = 1.0;                              // Setting "x" initial color...
+      particle_color->data[i + NODES_X*j].g = 0.0;                              // Setting "y" initial color...
+      particle_color->data[i + NODES_X*j].b = 0.0;                              // Setting "z" initial color...
+      particle_color->data[i + NODES_X*j].a = 1.0;                              // Setting "w" initial color...
 
-      freedom->data[i + NODES_X*j].x   = 1.0;                                   // Setting "x" freedom...
-      freedom->data[i + NODES_X*j].y   = 1.0;                                   // Setting "y" freedom...
-      freedom->data[i + NODES_X*j].z   = 1.0;                                   // Setting "z" freedom...
-      freedom->data[i + NODES_X*j].w   = 1.0;                                   // Setting "w" freedom...
+      freedom->data[i + NODES_X*j].x        = 1.0;                              // Setting "x" freedom...
+      freedom->data[i + NODES_X*j].y        = 1.0;                              // Setting "y" freedom...
+      freedom->data[i + NODES_X*j].z        = 1.0;                              // Setting "z" freedom...
+      freedom->data[i + NODES_X*j].w        = 1.0;                              // Setting "w" freedom...
 
-      dt->data[i + NODES_X*j].x        = DT;                                    // Setting time step...
+      dt->data[i + NODES_X*j]               = DT;                               // Setting time step...
 
       if((i != 0) && (i != (NODES_X - 1)) && (j != 0) && (j != (NODES_Y - 1)))  // When on bulk:
       {
-        index_PR->data[i + NODES_X*j].x = (i + 1) + NODES_X*j;
-        index_PU->data[i + NODES_X*j].x = i + NODES_X*(j + 1);
-        index_PL->data[i + NODES_X*j].x = (i - 1) + NODES_X*j;
-        index_PD->data[i + NODES_X*j].x = i + NODES_X*(j - 1);
+        index_PR->data[i + NODES_X*j] = (i + 1) + NODES_X*j;
+        index_PU->data[i + NODES_X*j] = i + NODES_X*(j + 1);
+        index_PL->data[i + NODES_X*j] = (i - 1) + NODES_X*j;
+        index_PD->data[i + NODES_X*j] = i + NODES_X*(j - 1);
       }
 
       else                                                                      // When on all borders:
       {
         gravity->data[i + NODES_X*j].x = 0.0;                                   // Setting "x" gravity...
-        gravity->data[i + NODES_X*j].x = 0.0;                                   // Setting "y" gravity...
-        gravity->data[i + NODES_X*j].x = 0.0;                                   // Setting "z" gravity...
-        gravity->data[i + NODES_X*j].x = 1.0;                                   // Setting "w" gravity...
+        gravity->data[i + NODES_X*j].y = 0.0;                                   // Setting "y" gravity...
+        gravity->data[i + NODES_X*j].z = 0.0;                                   // Setting "z" gravity...
+        gravity->data[i + NODES_X*j].w = 1.0;                                   // Setting "w" gravity...
 
         freedom->data[i + NODES_X*j].x = 0.0;
-        freedom->data[i + NODES_X*j].x = 0.0;
-        freedom->data[i + NODES_X*j].x = 0.0;
-        freedom->data[i + NODES_X*j].x = 0.0;
+        freedom->data[i + NODES_X*j].y = 0.0;
+        freedom->data[i + NODES_X*j].z = 0.0;
+        freedom->data[i + NODES_X*j].w = 0.0;
       }
 
       if((i == 0) && (j != 0) && (j != (NODES_Y - 1)))                          // When on left border (excluding extremes):
       {
-        index_PR->data[i + NODES_X*j].x = (i + 1) + NODES_X*j;
-        index_PU->data[i + NODES_X*j].x = i + NODES_X*(j + 1);
-        index_PL->data[i + NODES_X*j].x = i + NODES_X*j;
-        index_PD->data[i + NODES_X*j].x = i + NODES_X*(j - 1);
+        index_PR->data[i + NODES_X*j] = (i + 1) + NODES_X*j;
+        index_PU->data[i + NODES_X*j] = i + NODES_X*(j + 1);
+        index_PL->data[i + NODES_X*j] = i + NODES_X*j;
+        index_PD->data[i + NODES_X*j] = i + NODES_X*(j - 1);
       }
 
       if((i == (NODES_X - 1)) && (j != 0) && (j != (NODES_Y - 1)))              // When on right border (excluding extremes):
       {
-        index_PR->data[i + NODES_X*j].x = i + NODES_X*j;
-        index_PU->data[i + NODES_X*j].x = i + NODES_X*(j + 1);
-        index_PL->data[i + NODES_X*j].x = (i - 1) + NODES_X*j;
-        index_PD->data[i + NODES_X*j].x = i + NODES_X*(j - 1);
+        index_PR->data[i + NODES_X*j] = i + NODES_X*j;
+        index_PU->data[i + NODES_X*j] = i + NODES_X*(j + 1);
+        index_PL->data[i + NODES_X*j] = (i - 1) + NODES_X*j;
+        index_PD->data[i + NODES_X*j] = i + NODES_X*(j - 1);
       }
 
       if((j == 0) && (i != 0) && (i != (NODES_X - 1)))                          // When on bottom border (excluding extremes):
       {
-        index_PR->data[i + NODES_X*j].x = (i + 1) + NODES_X*j;
-        index_PU->data[i + NODES_X*j].x = i + NODES_X*(j + 1);
-        index_PL->data[i + NODES_X*j].x = (i - 1) + NODES_X*j;
-        index_PD->data[i + NODES_X*j].x = i + NODES_X*j;
+        index_PR->data[i + NODES_X*j] = (i + 1) + NODES_X*j;
+        index_PU->data[i + NODES_X*j] = i + NODES_X*(j + 1);
+        index_PL->data[i + NODES_X*j] = (i - 1) + NODES_X*j;
+        index_PD->data[i + NODES_X*j] = i + NODES_X*j;
       }
 
       if((j == (NODES_Y - 1)) && (i != 0) && (i != (NODES_X - 1)))              // When on high border (excluding extremes):
       {
-        index_PR->data[i + NODES_X*j].x = (i + 1) + NODES_X*j;
-        index_PU->data[i + NODES_X*j].x = i + NODES_X*j;
-        index_PL->data[i + NODES_X*j].x = (i - 1) + NODES_X*j;
-        index_PD->data[i + NODES_X*j].x = i + NODES_X*(j - 1);
+        index_PR->data[i + NODES_X*j] = (i + 1) + NODES_X*j;
+        index_PU->data[i + NODES_X*j] = i + NODES_X*j;
+        index_PL->data[i + NODES_X*j] = (i - 1) + NODES_X*j;
+        index_PD->data[i + NODES_X*j] = i + NODES_X*(j - 1);
       }
 
       if((i == 0) && (j == 0))                                                  // When on bottom left corner:
       {
-        index_PR->data[i + NODES_X*j].x = (i + 1) + NODES_X*j;
-        index_PU->data[i + NODES_X*j].x = i + NODES_X*(j + 1);
-        index_PL->data[i + NODES_X*j].x = i + NODES_X*j;
-        index_PD->data[i + NODES_X*j].x = i + NODES_X*j;
+        index_PR->data[i + NODES_X*j] = (i + 1) + NODES_X*j;
+        index_PU->data[i + NODES_X*j] = i + NODES_X*(j + 1);
+        index_PL->data[i + NODES_X*j] = i + NODES_X*j;
+        index_PD->data[i + NODES_X*j] = i + NODES_X*j;
       }
 
       if((i == (NODES_X - 1)) && (j == 0))                                      // When on bottom right corner:
       {
-        index_PR->data[i + NODES_X*j].x = i + NODES_X*j;
-        index_PU->data[i + NODES_X*j].x = i + NODES_X*(j + 1);
-        index_PL->data[i + NODES_X*j].x = (i - 1) + NODES_X*j;
-        index_PD->data[i + NODES_X*j].x = i + NODES_X*j;
+        index_PR->data[i + NODES_X*j] = i + NODES_X*j;
+        index_PU->data[i + NODES_X*j] = i + NODES_X*(j + 1);
+        index_PL->data[i + NODES_X*j] = (i - 1) + NODES_X*j;
+        index_PD->data[i + NODES_X*j] = i + NODES_X*j;
       }
 
       if((i == 0) && (j == (NODES_Y - 1)))                                      // When on top left corner:
       {
-        index_PR->data[i + NODES_X*j].x = (i + 1) + NODES_X*j;
-        index_PU->data[i + NODES_X*j].x = i + NODES_X*j;
-        index_PL->data[i + NODES_X*j].x = i + NODES_X*j;
-        index_PD->data[i + NODES_X*j].x = i + NODES_X*(j - 1);
+        index_PR->data[i + NODES_X*j] = (i + 1) + NODES_X*j;
+        index_PU->data[i + NODES_X*j] = i + NODES_X*j;
+        index_PL->data[i + NODES_X*j] = i + NODES_X*j;
+        index_PD->data[i + NODES_X*j] = i + NODES_X*(j - 1);
       }
 
       if((i == (NODES_X - 1)) && (j == (NODES_Y - 1)))                          // When on top right corner:
       {
-        index_PR->data[i + NODES_X*j].x = i + NODES_X*j;
-        index_PU->data[i + NODES_X*j].x = i + NODES_X*j;
-        index_PL->data[i + NODES_X*j].x = (i - 1) + NODES_X*j;
-        index_PD->data[i + NODES_X*j].x = i + NODES_X*(j - 1);
+        index_PR->data[i + NODES_X*j] = i + NODES_X*j;
+        index_PU->data[i + NODES_X*j] = i + NODES_X*j;
+        index_PL->data[i + NODES_X*j] = (i - 1) + NODES_X*j;
+        index_PD->data[i + NODES_X*j] = i + NODES_X*(j - 1);
       }
     }
   }
@@ -311,7 +314,7 @@ int main ()
   ////////////////////////// WRITING DATA ON OPENCL QUEUE ////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   Q->write (position, 0);
-  Q->write (color, 1);
+  Q->write (particle_color, 1);
   Q->write (position_int, 2);
   Q->write (velocity, 3);
   Q->write (velocity_int, 4);
@@ -333,7 +336,7 @@ int main ()
   //////////////////////// SETTING OPENGL SHADER ARGUMENTS ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   S->setarg (position, 0);                                                      // Setting shader argument "0"...
-  S->setarg (color, 1);                                                         // Setting shader argument "1"...
+  S->setarg (particle_color, 1);                                                // Setting shader argument "1"...
   S->build ();                                                                  // Building shader program...
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -342,26 +345,26 @@ int main ()
   while(!gui->closed ())                                                        // Opening window...
   {
     bas->get_tic ();                                                            // Getting "tic" [us]...
+
     gui->clear ();                                                              // Clearing gui...
     gui->poll_events ();                                                        // Polling gui events...
 
     Q->acquire (position, 0);                                                   // Acquiring OpenGL/CL shared argument...
-    Q->acquire (color, 1);                                                      // Acquiring OpenGL/CL shared argument...
+    Q->acquire (particle_color, 1);                                             // Acquiring OpenGL/CL shared argument...
     ctx->execute (K1, Q, WAIT);                                                 // Executing OpenCL kernel...
     ctx->execute (K2, Q, WAIT);                                                 // Executing OpenCL kernel...
 
     gui->plot (S);                                                              // Plotting shared arguments...
     Q->release (position, 0);                                                   // Releasing OpenGL/CL shared argument...
-    Q->release (color, 1);                                                      // Releasing OpenGL/CL shared argument...
+    Q->release (particle_color, 1);                                             // Releasing OpenGL/CL shared argument...
 
     gui->refresh ();                                                            // Refreshing gui...
-    bas->get_toc ();                                                            // Getting "toc" [us]...
 
-    // Update simulation time
     simulation_time += DT;
     time_step_number++;
 
-    baseline->get_toc ();                                                       // Getting "toc" [us]...
+    bas->get_toc ();                                                            // Getting "toc" [us]...
+
   }
 
   delete bas;
@@ -369,7 +372,7 @@ int main ()
   delete ctx;
 
   delete position;
-  delete color;
+  delete particle_color;
   delete velocity;
   delete acceleration;
 
