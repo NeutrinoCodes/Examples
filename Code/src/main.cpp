@@ -39,14 +39,14 @@
 
 // SIMULATION PARAMETERS:
 #define H           0.01                                                        // Cloth's thickness [m].
-#define RHO         100                                                         // Cloth's mass density [kg/m^3].
+#define RHO         1000                                                        // Cloth's mass density [kg/m^3].
 #define E           100000                                                      // Cloth's Young modulus [kg/(m*s^2)].
 #define MU          700.0                                                       // Cloth's viscosity [Pa*s].
 #define MASS        RHO* H* DX* DY                                              // Cloth's mass [kg].
 #define G           9.81                                                        // External gravity field [m/s^2].
-#define K           E* H* DY/DX                                                 // Cloth's elastic constant [kg/s^2].
+#define K           E* H* (float)(DY)/(float)(DX)                               // Cloth's elastic constant [kg/s^2].
 #define C           MU* H* DX* DY                                               // Cloth's damping [kg*s*m].
-#define CDT         sqrt (MASS/K)                                               // Critical time step [s].
+#define CDT         sqrt ((float)(MASS)/(float)(K))                             // Critical time step [s].
 #define DT          0.8*CDT                                                     // Simulation time step [s].
 
 // INCLUDES:
@@ -151,26 +151,24 @@ int main ()
   K1->setarg (freedom, 16);
   K1->setarg (dt, 17);
 
-  /*
-     K2->setarg (voxel_point, 0);                                                  // Setting kernel argument "0"...
-     K2->setarg (voxel_color, 1);                                                  // Setting kernel argument "1"...
-     K2->setarg (position_int, 2);
-     K2->setarg (velocity, 3);
-     K2->setarg (velocity_int, 4);
-     K2->setarg (acceleration, 5);
-     K2->setarg (acceleration_int, 6);
-     K2->setarg (gravity, 7);
-     K2->setarg (stiffness, 8);
-     K2->setarg (resting, 9);
-     K2->setarg (friction, 10);
-     K2->setarg (mass, 11);
-     K2->setarg (index_PR, 12);
-     K2->setarg (index_PU, 13);
-     K2->setarg (index_PL, 14);
-     K2->setarg (index_PD, 15);
-     K2->setarg (freedom, 16);
-     K2->setarg (dt, 17);
-   */
+  K2->setarg (voxel_point, 0);                                                  // Setting kernel argument "0"...
+  K2->setarg (voxel_color, 1);                                                  // Setting kernel argument "1"...
+  K2->setarg (position_int, 2);
+  K2->setarg (velocity, 3);
+  K2->setarg (velocity_int, 4);
+  K2->setarg (acceleration, 5);
+  K2->setarg (acceleration_int, 6);
+  K2->setarg (gravity, 7);
+  K2->setarg (stiffness, 8);
+  K2->setarg (resting, 9);
+  K2->setarg (friction, 10);
+  K2->setarg (mass, 11);
+  K2->setarg (index_PR, 12);
+  K2->setarg (index_PU, 13);
+  K2->setarg (index_PL, 14);
+  K2->setarg (index_PD, 15);
+  K2->setarg (freedom, 16);
+  K2->setarg (dt, 17);
 
   printf ("Critical DT = %f [s]\n", CDT);
   printf ("Simulation DT = %f [s]\n", DT);
@@ -354,8 +352,7 @@ int main ()
     Q->acquire (voxel_point, 0);                                                // Acquiring OpenGL/CL shared argument...
     Q->acquire (voxel_color, 1);                                                // Acquiring OpenGL/CL shared argument...
     ctx->execute (K1, Q, WAIT);                                                 // Executing OpenCL kernel...
-    //ctx->execute (K2, Q, WAIT);                                                 // Executing OpenCL kernel...
-
+    ctx->execute (K2, Q, WAIT);                                                 // Executing OpenCL kernel...
 
     gui->plot (S);                                                              // Plotting shared arguments...
     Q->release (voxel_point, 0);                                                // Releasing OpenGL/CL shared argument...
