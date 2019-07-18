@@ -1,8 +1,8 @@
 /// @file
 #include "utilities.cl"
 
-__kernel void thekernel(__global float4*    position,
-                        __global float4*    color,
+__kernel void thekernel(__global point*     voxel_point,
+                        __global color*     voxel_color,
                         __global float4*    position_int,
                         __global float4*    velocity,
                         __global float4*    velocity_int,
@@ -24,14 +24,14 @@ __kernel void thekernel(__global float4*    position,
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////// GLOBAL INDEX /////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  unsigned long gid = get_global_id(0);                                          // Setting global index "gid"...
+  unsigned long gid = get_global_id(0);                                         // Setting global index "gid"...
 
   ////////////////////////////////////////////////////////////////////////////////
   /////////////////// SYNERGIC MOLECULE: KINEMATIC VARIABLES /////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      P   = position_int[gid];                                              // Current particle position.
-  float4      V   = velocity_int[gid];                                              // Current particle velocity.
-  float4      A   = acceleration_int[gid];                                          // Current particle acceleration.
+  float4      P   = position_int[gid];                                          // Current particle position.
+  float4      V   = velocity_int[gid];                                          // Current particle velocity.
+  float4      A   = acceleration_int[gid];                                      // Current particle acceleration.
 
   ////////////////////////////////////////////////////////////////////////////////
   /////////////////// SYNERGIC MOLECULE: DYNAMIC VARIABLES ///////////////////////
@@ -40,24 +40,29 @@ __kernel void thekernel(__global float4*    position,
   float4      G   = gravity[gid];                                               // Current particle gravity field.
   float4      c   = friction[gid];                                              // Current particle friction.
   float4      fr  = freedom[gid];                                               //
-  float4      col = color[gid];                                                 // Current particle color.
+  float4      col;                                                              // Current particle color.
+
+  col.x = voxel_color[gid].r;                                                   // Getting voxel "r" color coordinate...
+  col.y = voxel_color[gid].g;                                                   // Getting voxel "g" color coordinate...
+  col.z = voxel_color[gid].b;                                                   // Getting voxel "b" color coordinate...
+  col.w = voxel_color[gid].a;                                                   // Getting voxel "a" color coordinate...
 
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////// SYNERGIC MOLECULE: LINK INDEXES /////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   // NOTE: 1. the index of a non-existing particle friend must be set to the index of the particle.
-  long         il_1 = index_friend_1[gid];                                       // Setting indexes of 1st linked particle...
-  long         il_2 = index_friend_2[gid];                                       // Setting indexes of 2nd linked particle...
-  long         il_3 = index_friend_3[gid];                                       // Setting indexes of 3rd linked particle...
-  long         il_4 = index_friend_4[gid];                                       // Setting indexes of 4th linked particle...
+  long        il_1 = index_friend_1[gid];                                       // Setting indexes of 1st linked particle...
+  long        il_2 = index_friend_2[gid];                                       // Setting indexes of 2nd linked particle...
+  long        il_3 = index_friend_3[gid];                                       // Setting indexes of 3rd linked particle...
+  long        il_4 = index_friend_4[gid];                                       // Setting indexes of 4th linked particle...
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////// SYNERGIC MOLECULE: LINKED PARTICLE POSITIONS /////////////////  t_(n+1)
   ////////////////////////////////////////////////////////////////////////////////
-  float4      Pl_1 = position_int[il_1];                                           // 1st linked particle position.
-  float4      Pl_2 = position_int[il_2];                                           // 2nd linked particle position.
-  float4      Pl_3 = position_int[il_3];                                           // 3rd linked particle position.
-  float4      Pl_4 = position_int[il_4];                                           // 4th linked particle position.
+  float4      Pl_1 = position_int[il_1];                                        // 1st linked particle position.
+  float4      Pl_2 = position_int[il_2];                                        // 2nd linked particle position.
+  float4      Pl_3 = position_int[il_3];                                        // 3rd linked particle position.
+  float4      Pl_4 = position_int[il_4];                                        // 4th linked particle position.
 
   ////////////////////////////////////////////////////////////////////////////////
   //////////////// SYNERGIC MOLECULE: LINK RESTING DISTANCES /////////////////////
@@ -81,7 +86,7 @@ __kernel void thekernel(__global float4*    position,
   //////////////////////////////////////////////////////////////////////////////
 
   // time step
-  float dt = *DT;
+  float dt = DT[gid];
 
   // linked particles displacements
   float4      Dl_1;
@@ -121,11 +126,19 @@ __kernel void thekernel(__global float4*    position,
   fix_projective_space(&V);
   fix_projective_space(&A);
 
-  assign_color(&col, &P);
+  //assign_color(&col, &P);
 
   // update data arrays in memory (with data at time t_(n+1))
-  position[gid] = P;
+  voxel_point[gid].x = P.x;                                                    // Getting voxel "x" point coordinate...
+  voxel_point[gid].y = P.y;                                                    // Getting voxel "y" point coordinate...
+  voxel_point[gid].z = P.z;                                                    // Getting voxel "z" point coordinate...
+  voxel_point[gid].w = P.w;                                                    // Getting voxel "w" point coordinate...
+
   velocity[gid] = V;
   acceleration[gid] = A;
-  color[gid] = col;
+
+  voxel_color[gid].r = col.x;                                                   // Getting voxel "r" color coordinate...
+  voxel_color[gid].g = col.y;                                                   // Getting voxel "g" color coordinate...
+  voxel_color[gid].b = col.z;                                                   // Getting voxel "b" color coordinate...
+  voxel_color[gid].a = col.w;                                                   // Getting voxel "a" color coordinate...
 }
