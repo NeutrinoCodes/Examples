@@ -126,7 +126,7 @@ __kernel void thekernel(__global point*     voxel_point,
   fix_projective_space(&V);
   fix_projective_space(&A);
 
-  //assign_color(&col, &P);
+  assign_color(&col, &P);
 
   // update data arrays in memory (with data at time t_(n+1))
   voxel_point[gid].x = P.x;                                                    // Getting voxel "x" point coordinate...
