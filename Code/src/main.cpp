@@ -2,8 +2,8 @@
 
 // OPENGL:
 #define INTEROP     true                                                        // "true" = use OpenGL-OpenCL interoperability.
-#define GUI_SIZE_X  800                                                         // Window x-size [px].
-#define GUI_SIZE_Y  600                                                         // Window y-size [px].
+#define GUI_SX      800                                                         // Window x-size [px].
+#define GUI_SY      600                                                         // Window y-size [px].
 #define GUI_NAME    "neutrino 3.0"                                              // Window name.
 //#define SHADER_HOME \
 //  "/run/media/ezor/LINUX/BookhouseBoys/ezor/Neutrino/Code/shader"
@@ -23,8 +23,8 @@
 //  "/run/media/ezor/LINUX/BookhouseBoys/ezor/Neutrino/Code/kernel"               // OpenCL kernel header files directory.
 #define KERNEL_HOME \
   "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/ElasticCloth/Code/kernel"
-#define K1_FILE     "thekernel1.cl"                                             // OpenCL kernel.
-#define K2_FILE     "thekernel2.cl"                                             // OpenCL kernel.
+#define KERNEL_F1   "thekernel1.cl"                                             // OpenCL kernel.
+#define KERNEL_F2   "thekernel2.cl"                                             // OpenCL kernel.
 
 // INCLUDES:
 #include "opengl.hpp"
@@ -33,15 +33,22 @@
 int main ()
 {
   // MESH:
-  float     x_min            = -1.0;                                            // XMIN spatial boundary [m].
-  float     x_max            = +1.0;                                            // XMAX spatial boundary [m].
-  float     y_min            = -1.0;                                            // YMIN spatial boundary [m].
-  float     y_max            = +1.0;                                            // YMAX spatial boundary [m].
-  int       nodes_x          = 100;                                             // Number of nodes in "X" direction [#].
-  int       nodes_y          = 100;                                             // Number of nodes in "Y" direction [#].
-  int       nodes            = nodes_x*nodes_y;                                 // Total number of nodes [#].
+  float     x_min            = -1.0;                                            // "x_min" spatial boundary [m].
+  float     x_max            = +1.0;                                            // "x_max" spatial boundary [m].
+  float     y_min            = -1.0;                                            // "y_min" spatial boundary [m].
+  float     y_max            = +1.0;                                            // "y_max" spatial boundary [m].
+  int       nodes_x          = 100;                                             // # of nodes in "X" direction [#].
+  int       nodes_y          = 100;                                             // # of nodes in "Y" direction [#].
+  int       nodes            = nodes_x*nodes_y;                                 // Total # of nodes [#].
   float     dx               = (x_max - x_min)/(nodes_x - 1);                   // DX mesh spatial size [m].
   float     dy               = (y_max - y_min)/(nodes_y - 1);                   // DY mesh spatial size [m].
+  size_t    i;                                                                  // "x" direction index [#].
+  size_t    j;                                                                  // "y" direction index [#].
+  size_t    gid;                                                                // Global index [#].
+  size_t    border_L;
+  size_t    border_R;
+  size_t    border_D;
+  size_t    border_U;
 
   // SIMULATION PARAMETERS:
   float     h                = 0.01;                                            // Cloth's thickness [m].
@@ -53,8 +60,9 @@ int main ()
   float     k                = E*h*dy/dx;                                       // Cloth's elastic constant [kg/s^2].
   float     C                = mu*h*dx*dy;                                      // Cloth's damping [kg*s*m].
   float     dt_critical      = sqrt (m/k);                                      // Critical time step [s].
-  float     dt               = 0.8* dt_critical;                                // Simulation time step [s].
+  float     dt_simulation    = 0.8* dt_critical;                                // Simulation time step [s].
 
+  // NEUTRINO:
   neutrino* bas              = new neutrino ();                                 // Neutrino baseline.
   opengl*   gui              = new opengl ();                                   // OpenGL context.
   opencl*   ctx              = new opencl ();                                   // OpenCL context.
@@ -63,28 +71,29 @@ int main ()
   kernel*   K1               = new kernel ();                                   // OpenCL kernel array.
   kernel*   K2               = new kernel ();                                   // OpenCL kernel array.
 
-  size_t    i;                                                                  // "x" direction index.
-  size_t    j;                                                                  // "y" direction index.
-
-  point*    voxel_point      = new point ();                                    // Voxel center position.
+  // NODE KINEMATICS:
+  point*    voxel_point      = new point ();                                    // Voxel point position.
   color*    voxel_color      = new color ();                                    // Voxel color.
   float4*   velocity         = new float4 ();                                   // Velocity.
   float4*   acceleration     = new float4 ();                                   // Acceleration.
 
+  // NODE TEMPORARY KINEMATICS:
   float4*   position_int     = new float4 ();                                   // Position (intermediate).
   float4*   velocity_int     = new float4 ();                                   // Velocity (intermediate).
   float4*   acceleration_int = new float4 ();                                   // Acceleration (intermediate).
 
+  // NODE DYNAMICS:
   float4*   gravity          = new float4 ();                                   // Gravity.
   float4*   stiffness        = new float4 ();                                   // Stiffness.
   float4*   resting          = new float4 ();                                   // Resting.
   float4*   friction         = new float4 ();                                   // Friction.
   float4*   mass             = new float4 ();                                   // Mass.
 
-  int1*     index_PR         = new int1 ();                                     // Right particle.
-  int1*     index_PU         = new int1 ();                                     // Up particle.
-  int1*     index_PL         = new int1 ();                                     // Left particle.
-  int1*     index_PD         = new int1 ();                                     // Down particle.
+  // MESH CONNECTIVITY:
+  int1*     index_PR         = new int1 ();                                     // Right neighbour index [#].
+  int1*     index_PU         = new int1 ();                                     // Up neighbour index [#].
+  int1*     index_PL         = new int1 ();                                     // Left neighbour index [#].
+  int1*     index_PD         = new int1 ();                                     // Down neighbour index [#].
 
   float4*   freedom          = new float4 ();                                   // Freedom/constrain flag.
   float1*   dt               = new float1 ();                                   // Time step [s].
@@ -96,35 +105,35 @@ int main ()
   ///////////////////////////////// INITIALIZATION ///////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   bas->init (QUEUE_NUM, KERNEL_NUM, INTEROP);                                   // Initializing Neutrino baseline...
-  gui->init (bas, GUI_SIZE_X, GUI_SIZE_Y, GUI_NAME);                            // Initializing OpenGL context...
+  gui->init (bas, GUI_SX, GUI_SY, GUI_NAME);                                    // Initializing OpenGL context...
   ctx->init (bas, gui, NU_GPU);                                                 // Initializing OpenCL context...
   S->init (bas, SHADER_HOME, SHADER_VERT, SHADER_GEOM, SHADER_FRAG);            // Initializing OpenGL shader...
   Q->init (bas);                                                                // Initializing OpenCL queue...
-  K1->init (bas, KERNEL_HOME, K1_FILE, KERNEL_SX, KERNEL_SY, KERNEL_SZ);        // Initializing OpenCL kernel K1...
-  K2->init (bas, KERNEL_HOME, K2_FILE, KERNEL_SX, KERNEL_SY, KERNEL_SZ);        // Initializing OpenCL kernel K2...
+  K1->init (bas, KERNEL_HOME, KERNEL_F1, KERNEL_SX, KERNEL_SY, KERNEL_SZ);      // Initializing OpenCL kernel K1...
+  K2->init (bas, KERNEL_HOME, KERNEL_F2, KERNEL_SX, KERNEL_SY, KERNEL_SZ);      // Initializing OpenCL kernel K2...
 
-  voxel_point->init (NODES);                                                    // Initializing OpenGL point array...
-  voxel_color->init (NODES);                                                    // Initializing OpenGL color array...
-  velocity->init (NODES);
-  acceleration->init (NODES);
+  voxel_point->init (nodes);                                                    // Initializing OpenGL point array...
+  voxel_color->init (nodes);                                                    // Initializing OpenGL color array...
+  velocity->init (nodes);
+  acceleration->init (nodes);
 
-  position_int->init (NODES);
-  velocity_int->init (NODES);
-  acceleration_int->init (NODES);
+  position_int->init (nodes);
+  velocity_int->init (nodes);
+  acceleration_int->init (nodes);
 
-  gravity->init (NODES);
-  stiffness->init (NODES);
-  resting->init (NODES);
-  friction->init (NODES);
-  mass->init (NODES);
+  gravity->init (nodes);
+  stiffness->init (nodes);
+  resting->init (nodes);
+  friction->init (nodes);
+  mass->init (nodes);
 
-  index_PR->init (NODES);
-  index_PU->init (NODES);
-  index_PL->init (NODES);
-  index_PD->init (NODES);
+  index_PR->init (nodes);
+  index_PU->init (nodes);
+  index_PL->init (nodes);
+  index_PD->init (nodes);
 
-  freedom->init (NODES);
-  dt->init (NODES);
+  freedom->init (nodes);
+  dt->init (nodes);
 
   simulation_time  = 0.0;
   time_step_number = 0;
@@ -170,142 +179,145 @@ int main ()
   K2->setarg (freedom, 16);
   K2->setarg (dt, 17);
 
-  printf ("Critical DT = %f [s]\n", CDT);
-  printf ("Simulation DT = %f [s]\n", DT);
+  printf ("Critical time step = %f [s]\n", dt_critical);
+  printf ("Simulation time step = %f [s]\n", dt_simulation);
 
-  voxel_point->name = "voxel_center";                                           // Setting variable name in OpenGL shader...
-  voxel_color->name = "voxel_color";                                            // Setting variable name in OpenGL shader...
+  voxel_point->name = "voxel_center";                                           // Setting variable name for OpenGL shader...
+  voxel_color->name = "voxel_color";                                            // Setting variable name for OpenGL shader...
 
-  for(j = 0; j < NODES_Y; j++)
+  for(j = 0; j < nodes_y; j++)
   {
-    for(i = 0; i < NODES_X; i++)
+    for(i = 0; i < nodes_y; i++)
     {
+      // Computing global index:
+      gid                      = i + nodes_x*j;
+
       // Setting "x" initial position...
-      voxel_point->data[i + NODES_X*j].x = XMIN + i*DX;
-      voxel_point->data[i + NODES_X*j].y = YMIN + j*DY;
-      voxel_point->data[i + NODES_X*j].z = 0.0;
-      voxel_point->data[i + NODES_X*j].w = 1.0;
+      voxel_point->data[gid].x = x_min + i*dx;
+      voxel_point->data[gid].y = y_min + j*dy;
+      voxel_point->data[gid].z = 0.0;
+      voxel_point->data[gid].w = 1.0;
 
-      gravity->data[i + NODES_X*j].x     = 0.0;                                 // Setting "x" gravity...
-      gravity->data[i + NODES_X*j].y     = 0.0;                                 // Setting "y" gravity...
-      gravity->data[i + NODES_X*j].z     = -G;                                  // Setting "z" gravity...
-      gravity->data[i + NODES_X*j].w     = 1.0;                                 // Setting "w" gravity...
+      gravity->data[gid].x     = 0.0;                                           // Setting "x" gravity...
+      gravity->data[gid].y     = 0.0;                                           // Setting "y" gravity...
+      gravity->data[gid].z     = -g;                                            // Setting "z" gravity...
+      gravity->data[gid].w     = 1.0;                                           // Setting "w" gravity...
 
-      stiffness->data[i + NODES_X*j].x   = K;                                   // Setting "x" stiffness...
-      stiffness->data[i + NODES_X*j].y   = K;                                   // Setting "y" stiffness...
-      stiffness->data[i + NODES_X*j].z   = K;                                   // Setting "z" stiffness...
-      stiffness->data[i + NODES_X*j].w   = 1.0;                                 // Setting "w" stiffness...
+      stiffness->data[gid].x   = k;                                             // Setting "x" stiffness...
+      stiffness->data[gid].y   = k;                                             // Setting "y" stiffness...
+      stiffness->data[gid].z   = k;                                             // Setting "z" stiffness...
+      stiffness->data[gid].w   = 1.0;                                           // Setting "w" stiffness...
 
-      resting->data[i + NODES_X*j].x     = DX;                                  // Setting "x" resting position...
-      resting->data[i + NODES_X*j].y     = DX;                                  // Setting "y" resting position...
-      resting->data[i + NODES_X*j].z     = DX;                                  // Setting "z" resting position...
-      resting->data[i + NODES_X*j].w     = 1.0;                                 // Setting "w" resting position...
+      resting->data[gid].x     = dx;                                            // Setting "x" resting position...
+      resting->data[gid].y     = dx;                                            // Setting "y" resting position...
+      resting->data[gid].z     = dx;                                            // Setting "z" resting position...
+      resting->data[gid].w     = 1.0;                                           // Setting "w" resting position...
 
-      friction->data[i + NODES_X*j].x    = C;                                   // Setting "x" friction...
-      friction->data[i + NODES_X*j].y    = C;                                   // Setting "y" friction...
-      friction->data[i + NODES_X*j].z    = C;                                   // Setting "z" friction...
-      friction->data[i + NODES_X*j].w    = 1.0;                                 // Setting "w" friction...
+      friction->data[gid].x    = C;                                             // Setting "x" friction...
+      friction->data[gid].y    = C;                                             // Setting "y" friction...
+      friction->data[gid].z    = C;                                             // Setting "z" friction...
+      friction->data[gid].w    = 1.0;                                           // Setting "w" friction...
 
-      mass->data[i + NODES_X*j].x        = MASS;                                // Setting "x" mass...
-      mass->data[i + NODES_X*j].y        = MASS;                                // Setting "y" mass...
-      mass->data[i + NODES_X*j].z        = MASS;                                // Setting "z" mass...
-      mass->data[i + NODES_X*j].w        = 1.0;                                 // Setting "w" mass...
+      mass->data[gid].x        = m;                                             // Setting "x" mass...
+      mass->data[gid].y        = m;                                             // Setting "y" mass...
+      mass->data[gid].z        = m;                                             // Setting "z" mass...
+      mass->data[gid].w        = 1.0;                                           // Setting "w" mass...
 
-      voxel_color->data[i + NODES_X*j].r = 1.0;                                 // Setting "x" initial color...
-      voxel_color->data[i + NODES_X*j].g = 0.0;                                 // Setting "y" initial color...
-      voxel_color->data[i + NODES_X*j].b = 0.0;                                 // Setting "z" initial color...
-      voxel_color->data[i + NODES_X*j].a = 1.0;                                 // Setting "w" initial color...
+      voxel_color->data[gid].r = 1.0;                                           // Setting "x" initial color...
+      voxel_color->data[gid].g = 0.0;                                           // Setting "y" initial color...
+      voxel_color->data[gid].b = 0.0;                                           // Setting "z" initial color...
+      voxel_color->data[gid].a = 1.0;                                           // Setting "w" initial color...
 
-      freedom->data[i + NODES_X*j].x     = 1.0;                                 // Setting "x" freedom...
-      freedom->data[i + NODES_X*j].y     = 1.0;                                 // Setting "y" freedom...
-      freedom->data[i + NODES_X*j].z     = 1.0;                                 // Setting "z" freedom...
-      freedom->data[i + NODES_X*j].w     = 1.0;                                 // Setting "w" freedom...
+      freedom->data[gid].x     = 1.0;                                           // Setting "x" freedom...
+      freedom->data[gid].y     = 1.0;                                           // Setting "y" freedom...
+      freedom->data[gid].z     = 1.0;                                           // Setting "z" freedom...
+      freedom->data[gid].w     = 1.0;                                           // Setting "w" freedom...
 
-      dt->data[i + NODES_X*j]            = DT;                                  // Setting time step...
+      dt->data[gid]            = DT;                                            // Setting time step...
 
       if((i != 0) && (i != (NODES_X - 1)) && (j != 0) && (j != (NODES_Y - 1)))  // When on bulk:
       {
-        index_PR->data[i + NODES_X*j] = (i + 1) + NODES_X*j;
-        index_PU->data[i + NODES_X*j] = i + NODES_X*(j + 1);
-        index_PL->data[i + NODES_X*j] = (i - 1) + NODES_X*j;
-        index_PD->data[i + NODES_X*j] = i + NODES_X*(j - 1);
+        index_PR->data[gid] = (i + 1) + NODES_X*j;
+        index_PU->data[gid] = i + NODES_X*(j + 1);
+        index_PL->data[gid] = (i - 1) + NODES_X*j;
+        index_PD->data[gid] = i + NODES_X*(j - 1);
       }
 
       else                                                                      // When on all borders:
       {
-        gravity->data[i + NODES_X*j].x = 0.0;                                   // Setting "x" gravity...
-        gravity->data[i + NODES_X*j].y = 0.0;                                   // Setting "y" gravity...
-        gravity->data[i + NODES_X*j].z = 0.0;                                   // Setting "z" gravity...
-        gravity->data[i + NODES_X*j].w = 1.0;                                   // Setting "w" gravity...
+        gravity->data[gid].x = 0.0;                                             // Setting "x" gravity...
+        gravity->data[gid].y = 0.0;                                             // Setting "y" gravity...
+        gravity->data[gid].z = 0.0;                                             // Setting "z" gravity...
+        gravity->data[gid].w = 1.0;                                             // Setting "w" gravity...
 
-        freedom->data[i + NODES_X*j].x = 0.0;
-        freedom->data[i + NODES_X*j].y = 0.0;
-        freedom->data[i + NODES_X*j].z = 0.0;
-        freedom->data[i + NODES_X*j].w = 0.0;
+        freedom->data[gid].x = 0.0;
+        freedom->data[gid].y = 0.0;
+        freedom->data[gid].z = 0.0;
+        freedom->data[gid].w = 0.0;
       }
 
       if((i == 0) && (j != 0) && (j != (NODES_Y - 1)))                          // When on left border (excluding extremes):
       {
-        index_PR->data[i + NODES_X*j] = (i + 1) + NODES_X*j;
-        index_PU->data[i + NODES_X*j] = i + NODES_X*(j + 1);
-        index_PL->data[i + NODES_X*j] = i + NODES_X*j;
-        index_PD->data[i + NODES_X*j] = i + NODES_X*(j - 1);
+        index_PR->data[gid] = (i + 1) + NODES_X*j;
+        index_PU->data[gid] = i + NODES_X*(j + 1);
+        index_PL->data[gid] = i + NODES_X*j;
+        index_PD->data[gid] = i + NODES_X*(j - 1);
       }
 
       if((i == (NODES_X - 1)) && (j != 0) && (j != (NODES_Y - 1)))              // When on right border (excluding extremes):
       {
-        index_PR->data[i + NODES_X*j] = i + NODES_X*j;
-        index_PU->data[i + NODES_X*j] = i + NODES_X*(j + 1);
-        index_PL->data[i + NODES_X*j] = (i - 1) + NODES_X*j;
-        index_PD->data[i + NODES_X*j] = i + NODES_X*(j - 1);
+        index_PR->data[gid] = i + NODES_X*j;
+        index_PU->data[gid] = i + NODES_X*(j + 1);
+        index_PL->data[gid] = (i - 1) + NODES_X*j;
+        index_PD->data[gid] = i + NODES_X*(j - 1);
       }
 
       if((j == 0) && (i != 0) && (i != (NODES_X - 1)))                          // When on bottom border (excluding extremes):
       {
-        index_PR->data[i + NODES_X*j] = (i + 1) + NODES_X*j;
-        index_PU->data[i + NODES_X*j] = i + NODES_X*(j + 1);
-        index_PL->data[i + NODES_X*j] = (i - 1) + NODES_X*j;
-        index_PD->data[i + NODES_X*j] = i + NODES_X*j;
+        index_PR->data[gid] = (i + 1) + NODES_X*j;
+        index_PU->data[gid] = i + NODES_X*(j + 1);
+        index_PL->data[gid] = (i - 1) + NODES_X*j;
+        index_PD->data[gid] = i + NODES_X*j;
       }
 
       if((j == (NODES_Y - 1)) && (i != 0) && (i != (NODES_X - 1)))              // When on high border (excluding extremes):
       {
-        index_PR->data[i + NODES_X*j] = (i + 1) + NODES_X*j;
-        index_PU->data[i + NODES_X*j] = i + NODES_X*j;
-        index_PL->data[i + NODES_X*j] = (i - 1) + NODES_X*j;
-        index_PD->data[i + NODES_X*j] = i + NODES_X*(j - 1);
+        index_PR->data[gid] = (i + 1) + NODES_X*j;
+        index_PU->data[gid] = i + NODES_X*j;
+        index_PL->data[gid] = (i - 1) + NODES_X*j;
+        index_PD->data[gid] = i + NODES_X*(j - 1);
       }
 
       if((i == 0) && (j == 0))                                                  // When on bottom left corner:
       {
-        index_PR->data[i + NODES_X*j] = (i + 1) + NODES_X*j;
-        index_PU->data[i + NODES_X*j] = i + NODES_X*(j + 1);
-        index_PL->data[i + NODES_X*j] = i + NODES_X*j;
-        index_PD->data[i + NODES_X*j] = i + NODES_X*j;
+        index_PR->data[gid] = (i + 1) + NODES_X*j;
+        index_PU->data[gid] = i + NODES_X*(j + 1);
+        index_PL->data[gid] = i + NODES_X*j;
+        index_PD->data[gid] = i + NODES_X*j;
       }
 
       if((i == (NODES_X - 1)) && (j == 0))                                      // When on bottom right corner:
       {
-        index_PR->data[i + NODES_X*j] = i + NODES_X*j;
-        index_PU->data[i + NODES_X*j] = i + NODES_X*(j + 1);
-        index_PL->data[i + NODES_X*j] = (i - 1) + NODES_X*j;
-        index_PD->data[i + NODES_X*j] = i + NODES_X*j;
+        index_PR->data[gid] = i + NODES_X*j;
+        index_PU->data[gid] = i + NODES_X*(j + 1);
+        index_PL->data[gid] = (i - 1) + NODES_X*j;
+        index_PD->data[gid] = i + NODES_X*j;
       }
 
       if((i == 0) && (j == (NODES_Y - 1)))                                      // When on top left corner:
       {
-        index_PR->data[i + NODES_X*j] = (i + 1) + NODES_X*j;
-        index_PU->data[i + NODES_X*j] = i + NODES_X*j;
-        index_PL->data[i + NODES_X*j] = i + NODES_X*j;
-        index_PD->data[i + NODES_X*j] = i + NODES_X*(j - 1);
+        index_PR->data[gid] = (i + 1) + NODES_X*j;
+        index_PU->data[gid] = i + NODES_X*j;
+        index_PL->data[gid] = i + NODES_X*j;
+        index_PD->data[gid] = i + NODES_X*(j - 1);
       }
 
       if((i == (NODES_X - 1)) && (j == (NODES_Y - 1)))                          // When on top right corner:
       {
-        index_PR->data[i + NODES_X*j] = i + NODES_X*j;
-        index_PU->data[i + NODES_X*j] = i + NODES_X*j;
-        index_PL->data[i + NODES_X*j] = (i - 1) + NODES_X*j;
-        index_PD->data[i + NODES_X*j] = i + NODES_X*(j - 1);
+        index_PR->data[gid] = i + NODES_X*j;
+        index_PU->data[gid] = i + NODES_X*j;
+        index_PL->data[gid] = (i - 1) + NODES_X*j;
+        index_PD->data[gid] = i + NODES_X*(j - 1);
       }
     }
   }
