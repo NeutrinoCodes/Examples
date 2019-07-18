@@ -1,16 +1,5 @@
 /// @file
 
-// MESH:
-#define XMIN        -1.0                                                        // XMIN spatial boundary [m].
-#define XMAX        +1.0                                                        // XMAX spatial boundary [m].
-#define YMIN        -1.0                                                        // YMIN spatial boundary [m].
-#define YMAX        +1.0                                                        // YMAX spatial boundary [m].
-#define NODES_X     100                                                         // Number of nodes in "X" direction [#].
-#define NODES_Y     100                                                         // Number of nodes in "Y" direction [#].
-#define NODES       NODES_X* NODES_Y                                            // Total number of nodes [#].
-#define DX          (float)((XMAX - XMIN)/(NODES_X - 1))                        // DX mesh spatial size [m].
-#define DY          (float)((YMAX - YMIN)/(NODES_Y - 1))                        // DY mesh spatial size [m].
-
 // OPENGL:
 #define INTEROP     true                                                        // "true" = use OpenGL-OpenCL interoperability.
 #define GUI_SIZE_X  800                                                         // Window x-size [px].
@@ -37,24 +26,35 @@
 #define K1_FILE     "thekernel1.cl"                                             // OpenCL kernel.
 #define K2_FILE     "thekernel2.cl"                                             // OpenCL kernel.
 
-// SIMULATION PARAMETERS:
-#define H           0.01                                                        // Cloth's thickness [m].
-#define RHO         1000                                                        // Cloth's mass density [kg/m^3].
-#define E           100000                                                      // Cloth's Young modulus [kg/(m*s^2)].
-#define MU          700.0                                                       // Cloth's viscosity [Pa*s].
-#define MASS        RHO* H* DX* DY                                              // Cloth's mass [kg].
-#define G           9.81                                                        // External gravity field [m/s^2].
-#define K           E* H* (float)(DY)/(float)(DX)                               // Cloth's elastic constant [kg/s^2].
-#define C           MU* H* DX* DY                                               // Cloth's damping [kg*s*m].
-#define CDT         sqrt ((float)(MASS)/(float)(K))                             // Critical time step [s].
-#define DT          0.8*CDT                                                     // Simulation time step [s].
-
 // INCLUDES:
 #include "opengl.hpp"
 #include "opencl.hpp"
 
 int main ()
 {
+  // MESH:
+  float     x_min            = -1.0;                                            // XMIN spatial boundary [m].
+  float     x_max            = +1.0;                                            // XMAX spatial boundary [m].
+  float     y_min            = -1.0;                                            // YMIN spatial boundary [m].
+  float     y_max            = +1.0;                                            // YMAX spatial boundary [m].
+  int       nodes_x          = 100;                                             // Number of nodes in "X" direction [#].
+  int       nodes_y          = 100;                                             // Number of nodes in "Y" direction [#].
+  int       nodes            = nodes_x*nodes_y;                                 // Total number of nodes [#].
+  float     dx               = (x_max - x_min)/(nodes_x - 1);                   // DX mesh spatial size [m].
+  float     dy               = (y_max - y_min)/(nodes_y - 1);                   // DY mesh spatial size [m].
+
+  // SIMULATION PARAMETERS:
+  float     h                = 0.01;                                            // Cloth's thickness [m].
+  float     rho              = 1000.0;                                          // Cloth's mass density [kg/m^3].
+  float     E                = 100000.0;                                        // Cloth's Young modulus [kg/(m*s^2)].
+  float     mu               = 700.0;                                           // Cloth's viscosity [Pa*s].
+  float     m                = rho*h*dx*dy;                                     // Cloth's mass [kg].
+  float     g                = 9.81;                                            // External gravity field [m/s^2].
+  float     k                = E*h*dy/dx;                                       // Cloth's elastic constant [kg/s^2].
+  float     C                = mu*h*dx*dy;                                      // Cloth's damping [kg*s*m].
+  float     dt_critical      = sqrt (m/k);                                      // Critical time step [s].
+  float     dt               = 0.8* dt_critical;                                // Simulation time step [s].
+
   neutrino* bas              = new neutrino ();                                 // Neutrino baseline.
   opengl*   gui              = new opengl ();                                   // OpenGL context.
   opencl*   ctx              = new opencl ();                                   // OpenCL context.
