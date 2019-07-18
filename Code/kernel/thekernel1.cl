@@ -131,17 +131,10 @@ __kernel void thekernel(__global point*     voxel_point,
   A = F/m;
 
   // Calculating and updating position of the center particle...
-  //P += V*dt + A*dt*dt/2.0f;
-  P.z += 0.01;
+  P += V*dt + A*dt*dt/2.0f;
 
   // update positions in global memory
-  voxel_point[gid].x = P.x;                                                    // Getting voxel "x" point coordinate...
-  voxel_point[gid].y = P.y;                                                    // Getting voxel "y" point coordinate...
-  voxel_point[gid].z = P.z;                                                    // Getting voxel "z" point coordinate...
-  voxel_point[gid].w = P.w;                                                    // Getting voxel "w" point coordinate...
-
   position_int[gid] = P;
   velocity_int[gid] = V;
   acceleration_int[gid] = A;
-
 }
