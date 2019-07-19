@@ -1,119 +1,120 @@
 /// @file
 #include "utilities.cl"
 
-__kernel void thekernel(__global point*     voxel_point,
-                        __global color*     voxel_color,
-                        __global float4*    position_int,
-                        __global float4*    velocity,
-                        __global float4*    velocity_int,
-                        __global float4*    acceleration,
-                        __global float4*    acceleration_int,
-                        __global float4*    gravity,
-                        __global float4*    stiffness,
-                        __global float4*    resting,
-                        __global float4*    friction,
-                        __global float4*    mass,
-                        __global long*      index_friend_1,                     // Indexes of "#1 friend" particles.
-                        __global long*      index_friend_2,                     // Indexes of "#2 friend" particles.
-                        __global long*      index_friend_3,                     // Indexes of "#3 friend" particles.
-                        __global long*      index_friend_4,                     // Indexes of "#4 friend" particles.
-                        __global float4*    freedom,
-                        __global float*     DT)
+__kernel void thekernel(__global point*     position,                           // Position [m].
+                        __global color*     depth,                              // Depth color [#]
+                        __global float4*    position_int,                       // Position (intermediate) [m].
+                        __global float4*    velocity,                           // Velocity [m/s].
+                        __global float4*    velocity_int,                       // Velocity (intermediate) [m/s].
+                        __global float4*    acceleration,                       // Acceleration [m/s^2].
+                        __global float4*    acceleration_int,                   // Acceleration (intermediate) [m/s^2].
+                        __global float4*    gravity,                            // Gravity [m/s^2].
+                        __global float4*    stiffness,                          // Stiffness
+                        __global float4*    resting,                            // Resting distance [m].
+                        __global float4*    friction,                           // Friction
+                        __global float4*    mass,                               // Mass [kg].
+                        __global long*      neighbour_R,                        // Right neighbour [#].
+                        __global long*      neighbour_U,                        // Up neighbour [#].
+                        __global long*      neighbour_L,                        // Left neighbour [#].
+                        __global long*      neighbour_D,                        // Down neighbour [#].
+                        __global float4*    freedom,                            // Freedom flag [#].
+                        __global float*     dt_simulation)                      // Simulation time step [s].
 {
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////// GLOBAL INDEX /////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  unsigned long gid = get_global_id(0);                                         // Setting global index "gid"...
+  unsigned long gid = get_global_id(0);                                         // Global index [#].
 
   ////////////////////////////////////////////////////////////////////////////////
   /////////////////// SYNERGIC MOLECULE: KINEMATIC VARIABLES /////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      P;                                                                // Current particle position.
-  float4      col;                                                              // Current particle color.
+  float4      P;                                                                // Position [m].
+  float4      col;                                                              // Depth color [#].
+  float4      V;                                                                // Velocity [m/s].
+  float4      A;                                                                // Acceleration [m/s^2].
 
-  P.x = voxel_point[gid].x;                                                    // Getting voxel "x" point coordinate...
-  P.y = voxel_point[gid].y;                                                    // Getting voxel "y" point coordinate...
-  P.z = voxel_point[gid].z;                                                    // Getting voxel "z" point coordinate...
-  P.w = voxel_point[gid].w;                                                    // Getting voxel "w" point coordinate...
+  P.x = position[gid].x;                                                        // Getting "x" point coordinate [m]...
+  P.y = position[gid].y;                                                        // Getting "y" point coordinate [m]...
+  P.z = position[gid].z;                                                        // Getting "z" point coordinate [m]...
+  P.w = position[gid].w;                                                        // Getting "w" point coordinate [m]...
 
-  col.x = voxel_color[gid].r;                                                   // Getting voxel "r" color coordinate...
-  col.y = voxel_color[gid].g;                                                   // Getting voxel "g" color coordinate...
-  col.z = voxel_color[gid].b;                                                   // Getting voxel "b" color coordinate...
-  col.w = voxel_color[gid].a;                                                   // Getting voxel "a" color coordinate...
+  col.x = depth[gid].r;                                                         // Getting "r" color coordinate [#]...
+  col.y = depth[gid].g;                                                         // Getting "g" color coordinate [#]...
+  col.z = depth[gid].b;                                                         // Getting "b" color coordinate [#]...
+  col.w = depth[gid].a;                                                         // Getting "a" color coordinate [#]...
 
-  float4      V   = velocity[gid];                                              // Current particle velocity.
-  float4      A   = acceleration[gid];                                          // Current particle acceleration.
+  V   = velocity[gid];                                                          // Getting velocity [m/s]...
+  A   = acceleration[gid];                                                      // Getting acceleration [m/s^2]...
 
   ////////////////////////////////////////////////////////////////////////////////
   /////////////////// SYNERGIC MOLECULE: DYNAMIC VARIABLES ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      m   = mass[gid];                                                  // Current particle mass.
-  float4      G   = gravity[gid];                                               // Current particle gravity field.
-  float4      c   = friction[gid];                                              // Current particle friction.
-  float4      fr  = freedom[gid];                                               //
-
+  float4      m   = mass[gid];                                                  // Current node mass.
+  float4      g   = gravity[gid];                                               // Current node gravity field.
+  float4      C   = friction[gid];                                              // Current node friction.
+  float4      fr  = freedom[gid];                                               // Current freedom flag.
 
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////// SYNERGIC MOLECULE: LINK INDEXES /////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  // NOTE: 1. the index of a non-existing particle friend must be set to the index of the particle.
-  long         il_1 = index_friend_1[gid];                                      // Setting indexes of 1st linked particle...
-  long         il_2 = index_friend_2[gid];                                      // Setting indexes of 2nd linked particle...
-  long         il_3 = index_friend_3[gid];                                      // Setting indexes of 3rd linked particle...
-  long         il_4 = index_friend_4[gid];                                      // Setting indexes of 4th linked particle...
+  // NOTE: 1. the index of a non-existing node neighbour must be set to the index of the node.
+  long         n_R = neighbour_R[gid];                                          // Setting right neighbour index...
+  long         n_U = neighbour_U[gid];                                          // Setting up neighbour index...
+  long         n_L = neighbour_L[gid];                                          // Setting left neighbour index...
+  long         n_D = neighbour_D[gid];                                          // Setting down neighbour index...
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////// SYNERGIC MOLECULE: LINKED PARTICLE POSITIONS /////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      Pl_1;                                                             // 1st linked particle position.
-  float4      Pl_2;                                                             // 2nd linked particle position.
-  float4      Pl_3;                                                             // 3rd linked particle position.
-  float4      Pl_4;                                                             // 4th linked particle position.
+  float4      Pl_1;                                                             // Right neighbour position.
+  float4      Pl_2;                                                             // Up neighbour position.
+  float4      Pl_3;                                                             // Left neighbour position.
+  float4      Pl_4;                                                             // Down neighbour position.
 
-  Pl_1.x = voxel_point[il_1].x;                                                 // 1st linked particle position.
-  Pl_1.y = voxel_point[il_1].y;                                                 // 1st linked particle position.
-  Pl_1.z = voxel_point[il_1].z;                                                 // 1st linked particle position.
-  Pl_1.w = voxel_point[il_1].w;                                                 // 1st linked particle position.
+  Pl_1.x = position[n_R].x;                                                 // 1st linked node position.
+  Pl_1.y = position[n_R].y;                                                 // 1st linked node position.
+  Pl_1.z = position[n_R].z;                                                 // 1st linked node position.
+  Pl_1.w = position[n_R].w;                                                 // 1st linked node position.
 
-  Pl_2.x = voxel_point[il_2].x;                                                 // 2nd linked particle position.
-  Pl_2.y = voxel_point[il_2].y;                                                 // 2nd linked particle position.
-  Pl_2.z = voxel_point[il_2].z;                                                 // 2nd linked particle position.
-  Pl_2.w = voxel_point[il_2].w;                                                 // 2nd linked particle position.
+  Pl_2.x = position[n_U].x;                                                 // 2nd linked node position.
+  Pl_2.y = position[n_U].y;                                                 // 2nd linked node position.
+  Pl_2.z = position[n_U].z;                                                 // 2nd linked node position.
+  Pl_2.w = position[n_U].w;                                                 // 2nd linked node position.
 
-  Pl_3.x = voxel_point[il_3].x;                                                 // 3rd linked particle position.
-  Pl_3.y = voxel_point[il_3].y;                                                 // 3rd linked particle position.
-  Pl_3.z = voxel_point[il_3].z;                                                 // 3rd linked particle position.
-  Pl_3.w = voxel_point[il_3].w;                                                 // 3rd linked particle position.
+  Pl_3.x = position[n_L].x;                                                 // 3rd linked node position.
+  Pl_3.y = position[n_L].y;                                                 // 3rd linked node position.
+  Pl_3.z = position[n_L].z;                                                 // 3rd linked node position.
+  Pl_3.w = position[n_L].w;                                                 // 3rd linked node position.
 
-  Pl_4.x = voxel_point[il_4].x;                                                 // 4th linked particle position.
-  Pl_4.y = voxel_point[il_4].y;                                                 // 4th linked particle position.
-  Pl_4.z = voxel_point[il_4].z;                                                 // 4th linked particle position.
-  Pl_4.w = voxel_point[il_4].w;                                                 // 4th linked particle position.
+  Pl_4.x = position[n_D].x;                                                 // 4th linked node position.
+  Pl_4.y = position[n_D].y;                                                 // 4th linked node position.
+  Pl_4.z = position[n_D].z;                                                 // 4th linked node position.
+  Pl_4.w = position[n_D].w;                                                 // 4th linked node position.
 
   ////////////////////////////////////////////////////////////////////////////////
   //////////////// SYNERGIC MOLECULE: LINK RESTING DISTANCES /////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      rl_1 = resting[il_1];                                             // 1st linked particle resting distance.
-  float4      rl_2 = resting[il_2];                                             // 2nd linked particle resting distance.
-  float4      rl_3 = resting[il_3];                                             // 3rd linked particle resting distance.
-  float4      rl_4 = resting[il_4];                                             // 4th linked particle resting distance.
+  float4      rl_1 = resting[n_R];                                             // 1st linked node resting distance.
+  float4      rl_2 = resting[n_U];                                             // 2nd linked node resting distance.
+  float4      rl_3 = resting[n_L];                                             // 3rd linked node resting distance.
+  float4      rl_4 = resting[n_D];                                             // 4th linked node resting distance.
 
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////// SYNERGIC MOLECULE: LINK STIFFNESS ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   // NOTE: the stiffness of a non-existing link must reset to 0.
-  float4      kl_1 = stiffness[il_1];                                           // 1st link stiffness.
-  float4      kl_2 = stiffness[il_2];                                           // 2nd link stiffness.
-  float4      kl_3 = stiffness[il_3];                                           // 3rd link stiffness.
-  float4      kl_4 = stiffness[il_4];                                           // 4th link stiffness.
+  float4      kl_1 = stiffness[n_R];                                           // 1st link stiffness.
+  float4      kl_2 = stiffness[n_U];                                           // 2nd link stiffness.
+  float4      kl_3 = stiffness[n_L];                                           // 3rd link stiffness.
+  float4      kl_4 = stiffness[n_D];                                           // 4th link stiffness.
 
   //////////////////////////////////////////////////////////////////////////////
   /////////////////////////////// VERLET INTEGRATION ///////////////////////////
   //////////////////////////////////////////////////////////////////////////////
 
   // time step
-  float dt = DT[gid];
+  float dt = dt_simulation[gid];
 
   // linked particles displacements
   float4      Dl_1;
@@ -126,14 +127,14 @@ __kernel void thekernel(__global point*     voxel_point,
                                   rl_4, fr, &Dl_1, &Dl_2, &Dl_3, &Dl_4);
 
   float4 F = compute_particle_force(kl_1, kl_2, kl_3, kl_4, Dl_1, Dl_2, Dl_3, Dl_4,
-                            c, V, m, G, fr);
+                            C, V, m, g, fr);
 
   A = F/m;
 
-  // Calculating and updating position of the center particle...
+  // Calculating and updating position of the center node...
   P += V*dt + A*dt*dt/2.0f;
 
-  // update positions in global memory
+  // Updating positions in global memory...
   position_int[gid] = P;
   velocity_int[gid] = V;
   acceleration_int[gid] = A;
