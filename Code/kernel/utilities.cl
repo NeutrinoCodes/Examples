@@ -10,22 +10,22 @@
 #define BMAX                      1.0f                                          // Maximum blue channel for colormap
 #define SCALE                     1.5f                                          // Scale factor for plot
 
-void compute_link_displacements (
-                                  float4 Pl_1,
-                                  float4 Pl_2,
-                                  float4 Pl_3,
-                                  float4 Pl_4,
-                                  float4 P,
-                                  float4 rl_1,
-                                  float4 rl_2,
-                                  float4 rl_3,
-                                  float4 rl_4,
-                                  float4 fr,
-                                  float4* Dl_1,
-                                  float4* Dl_2,
-                                  float4* Dl_3,
-                                  float4* Dl_4
-                                )
+void link_displacements (
+                          float4 P_R,                                           // Right neighbour position [m].
+                          float4 P_U,                                           // Up neighbour position [m].
+                          float4 P_L,                                           // Left neighbour position [m].
+                          float4 P_D,                                           // Down neighbour position [m].
+                          float4 P,                                             // Position [m].
+                          float4 resting_R,                                     // Right neighbour resting position [m].
+                          float4 resting_U,                                     // Up neighbour resting position [m].
+                          float4 resting_L,                                     // Left neighbour resting position [m].
+                          float4 resting_D,                                     // Down neighbour resting position [m].
+                          float4 fr,                                            // Freedom flag [#].
+                          float4* D_R,                                          // Right neighbour displacement [m].
+                          float4* D_U,                                          // Up neighbour displacement [m].
+                          float4* D_L,                                          // Left neighbour displacement [m].
+                          float4* D_D                                           // Down neighbour displacement [m].
+                        )
 {
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////// SYNERGIC MOLECULE: LINKED PARTICLE VECTOR ///////////////////
@@ -61,21 +61,21 @@ void compute_link_displacements (
   *Dl_4 = sl_4*SAFEDIV(Ll_4, ll_4, epsilon);                                                             // 4th linked particle displacement.
 }
 
-float4 compute_particle_force (
-                                float4 kl_1,
-                                float4 kl_2,
-                                float4 kl_3,
-                                float4 kl_4,
-                                float4 Dl_1,
-                                float4 Dl_2,
-                                float4 Dl_3,
-                                float4 Dl_4,
-                                float4 c,
-                                float4 V,
-                                float4 m,
-                                float4 G,
-                                float4 fr
-                              )
+float4 node_force (
+                    float4  k_R,                                                // Right neighbour stiffness.
+                    float4  k_U,                                                // Right neighbour stiffness.
+                    float4  k_L,                                                // Right neighbour stiffness.
+                    float4  k_D,                                                // Right neighbour stiffness.
+                    float4  D_R,                                                // Right neighbour displacement [m].
+                    float4  D_U,                                                // Up neighbour displacement [m].
+                    float4  D_L,                                                // Left neighbour displacement [m].
+                    float4  D_D,                                                // Down neighbour displacement [m].
+                    float4  C,                                                  // Friction coefficient.
+                    float4  V,                                                  // Velocity [m/s].
+                    float4  m,                                                  // Mass [kg].
+                    float4  g,                                                  // Gravity [m/s^2].
+                    float4  fr                                                  // Freedom flag [#].
+                  )
 {
   ////////////////////////////////////////////////////////////////////////////////
   //////////////////////// SYNERGIC MOLECULE: ELASTIC FORCE //////////////////////

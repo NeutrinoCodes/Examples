@@ -16,9 +16,6 @@
 // OPENCL:
 #define QUEUE_NUM   1                                                           // # of OpenCL queues [#].
 #define KERNEL_NUM  2                                                           // # of OpenCL kernel [#].
-#define KERNEL_SX   NODES                                                       // Dimension of OpenCL kernel (i-index).
-#define KERNEL_SY   0                                                           // Dimension of OpenCL kernel (j-index).
-#define KERNEL_SZ   0                                                           // Dimension of OpenCL kernel (k-index).
 //#define KERNEL_HOME \
 //  "/run/media/ezor/LINUX/BookhouseBoys/ezor/Neutrino/Code/kernel"               // OpenCL kernel header files directory.
 #define KERNEL_HOME \
@@ -49,6 +46,10 @@ int main ()
   size_t    border_U         = nodes_y - 1;                                     // Cloth's up border index [#].
   size_t    border_L         = 0;                                               // Cloth's left border index [#].
   size_t    border_D         = 0;                                               // Cloth's down border index [#].
+  size_t    neighbour_R;                                                        // Right neighbour index [#].
+  size_t    neighbour_U;                                                        // Up neighbour index [#].
+  size_t    neighbour_L;                                                        // Left neighbour index [#].
+  size_t    neighbour_D;                                                        // Down neighbour index [#].
 
   // SIMULATION PARAMETERS:
   float     h                = 0.01;                                            // Cloth's thickness [m].
@@ -70,6 +71,9 @@ int main ()
   queue*    Q                = new queue ();                                    // OpenCL queue.
   kernel*   K1               = new kernel ();                                   // OpenCL kernel array.
   kernel*   K2               = new kernel ();                                   // OpenCL kernel array.
+  size_t    kernel_sx        = nodes;                                           // Kernel dimension "x" [#].
+  size_t    kernel_sy        = 0;                                               // Kernel dimension "y" [#].
+  size_t    kernel_sz        = 0;                                               // Kernel dimension "z" [#].
 
   // NODE KINEMATICS:
   point*    position         = new point ();                                    // Position [m].
@@ -109,8 +113,8 @@ int main ()
   ctx->init (bas, gui, NU_GPU);                                                 // Initializing OpenCL context...
   S->init (bas, SHADER_HOME, SHADER_VERT, SHADER_GEOM, SHADER_FRAG);            // Initializing OpenGL shader...
   Q->init (bas);                                                                // Initializing OpenCL queue...
-  K1->init (bas, KERNEL_HOME, KERNEL_F1, KERNEL_SX, KERNEL_SY, KERNEL_SZ);      // Initializing OpenCL kernel K1...
-  K2->init (bas, KERNEL_HOME, KERNEL_F2, KERNEL_SX, KERNEL_SY, KERNEL_SZ);      // Initializing OpenCL kernel K2...
+  K1->init (bas, KERNEL_HOME, KERNEL_F1, kernel_sx, kernel_sy, kernel_sz);      // Initializing OpenCL kernel K1...
+  K2->init (bas, KERNEL_HOME, KERNEL_F2, kernel_sx, kernel_sy, kernel_sz);      // Initializing OpenCL kernel K2...
 
   position->init (nodes);                                                       // Initializing OpenGL point array...
   depth->init (nodes);                                                          // Initializing OpenGL color array...

@@ -1,24 +1,24 @@
 /// @file
 #include "utilities.cl"
 
-__kernel void thekernel(__global point*     voxel_point,
-                        __global color*     voxel_color,
-                        __global float4*    position_int,
-                        __global float4*    velocity,
-                        __global float4*    velocity_int,
-                        __global float4*    acceleration,
-                        __global float4*    acceleration_int,
-                        __global float4*    gravity,
-                        __global float4*    stiffness,
-                        __global float4*    resting,
-                        __global float4*    friction,
-                        __global float4*    mass,
-                        __global long*      index_friend_1,                     // Indexes of "#1 friend" particles.
-                        __global long*      index_friend_2,                     // Indexes of "#2 friend" particles.
-                        __global long*      index_friend_3,                     // Indexes of "#3 friend" particles.
-                        __global long*      index_friend_4,                     // Indexes of "#4 friend" particles.
-                        __global float4*    freedom,
-                        __global float*     DT)
+__kernel void thekernel(__global point*     position,                           // Position [m].
+                        __global color*     depth,                              // Depth color [#]
+                        __global float4*    position_int,                       // Position (intermediate) [m].
+                        __global float4*    velocity,                           // Velocity [m/s].
+                        __global float4*    velocity_int,                       // Velocity (intermediate) [m/s].
+                        __global float4*    acceleration,                       // Acceleration [m/s^2].
+                        __global float4*    acceleration_int,                   // Acceleration (intermediate) [m/s^2].
+                        __global float4*    gravity,                            // Gravity [m/s^2].
+                        __global float4*    stiffness,                          // Stiffness
+                        __global float4*    resting,                            // Resting distance [m].
+                        __global float4*    friction,                           // Friction
+                        __global float4*    mass,                               // Mass [kg].
+                        __global long*      neighbour_R,                        // Right neighbour [#].
+                        __global long*      neighbour_U,                        // Up neighbour [#].
+                        __global long*      neighbour_L,                        // Left neighbour [#].
+                        __global long*      neighbour_D,                        // Down neighbour [#].
+                        __global float4*    freedom,                            // Freedom flag [#].
+                        __global float*     dt_simulation)                      // Simulation time step [s].
 {
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -29,116 +29,160 @@ __kernel void thekernel(__global point*     voxel_point,
   ////////////////////////////////////////////////////////////////////////////////
   /////////////////// SYNERGIC MOLECULE: KINEMATIC VARIABLES /////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      P   = position_int[gid];                                          // Current particle position.
-  float4      V   = velocity_int[gid];                                          // Current particle velocity.
-  float4      A   = acceleration_int[gid];                                      // Current particle acceleration.
+  float4      P   = position_int[gid];                                          // Position (intermediate) [m].
+  float4      V   = velocity_int[gid];                                          // Velocity (intermediate) [m/s].
+  float4      A   = acceleration_int[gid];                                      // Acceleration (intermediate) [m/s^2].
 
   ////////////////////////////////////////////////////////////////////////////////
   /////////////////// SYNERGIC MOLECULE: DYNAMIC VARIABLES ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      m   = mass[gid];                                                  // Current particle mass.
-  float4      G   = gravity[gid];                                               // Current particle gravity field.
-  float4      c   = friction[gid];                                              // Current particle friction.
-  float4      fr  = freedom[gid];                                               //
+  float4      m   = mass[gid];                                                  // Mass [kg].
+  float4      g   = gravity[gid];                                               // Gravity [m/s^2]
+  float4      C   = friction[gid];                                              // Friction coefficient.
+  float4      fr  = freedom[gid];                                               // Freedom flag [#].
   float4      col;                                                              // Current particle color.
 
-  col.x = voxel_color[gid].r;                                                   // Getting voxel "r" color coordinate...
-  col.y = voxel_color[gid].g;                                                   // Getting voxel "g" color coordinate...
-  col.z = voxel_color[gid].b;                                                   // Getting voxel "b" color coordinate...
-  col.w = voxel_color[gid].a;                                                   // Getting voxel "a" color coordinate...
+  col.x = depth[gid].r;                                                         // Getting "r" color coordinate [#]...
+  col.y = depth[gid].g;                                                         // Getting "g" color coordinate [#]...
+  col.z = depth[gid].b;                                                         // Getting "b" color coordinate [#]...
+  col.w = depth[gid].a;                                                         // Getting "a" color coordinate [#]...
 
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////// SYNERGIC MOLECULE: LINK INDEXES /////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   // NOTE: 1. the index of a non-existing particle friend must be set to the index of the particle.
-  long        il_1 = index_friend_1[gid];                                       // Setting indexes of 1st linked particle...
-  long        il_2 = index_friend_2[gid];                                       // Setting indexes of 2nd linked particle...
-  long        il_3 = index_friend_3[gid];                                       // Setting indexes of 3rd linked particle...
-  long        il_4 = index_friend_4[gid];                                       // Setting indexes of 4th linked particle...
+  long        n_R = neighbour_R[gid];                                           // Setting right neighbour index [#]...
+  long        n_U = neighbour_U[gid];                                           // Setting up neighbour index [#]...
+  long        n_L = neighbour_L[gid];                                           // Setting left neighbour index [#]...
+  long        n_D = neighbour_D[gid];                                           // Setting down neighbour index [#]...
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////// SYNERGIC MOLECULE: LINKED PARTICLE POSITIONS /////////////////  t_(n+1)
   ////////////////////////////////////////////////////////////////////////////////
-  float4      Pl_1 = position_int[il_1];                                        // 1st linked particle position.
-  float4      Pl_2 = position_int[il_2];                                        // 2nd linked particle position.
-  float4      Pl_3 = position_int[il_3];                                        // 3rd linked particle position.
-  float4      Pl_4 = position_int[il_4];                                        // 4th linked particle position.
+  float4      P_R = position_int[n_R];                                          // Right neighbour position [m].
+  float4      P_U = position_int[n_U];                                          // Up neighbour position [m].
+  float4      P_L = position_int[n_L];                                          // Left neighbour position [m].
+  float4      P_D = position_int[n_D];                                          // Down neighbour position [m].
 
   ////////////////////////////////////////////////////////////////////////////////
   //////////////// SYNERGIC MOLECULE: LINK RESTING DISTANCES /////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      rl_1 = resting[il_1];                                             // 1st linked particle resting distance.
-  float4      rl_2 = resting[il_2];                                             // 2nd linked particle resting distance.
-  float4      rl_3 = resting[il_3];                                             // 3rd linked particle resting distance.
-  float4      rl_4 = resting[il_4];                                             // 4th linked particle resting distance.
+  float4      resting_R = resting[n_R];                                         // Setting right neighbour resting position [m]...
+  float4      resting_U = resting[n_U];                                         // Setting up neighbour resting position [m]...
+  float4      resting_L = resting[n_L];                                         // Setting left neighbour resting position [m]...
+  float4      resting_D = resting[n_D];                                         // Setting down neighbour resting position [m]...
 
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////// SYNERGIC MOLECULE: LINK STIFFNESS ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   // NOTE: the stiffness of a non-existing link must reset to 0.
-  float4      kl_1 = stiffness[il_1];                                           // 1st link stiffness.
-  float4      kl_2 = stiffness[il_2];                                           // 2nd link stiffness.
-  float4      kl_3 = stiffness[il_3];                                           // 3rd link stiffness.
-  float4      kl_4 = stiffness[il_4];                                           // 4th link stiffness.
+  float4      k_R = stiffness[n_R];                                             // Setting right neighbour stiffness...
+  float4      k_U = stiffness[n_U];                                             // Setting up neighbour stiffness...
+  float4      k_L = stiffness[n_L];                                             // Setting left neighbour stiffness...
+  float4      k_D = stiffness[n_D];                                             // Setting down neighbour stiffness...
 
   //////////////////////////////////////////////////////////////////////////////
   /////////////////////////////// VERLET INTEGRATION ///////////////////////////
   //////////////////////////////////////////////////////////////////////////////
 
-  // time step
-  float dt = DT[gid];
+  // TIME STEP:
+  float dt = dt_simulation[gid];                                                // Setting simulation time step [s]...
 
-  // linked particles displacements
-  float4      Dl_1;
-  float4      Dl_2;
-  float4      Dl_3;
-  float4      Dl_4;
+  // NEIGHBOURS DISPLACEMENTS:
+  float4      D_R;                                                              // Right neighbour displacement [m]...
+  float4      D_U;                                                              // Up neighbour displacement [m]...
+  float4      D_L;                                                              // Left neighbour displacement [m]...
+  float4      D_D;                                                              // Down neighbour displacement [m]...
 
-  // save velocity at time t_n
-  float4 Vn = V;
+  // VELOCITY BACKUP (@ t_n):
+  float4 Vn = V;                                                                // Velocity backup [m/s]...
 
-  // compute velocity used for computation of acceleration at t_(n+1)
+  // COMPUTING VELOCITY (for acceleration computation @ t_(n+1)):
   V += A*dt;
 
-  // compute new acceleration based on velocity estimate at t_(n+1)
-  compute_link_displacements(Pl_1, Pl_2, Pl_3, Pl_4, P, rl_1, rl_2, rl_3,
-                                  rl_4, fr, &Dl_1, &Dl_2, &Dl_3, &Dl_4);
+  // COMPUTING LINK DISPLACEMENTS:
+  link_displacements(
+                      P_R,                                                      // Right neighbour position [m].
+                      P_U,                                                      // Up neighbour position [m].
+                      P_L,                                                      // Left neighbour position [m].
+                      P_D,                                                      // Down neighbour position [m].
+                      P,                                                        // Position [m].
+                      resting_R,                                                // Right neighbour resting position [m].
+                      resting_U,                                                // Up neighbour resting position [m].
+                      resting_L,                                                // Left neighbour resting position [m].
+                      resting_D,                                                // Down neighbour resting position [m].
+                      fr,                                                       // Freedom flag [#].
+                      &D_R,                                                     // Right neighbour displacement [m].
+                      &D_U,                                                     // Up neighbour displacement [m].
+                      &D_L,                                                     // Left neighbour displacement [m].
+                      &D_D                                                      // Down neighbour displacement [m].
+                    );
 
-  float4 Fnew = compute_particle_force(kl_1, kl_2, kl_3, kl_4, Dl_1, Dl_2, Dl_3, Dl_4,
-                            c, V, m, G, fr);
+  // COMPUTING NODE FORCE:
+  float4 Fnew = node_force  (
+                              k_R,                                              // Right neighbour stiffness.
+                              k_U,                                              // Right neighbour stiffness.
+                              k_L,                                              // Right neighbour stiffness.
+                              k_D,                                              // Right neighbour stiffness.
+                              D_R,                                              // Right neighbour displacement [m].
+                              D_U,                                              // Up neighbour displacement [m].
+                              D_L,                                              // Left neighbour displacement [m].
+                              D_D,                                              // Down neighbour displacement [m].
+                              C,                                                // Friction coefficient.
+                              V,                                                // Velocity [m/s].
+                              m,                                                // Mass [kg].
+                              g,                                                // Gravity [m/s^2].
+                              fr                                                // Freedom flag [#].
+                            );
 
-  float4 Anew = Fnew/m;
+  // COMPUTING ACCELERATION:
+  Anew = Fnew/m;                                                                // Computing acceleration [m/s^2]...
 
-  // predictor step: velocity at time t_(n+1) based on new forces
+  // PREDICTOR (velocity @ t_(n+1) based on new acceleration):
+  V = Vn + dt*(A+Anew)/2.0f;                                                    // Computing velocity [m/s]...
+
+  // COMPUTING NODE FORCE:
+  float4 Fnew = node_force  (
+                              k_R,                                              // Right neighbour stiffness.
+                              k_U,                                              // Right neighbour stiffness.
+                              k_L,                                              // Right neighbour stiffness.
+                              k_D,                                              // Right neighbour stiffness.
+                              D_R,                                              // Right neighbour displacement [m].
+                              D_U,                                              // Up neighbour displacement [m].
+                              D_L,                                              // Left neighbour displacement [m].
+                              D_D,                                              // Down neighbour displacement [m].
+                              C,                                                // Friction coefficient.
+                              V,                                                // Velocity [m/s].
+                              m,                                                // Mass [kg].
+                              g,                                                // Gravity [m/s^2].
+                              fr                                                // Freedom flag [#].
+                            );
+
+  // COMPUTING ACCELERATION:
+  Anew = Fnew/m;                                                                // Computing acceleration [m/s^2]...
+
+  // CORRECTOR (velocity @ t_(n+1) based on new acceleration):
   V = Vn + dt*(A+Anew)/2.0f;
 
-  // compute new acceleration based on predicted velocity at t_(n+1)
-  Fnew = compute_particle_force(kl_1, kl_2, kl_3, kl_4, Dl_1, Dl_2, Dl_3, Dl_4,
-                            c, V, m, G, fr);
+  // FIXING PROJECTIVE SPACE:
+  fix_projective_space(&P);                                                     // Fixing position [m]...
+  fix_projective_space(&V);                                                     // Fixing velocity [m/s]...
+  fix_projective_space(&A);                                                     // Fixing acceleration [m/s^2]...
 
-  Anew = Fnew/m;
+  // ASSIGNING DEPTH COLOR:
+  assign_color(&col, &P);                                                       // Assigning depth color [à]...
 
-  // corrector step
-  V = Vn + dt*(A+Anew)/2.0f;
+  // UPDATING KINEMATICS:
+  position[gid].x = P.x;                                                        // Updating "x" position coordinate [m]...
+  position[gid].y = P.y;                                                        // Updating "y" position coordinate [m]...
+  position[gid].z = P.z;                                                        // Updating "z" position coordinate [m]...
+  position[gid].w = P.w;                                                        // Updating "w" position coordinate [m]...
 
-  // set 4th component to 1
-  fix_projective_space(&P);
-  fix_projective_space(&V);
-  fix_projective_space(&A);
-
-  assign_color(&col, &P);
-
-  // update data arrays in memory (with data at time t_(n+1))
-  voxel_point[gid].x = P.x;                                                    // Getting voxel "x" point coordinate...
-  voxel_point[gid].y = P.y;                                                    // Getting voxel "y" point coordinate...
-  voxel_point[gid].z = P.z;                                                    // Getting voxel "z" point coordinate...
-  voxel_point[gid].w = P.w;                                                    // Getting voxel "w" point coordinate...
-
-  velocity[gid] = V;
+  velocity[gid] = V;                                                            // Updating velocity [m/s]...
   acceleration[gid] = A;
 
-  voxel_color[gid].r = col.x;                                                   // Getting voxel "r" color coordinate...
-  voxel_color[gid].g = col.y;                                                   // Getting voxel "g" color coordinate...
-  voxel_color[gid].b = col.z;                                                   // Getting voxel "b" color coordinate...
-  voxel_color[gid].a = col.w;                                                   // Getting voxel "a" color coordinate...
+  depth[gid].r = col.x;                                                         // Updating "r" color coordinate [#]...
+  depth[gid].g = col.y;                                                         // Updating "g" color coordinate [#]...
+  depth[gid].b = col.z;                                                         // Updating "b" color coordinate [#]...
+  depth[gid].a = col.w;                                                         // Updating "a" color coordinate [#]...
 }
