@@ -59,83 +59,112 @@ __kernel void thekernel(__global point*     position,                           
   ////////////////////// SYNERGIC MOLECULE: LINK INDEXES /////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   // NOTE: 1. the index of a non-existing node neighbour must be set to the index of the node.
-  long         n_R = neighbour_R[gid];                                          // Setting right neighbour index...
-  long         n_U = neighbour_U[gid];                                          // Setting up neighbour index...
-  long         n_L = neighbour_L[gid];                                          // Setting left neighbour index...
-  long         n_D = neighbour_D[gid];                                          // Setting down neighbour index...
+  long        n_R = neighbour_R[gid];                                           // Setting right neighbour index [#]...
+  long        n_U = neighbour_U[gid];                                           // Setting up neighbour index [#]...
+  long        n_L = neighbour_L[gid];                                           // Setting left neighbour index [#]...
+  long        n_D = neighbour_D[gid];                                           // Setting down neighbour index [#]...
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////// SYNERGIC MOLECULE: LINKED PARTICLE POSITIONS /////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      Pl_1;                                                             // Right neighbour position.
-  float4      Pl_2;                                                             // Up neighbour position.
-  float4      Pl_3;                                                             // Left neighbour position.
-  float4      Pl_4;                                                             // Down neighbour position.
+  float4      P_R;                                                              // Right neighbour position [m].
+  float4      P_U;                                                              // Up neighbour position [m].
+  float4      P_L;                                                              // Left neighbour position [m].
+  float4      P_D;                                                              // Down neighbour position [m].
 
-  Pl_1.x = position[n_R].x;                                                 // 1st linked node position.
-  Pl_1.y = position[n_R].y;                                                 // 1st linked node position.
-  Pl_1.z = position[n_R].z;                                                 // 1st linked node position.
-  Pl_1.w = position[n_R].w;                                                 // 1st linked node position.
+  P_R.x = position[n_R].x;                                                      // Setting right neighbour "x" position coordinate [m]...
+  P_R.y = position[n_R].y;                                                      // Setting right neighbour "x" position coordinate [m]...
+  P_R.z = position[n_R].z;                                                      // Setting right neighbour "x" position coordinate [m]...
+  P_R.w = position[n_R].w;                                                      // Setting right neighbour "x" position coordinate [m]...
 
-  Pl_2.x = position[n_U].x;                                                 // 2nd linked node position.
-  Pl_2.y = position[n_U].y;                                                 // 2nd linked node position.
-  Pl_2.z = position[n_U].z;                                                 // 2nd linked node position.
-  Pl_2.w = position[n_U].w;                                                 // 2nd linked node position.
+  P_U.x = position[n_U].x;                                                      // Setting up neighbour "y" position coordinate [m]...
+  P_U.y = position[n_U].y;                                                      // Setting up neighbour "y" position coordinate [m]...
+  P_U.z = position[n_U].z;                                                      // Setting up neighbour "y" position coordinate [m]...
+  P_U.w = position[n_U].w;                                                      // Setting up neighbour "y" position coordinate [m]...
 
-  Pl_3.x = position[n_L].x;                                                 // 3rd linked node position.
-  Pl_3.y = position[n_L].y;                                                 // 3rd linked node position.
-  Pl_3.z = position[n_L].z;                                                 // 3rd linked node position.
-  Pl_3.w = position[n_L].w;                                                 // 3rd linked node position.
+  P_L.x = position[n_L].x;                                                      // Setting left neighbour "z" position coordinate [m]...
+  P_L.y = position[n_L].y;                                                      // Setting left neighbour "z" position coordinate [m]...
+  P_L.z = position[n_L].z;                                                      // Setting left neighbour "z" position coordinate [m]...
+  P_L.w = position[n_L].w;                                                      // Setting left neighbour "z" position coordinate [m]...
 
-  Pl_4.x = position[n_D].x;                                                 // 4th linked node position.
-  Pl_4.y = position[n_D].y;                                                 // 4th linked node position.
-  Pl_4.z = position[n_D].z;                                                 // 4th linked node position.
-  Pl_4.w = position[n_D].w;                                                 // 4th linked node position.
+  P_D.x = position[n_D].x;                                                      // Setting down neighbour "w" position coordinate [m]...
+  P_D.y = position[n_D].y;                                                      // Setting down neighbour "w" position coordinate [m]...
+  P_D.z = position[n_D].z;                                                      // Setting down neighbour "w" position coordinate [m]...
+  P_D.w = position[n_D].w;                                                      // Setting down neighbour "w" position coordinate [m]...
 
   ////////////////////////////////////////////////////////////////////////////////
   //////////////// SYNERGIC MOLECULE: LINK RESTING DISTANCES /////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      rl_1 = resting[n_R];                                             // 1st linked node resting distance.
-  float4      rl_2 = resting[n_U];                                             // 2nd linked node resting distance.
-  float4      rl_3 = resting[n_L];                                             // 3rd linked node resting distance.
-  float4      rl_4 = resting[n_D];                                             // 4th linked node resting distance.
+  float4      resting_R = resting[n_R];                                         // Setting right neighbour resting position [m]...
+  float4      resting_U = resting[n_U];                                         // Setting up neighbour resting position [m]...
+  float4      resting_L = resting[n_L];                                         // Setting left neighbour resting position [m]...
+  float4      resting_D = resting[n_D];                                         // Setting down neighbour resting position [m]...
 
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////// SYNERGIC MOLECULE: LINK STIFFNESS ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   // NOTE: the stiffness of a non-existing link must reset to 0.
-  float4      kl_1 = stiffness[n_R];                                           // 1st link stiffness.
-  float4      kl_2 = stiffness[n_U];                                           // 2nd link stiffness.
-  float4      kl_3 = stiffness[n_L];                                           // 3rd link stiffness.
-  float4      kl_4 = stiffness[n_D];                                           // 4th link stiffness.
+  float4      k_R = stiffness[n_R];                                             // Setting right neighbour stiffness...
+  float4      k_U = stiffness[n_U];                                             // Setting up neighbour stiffness...
+  float4      k_L = stiffness[n_L];                                             // Setting left neighbour stiffness...
+  float4      k_D = stiffness[n_D];                                             // Setting down neighbour stiffness...
 
   //////////////////////////////////////////////////////////////////////////////
   /////////////////////////////// VERLET INTEGRATION ///////////////////////////
   //////////////////////////////////////////////////////////////////////////////
 
-  // time step
-  float dt = dt_simulation[gid];
+  // TIME STEP:
+  float dt = dt_simulation[gid];                                                // Setting simulation time step [s]...
 
-  // linked particles displacements
-  float4      Dl_1;
-  float4      Dl_2;
-  float4      Dl_3;
-  float4      Dl_4;
+  // NEIGHBOURS DISPLACEMENTS:
+  float4      D_R;                                                              // Right neighbour displacement [m]...
+  float4      D_U;                                                              // Up neighbour displacement [m]...
+  float4      D_L;                                                              // Left neighbour displacement [m]...
+  float4      D_D;                                                              // Down neighbour displacement [m]...
 
-  // Calculating acceleration at time t_n...
-  compute_link_displacements(Pl_1, Pl_2, Pl_3, Pl_4, P, rl_1, rl_2, rl_3,
-                                  rl_4, fr, &Dl_1, &Dl_2, &Dl_3, &Dl_4);
+  // COMPUTING LINK DISPLACEMENTS:
+  link_displacements(
+                      P_R,                                                      // Right neighbour position [m].
+                      P_U,                                                      // Up neighbour position [m].
+                      P_L,                                                      // Left neighbour position [m].
+                      P_D,                                                      // Down neighbour position [m].
+                      P,                                                        // Position [m].
+                      resting_R,                                                // Right neighbour resting position [m].
+                      resting_U,                                                // Up neighbour resting position [m].
+                      resting_L,                                                // Left neighbour resting position [m].
+                      resting_D,                                                // Down neighbour resting position [m].
+                      fr,                                                       // Freedom flag [#].
+                      &D_R,                                                     // Right neighbour displacement [m].
+                      &D_U,                                                     // Up neighbour displacement [m].
+                      &D_L,                                                     // Left neighbour displacement [m].
+                      &D_D                                                      // Down neighbour displacement [m].
+                    );
 
-  float4 F = compute_particle_force(kl_1, kl_2, kl_3, kl_4, Dl_1, Dl_2, Dl_3, Dl_4,
-                            C, V, m, g, fr);
+  // COMPUTING NODE FORCE:
+  float4 F = node_force (
+                          k_R,                                                  // Right neighbour stiffness.
+                          k_U,                                                  // Right neighbour stiffness.
+                          k_L,                                                  // Right neighbour stiffness.
+                          k_D,                                                  // Right neighbour stiffness.
+                          D_R,                                                  // Right neighbour displacement [m].
+                          D_U,                                                  // Up neighbour displacement [m].
+                          D_L,                                                  // Left neighbour displacement [m].
+                          D_D,                                                  // Down neighbour displacement [m].
+                          C,                                                    // Friction coefficient.
+                          V,                                                    // Velocity [m/s].
+                          m,                                                    // Mass [kg].
+                          g,                                                    // Gravity [m/s^2].
+                          fr                                                    // Freedom flag [#].
+                        );
 
-  A = F/m;
+  // COMPUTING ACCELERATION:
+  A = F/m;                                                                      // Computing acceleration [m/s^2]...
 
-  // Calculating and updating position of the center node...
-  P += V*dt + A*dt*dt/2.0f;
+  // UPDATING POSITION:
+  P += V*dt + A*dt*dt/2.0f;                                                     // Updating position [m]...
 
-  // Updating positions in global memory...
-  position_int[gid] = P;
-  velocity_int[gid] = V;
-  acceleration_int[gid] = A;
+  // UPDATING INTERMEDIATE KINEMATICS:
+  position_int[gid] = P;                                                        // Updating position (intermediate) [m]...
+  velocity_int[gid] = V;                                                        // Updating position (intermediate) [m/s]...
+  acceleration_int[gid] = A;                                                    // Updating position (intermediate) [m/s^2]...
 }
