@@ -20,7 +20,6 @@ __kernel void thekernel(__global point*     position,                           
                         __global float4*    freedom,                            // Freedom flag [#].
                         __global float*     dt_simulation)                      // Simulation time step [s].
 {
-
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////// GLOBAL INDEX /////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +94,13 @@ __kernel void thekernel(__global point*     position,                           
   float4      D_D;                                                              // Down neighbour displacement [m]...
 
   // VELOCITY BACKUP (@ t_n):
-  float4 Vn = V;                                                                // Velocity backup [m/s]...
+  float4      Vn = V;                                                           // Velocity backup [m/s]...
+
+  // NODE FORCE:
+  float4      Fnew;                                                             // Node force [N].
+
+  // NODE ACCELERATION:
+  float4      Anew;                                                             // NOde acceleration [m/s^2].
 
   // COMPUTING VELOCITY (for acceleration computation @ t_(n+1)):
   V += A*dt;
@@ -119,7 +124,7 @@ __kernel void thekernel(__global point*     position,                           
                     );
 
   // COMPUTING NODE FORCE:
-  float4 Fnew = node_force  (
+  Fnew = node_force  (
                               k_R,                                              // Right neighbour stiffness.
                               k_U,                                              // Right neighbour stiffness.
                               k_L,                                              // Right neighbour stiffness.
@@ -142,7 +147,7 @@ __kernel void thekernel(__global point*     position,                           
   V = Vn + dt*(A+Anew)/2.0f;                                                    // Computing velocity [m/s]...
 
   // COMPUTING NODE FORCE:
-  float4 Fnew = node_force  (
+  Fnew = node_force  (
                               k_R,                                              // Right neighbour stiffness.
                               k_U,                                              // Right neighbour stiffness.
                               k_L,                                              // Right neighbour stiffness.
@@ -156,7 +161,7 @@ __kernel void thekernel(__global point*     position,                           
                               m,                                                // Mass [kg].
                               g,                                                // Gravity [m/s^2].
                               fr                                                // Freedom flag [#].
-                            );
+                              );
 
   // COMPUTING ACCELERATION:
   Anew = Fnew/m;                                                                // Computing acceleration [m/s^2]...
