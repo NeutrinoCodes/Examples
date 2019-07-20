@@ -28,37 +28,37 @@ void link_displacements (
                         )
 {
   ////////////////////////////////////////////////////////////////////////////////
-  ////////////////// SYNERGIC MOLECULE: LINKED PARTICLE VECTOR ///////////////////
+  ////////////////////// SYNERGIC MOLECULE: LINKED NODE VECTOR ///////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      Ll_1 = Pl_1 - P;                                                  // 1st linked particle vector.
-  float4      Ll_2 = Pl_2 - P;                                                  // 2nd linked particle vector.
-  float4      Ll_3 = Pl_3 - P;                                                  // 3rd linked particle vector.
-  float4      Ll_4 = Pl_4 - P;                                                  // 4th linked particle vector.
+  float4      L_R = P_R - P;                                                    // Right neighbour link vector.
+  float4      L_U = P_U - P;                                                    // Up neighbour link vector.
+  float4      L_L = P_L - P;                                                    // Left neighbour link vector.
+  float4      L_D = P_D - P;                                                    // Down neighbour link vector.
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// SYNERGIC MOLECULE: LINK LENGTH ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      ll_1 = length(Ll_1);                                              // 1st link length.
-  float4      ll_2 = length(Ll_2);                                              // 2nd link length.
-  float4      ll_3 = length(Ll_3);                                              // 3rd link length.
-  float4      ll_4 = length(Ll_4);                                              // 4th link length.
+  float4      l_R = length(L_R);                                                // Right neighbour link length.
+  float4      l_U = length(L_U);                                                // Up neighbour link length.
+  float4      l_L = length(L_L);                                                // Left neighbour link length.
+  float4      l_D = length(L_D);                                                // Down neighbour link length.
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// SYNERGIC MOLECULE: LINK STRAIN ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   float4      epsilon = fr - (float4)(1.0f, 1.0f, 1.0f, 1.0f);                  // Safety margin for division.
-  float4      sl_1 = ll_1 - rl_1;                                               // 1st link strain.
-  float4      sl_2 = ll_2 - rl_2;                                               // 2nd link strain.
-  float4      sl_3 = ll_3 - rl_3;                                               // 3rd link strain.
-  float4      sl_4 = ll_4 - rl_4;                                               // 4th link strain.
+  float4      strain_R = l_R - resting_R;                                       // Right neighbour link strain.
+  float4      strain_U = l_U - resting_U;                                       // Up neighbour link strain.
+  float4      strain_L = l_L - resting_L;                                       // Left neighbour link strain.
+  float4      strain_D = l_D - resting_D;                                       // Down neighbour link strain.
 
   ////////////////////////////////////////////////////////////////////////////////
   //////////////// SYNERGIC MOLECULE: LINKED PARTICLE DISPLACEMENT ///////////////
   ////////////////////////////////////////////////////////////////////////////////
-  *Dl_1 = sl_1*SAFEDIV(Ll_1, ll_1, epsilon);                                                            // 1st linked particle displacement.
-  *Dl_2 = sl_2*SAFEDIV(Ll_2, ll_2, epsilon);                                                            // 2nd linked particle displacement.
-  *Dl_3 = sl_3*SAFEDIV(Ll_3, ll_3, epsilon);                                                          // 3rd linked particle displacement.
-  *Dl_4 = sl_4*SAFEDIV(Ll_4, ll_4, epsilon);                                                             // 4th linked particle displacement.
+  *D_R = strain_R*SAFEDIV(L_R, l_R, epsilon);                                   // Right neighbour link displacement.
+  *D_U = strain_U*SAFEDIV(L_U, l_U, epsilon);                                   // Up neighbour link displacement.
+  *D_L = strain_L*SAFEDIV(L_L, l_L, epsilon);                                   // Left neighbour link displacement.
+  *D_D = strain_D*SAFEDIV(L_D, l_D, epsilon);                                   // Down neighbour link displacement.
 }
 
 float4 node_force (
@@ -80,17 +80,17 @@ float4 node_force (
   ////////////////////////////////////////////////////////////////////////////////
   //////////////////////// SYNERGIC MOLECULE: ELASTIC FORCE //////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      Fe   = (kl_1*Dl_1 + kl_2*Dl_2 + kl_3*Dl_3 + kl_4*Dl_4);           // Elastic force applied to the particle.
+  float4      Fe   = (k_R*D_R + k_U*D_U + k_L*D_L + k_D*D_D);           // Elastic force applied to the particle.
 
   ////////////////////////////////////////////////////////////////////////////////
   //////////////////////// SYNERGIC MOLECULE: VISCOUS FORCE //////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      Fv   = -c*V;                                                      // Viscous force applied to the particle.
+  float4      Fv   = -C*V;                                                      // Viscous force applied to the particle.
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////// SYNERGIC MOLECULE: GRAVITATIONAL FORCE ///////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      Fg   = m*G;                                                       // Gravitational force applied to the particle.
+  float4      Fg   = m*g;                                                       // Gravitational force applied to the particle.
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// SYNERGIC MOLECULE: TOTAL FORCE ///////////////////////
