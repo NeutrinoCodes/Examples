@@ -9,65 +9,65 @@
 #define SCALE                     1.5f                                          // Scale factor for plot
 
 void link_displacements (
-                          float4 P_R,                                           // Right neighbour position [m].
-                          float4 P_U,                                           // Up neighbour position [m].
-                          float4 P_L,                                           // Left neighbour position [m].
-                          float4 P_D,                                           // Down neighbour position [m].
+                          float4 position_R,                                    // Right neighbour position [m].
+                          float4 position_U,                                    // Up neighbour position [m].
+                          float4 position_L,                                    // Left neighbour position [m].
+                          float4 position_D,                                    // Down neighbour position [m].
                           float4 P,                                             // Position [m].
                           float4 resting_R,                                     // Right neighbour resting position [m].
                           float4 resting_U,                                     // Up neighbour resting position [m].
                           float4 resting_L,                                     // Left neighbour resting position [m].
                           float4 resting_D,                                     // Down neighbour resting position [m].
                           float4 fr,                                            // Freedom flag [#].
-                          float4* D_R,                                          // Right neighbour displacement [m].
-                          float4* D_U,                                          // Up neighbour displacement [m].
-                          float4* D_L,                                          // Left neighbour displacement [m].
-                          float4* D_D                                           // Down neighbour displacement [m].
+                          float4* displacement_R,                               // Right neighbour displacement [m].
+                          float4* displacement_U,                               // Up neighbour displacement [m].
+                          float4* displacement_L,                               // Left neighbour displacement [m].
+                          float4* displacement_D                                // Down neighbour displacement [m].
                         )
 {
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////// SYNERGIC MOLECULE: LINKED NODE VECTOR ///////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      L_R = P_R - P;                                                    // Right neighbour link vector.
-  float4      L_U = P_U - P;                                                    // Up neighbour link vector.
-  float4      L_L = P_L - P;                                                    // Left neighbour link vector.
-  float4      L_D = P_D - P;                                                    // Down neighbour link vector.
+  float4      link_R = position_R - P;                                          // Right neighbour link vector.
+  float4      link_U = position_U - P;                                          // Up neighbour link vector.
+  float4      link_L = position_L - P;                                          // Left neighbour link vector.
+  float4      link_D = position_D - P;                                          // Down neighbour link vector.
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// SYNERGIC MOLECULE: LINK LENGTH ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      l_R = length(L_R);                                                // Right neighbour link length.
-  float4      l_U = length(L_U);                                                // Up neighbour link length.
-  float4      l_L = length(L_L);                                                // Left neighbour link length.
-  float4      l_D = length(L_D);                                                // Down neighbour link length.
+  float4      length_R = length(link_R);                                        // Right neighbour link length.
+  float4      length_U = length(link_U);                                        // Up neighbour link length.
+  float4      length_L = length(link_L);                                        // Left neighbour link length.
+  float4      length_D = length(link_D);                                        // Down neighbour link length.
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// SYNERGIC MOLECULE: LINK STRAIN ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   float4      epsilon = fr - (float4)(1.0f, 1.0f, 1.0f, 1.0f);                  // Safety margin for division.
-  float4      strain_R = l_R - resting_R;                                       // Right neighbour link strain.
-  float4      strain_U = l_U - resting_U;                                       // Up neighbour link strain.
-  float4      strain_L = l_L - resting_L;                                       // Left neighbour link strain.
-  float4      strain_D = l_D - resting_D;                                       // Down neighbour link strain.
+  float4      strain_R = length_R - resting_R;                                  // Right neighbour link strain.
+  float4      strain_U = length_U - resting_U;                                  // Up neighbour link strain.
+  float4      strain_L = length_L - resting_L;                                  // Left neighbour link strain.
+  float4      strain_D = length_D - resting_D;                                  // Down neighbour link strain.
 
   ////////////////////////////////////////////////////////////////////////////////
   //////////////// SYNERGIC MOLECULE: LINKED PARTICLE DISPLACEMENT ///////////////
   ////////////////////////////////////////////////////////////////////////////////
-  *D_R = strain_R*SAFEDIV(L_R, l_R, epsilon);                                   // Right neighbour link displacement.
-  *D_U = strain_U*SAFEDIV(L_U, l_U, epsilon);                                   // Up neighbour link displacement.
-  *D_L = strain_L*SAFEDIV(L_L, l_L, epsilon);                                   // Left neighbour link displacement.
-  *D_D = strain_D*SAFEDIV(L_D, l_D, epsilon);                                   // Down neighbour link displacement.
+  *displacement_R = strain_R*SAFEDIV(link_R, length_R, epsilon);                // Right neighbour link displacement.
+  *displacement_U = strain_U*SAFEDIV(link_U, length_U, epsilon);                // Up neighbour link displacement.
+  *displacement_L = strain_L*SAFEDIV(link_L, length_L, epsilon);                // Left neighbour link displacement.
+  *displacement_D = strain_D*SAFEDIV(link_D, length_D, epsilon);                // Down neighbour link displacement.
 }
 
 float4 node_force (
-                    float4  k_R,                                                // Right neighbour stiffness.
-                    float4  k_U,                                                // Right neighbour stiffness.
-                    float4  k_L,                                                // Right neighbour stiffness.
-                    float4  k_D,                                                // Right neighbour stiffness.
-                    float4  D_R,                                                // Right neighbour displacement [m].
-                    float4  D_U,                                                // Up neighbour displacement [m].
-                    float4  D_L,                                                // Left neighbour displacement [m].
-                    float4  D_D,                                                // Down neighbour displacement [m].
+                    float4  stiffness_R,                                        // Right neighbour stiffness.
+                    float4  stiffness_U,                                        // Right neighbour stiffness.
+                    float4  stiffness_L,                                        // Right neighbour stiffness.
+                    float4  stiffness_D,                                        // Right neighbour stiffness.
+                    float4  displacement_R,                                     // Right neighbour displacement [m].
+                    float4  displacement_U,                                     // Up neighbour displacement [m].
+                    float4  displacement_L,                                     // Left neighbour displacement [m].
+                    float4  displacement_D,                                     // Down neighbour displacement [m].
                     float4  C,                                                  // Friction coefficient.
                     float4  V,                                                  // Velocity [m/s].
                     float4  m,                                                  // Mass [kg].
@@ -78,7 +78,13 @@ float4 node_force (
   ////////////////////////////////////////////////////////////////////////////////
   //////////////////////// SYNERGIC MOLECULE: ELASTIC FORCE //////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      Fe   = (k_R*D_R + k_U*D_U + k_L*D_L + k_D*D_D);           // Elastic force applied to the particle.
+  // Elastic force applied to the particle: 
+  float4      Fe   = (
+                      stiffness_R*displacement_R +
+                      stiffness_U*displacement_U +
+                      stiffness_L*displacement_L +
+                      stiffness_D*displacement_D
+                      );
 
   ////////////////////////////////////////////////////////////////////////////////
   //////////////////////// SYNERGIC MOLECULE: VISCOUS FORCE //////////////////////
