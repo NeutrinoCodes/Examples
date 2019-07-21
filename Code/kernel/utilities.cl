@@ -1,8 +1,6 @@
 #ifndef utilities_cl
 #define utilities_cl
 
-#include "client_datatypes.cl"
-
 #define SAFEDIV(X, Y, EPSILON)    (X)/(Y + EPSILON)
 #define RMIN                      0.4f                                          // Offset red channel for colormap
 #define RMAX                      0.5f                                          // Maximum red channel for colormap
