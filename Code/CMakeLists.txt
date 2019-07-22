@@ -21,7 +21,7 @@ message("Creating a SOURCES variable with a link to all cpp files to compile..."
 set(SOURCES
 
 $ENV{NEUTRINO_PATH}/Code/src/device.cpp
-$ENV{NEUTRINO_PATH}/Code/src/host_datatypes.cpp
+$ENV{NEUTRINO_PATH}/Code/src/datatypes.cpp
 $ENV{NEUTRINO_PATH}/Code/src/kernel.cpp
 $ENV{NEUTRINO_PATH}/Code/src/linear_algebra.cpp
 $ENV{NEUTRINO_PATH}/Code/src/neutrino.cpp
