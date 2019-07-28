@@ -5,10 +5,17 @@
 #define GUI_SX      800                                                         // Window x-size [px].
 #define GUI_SY      600                                                         // Window y-size [px].
 #define GUI_NAME    "neutrino 3.0"                                              // Window name.
-//#define SHADER_HOME \
-//  "/run/media/ezor/LINUX/BookhouseBoys/ezor/Neutrino/Code/shader"
-#define SHADER_HOME \
+
+#ifdef __linux__
+  #define SHADER_HOME \
+  "/run/media/ezor/LINUX/BookhouseBoys/ezor/Neutrino/Code/shader"
+#endif
+
+#ifdef __APPLE__
+  #define SHADER_HOME \
   "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/ElasticCloth/Code/shader"
+#endif
+
 #define SHADER_VERT "voxel_vertex.vert"                                         // OpenGL vertex shader.
 #define SHADER_GEOM "voxel_geometry.geom"                                       // OpenGL geometry shader.
 #define SHADER_FRAG "voxel_fragment.frag"                                       // OpenGL fragment shader.
@@ -16,10 +23,17 @@
 // OPENCL:
 #define QUEUE_NUM   1                                                           // # of OpenCL queues [#].
 #define KERNEL_NUM  2                                                           // # of OpenCL kernel [#].
-//#define KERNEL_HOME \
-//  "/run/media/ezor/LINUX/BookhouseBoys/ezor/Neutrino/Code/kernel"               // OpenCL kernel header files directory.
-#define KERNEL_HOME \
+
+#ifdef __linux__
+  #define KERNEL_HOME \
+  "/run/media/ezor/LINUX/BookhouseBoys/ezor/Neutrino/Code/kernel"               // OpenCL kernel header files directory.
+#endif
+
+#ifdef __APPLE__
+  #define KERNEL_HOME \
   "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/ElasticCloth/Code/kernel"
+#endif
+
 #define KERNEL_F1   "thekernel1.cl"                                             // OpenCL kernel.
 #define KERNEL_F2   "thekernel2.cl"                                             // OpenCL kernel.
 
