@@ -466,6 +466,11 @@ int main ()
               pan_decaytime                                                                         // Pan low pass decay time [s].
              );
 
+    if(gui->button_CROSS)
+    {
+      gui->close ();                                                                                // Closing gui...
+    }
+
     gui->plot (S);                                                                                  // Plotting shared arguments...
 
     gui->refresh ();                                                                                // Refreshing gui...
