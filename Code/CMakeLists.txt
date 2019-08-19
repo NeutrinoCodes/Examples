@@ -48,7 +48,6 @@ message("Setting Linux include directories...")
 target_include_directories(
 ${PROJECT_NAME} PRIVATE ${CMAKE_HOME_DIRECTORY}/include
 ${GLAD_PATH}/include
-${GLFW_PATH}/include
 ${NEUTRINO_PATH}/Code/include
 )
 endif(LINUX)
@@ -73,8 +72,8 @@ endif(APPLE)
 if(LINUX)
   message("Setting Mac library directories...")
   set(GLFW_LIBRARY ${GLFW_PATH}/src/libglfw3.a)
-  #target_link_libraries(${PROJECT_NAME} "-lOpenGL" "-lOpenCL" "-ldl" "-lglfw" "-lm")  EZOR 28JUL2019: original.
-  target_link_libraries(${PROJECT_NAME} "-lOpenGL" "-lOpenCL" ${GLFW_LIBRARY} "-lm")   # To be tested.
+  target_link_libraries(${PROJECT_NAME} "-lOpenGL" "-lOpenCL" "-ldl" "-lglfw" "-lm")  # EZOR 28JUL2019: original.
+  #target_link_libraries(${PROJECT_NAME} "-lOpenGL" "-lOpenCL" ${GLFW_LIBRARY} "-lm")   # To be tested.
 endif(LINUX)
 
 if(WIN32)
