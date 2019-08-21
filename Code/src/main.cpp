@@ -22,6 +22,11 @@
   "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/ElasticCloth/Code/kernel"  // Mac OpenCL kernels directory.
 #endif
 
+#ifdef WIN32
+  #define SHADER_HOME "F:\\BookHouseBoys\\ezor\\elastic_cloth\\Code\\shader"    // Windows OpenGL shaders directory.
+  #define KERNEL_HOME "F:\\BookHouseBoys\\ezor\\elastic_cloth\\Code\\kernel"    // Windows OpenCL kernels directory.
+#endif
+
 #define SHADER_VERT "voxel_vertex.vert"                                         // OpenGL vertex shader.
 #define SHADER_GEOM "voxel_geometry.geom"                                       // OpenGL geometry shader.
 #define SHADER_FRAG "voxel_fragment.frag"                                       // OpenGL fragment shader.
