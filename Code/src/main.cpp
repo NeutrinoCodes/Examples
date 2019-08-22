@@ -90,7 +90,7 @@ int main ()
   float     k                = E*h*dy/dx;                                       // Cloth's elastic constant [kg/s^2].
   float     C                = mu*h*dx*dy;                                      // Cloth's damping [kg*s*m].
   float     dt_critical      = sqrt (m/k);                                      // Critical time step [s].
-  float     dt_simulation    = 0.8* dt_critical;                                // Simulation time step [s].
+  float     dt_simulation    = 0.1* dt_critical;                                // Simulation time step [s].
 
   // NEUTRINO:
   neutrino* bas              = new neutrino ();                                 // Neutrino baseline.
@@ -309,7 +309,7 @@ int main ()
         index_R->data[gid] = neighbour_R;                                       // Setting index to right neighbour...
         index_U->data[gid] = neighbour_U;                                       // Setting index to up neighbour...
         index_L->data[gid] = gid;
-        index_D->data[gid] = border_D;                                          // Setting index to down neighbour...
+        index_D->data[gid] = neighbour_D;                                       // Setting index to down neighbour...
       }
 
       // When on right border (excluding extremes):

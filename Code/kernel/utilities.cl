@@ -44,7 +44,7 @@ void link_displacements (
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// SYNERGIC MOLECULE: LINK STRAIN ///////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      epsilon = fr - (float4)(1.0f, 1.0f, 1.0f, 1.0f);                  // Safety margin for division.
+  float4      epsilon = (float4)(1.0f, 1.0f, 1.0f, 1.0f) - fr;                  // Safety margin for division.
   float4      strain_R = length_R - resting_R;                                  // Right neighbour link strain.
   float4      strain_U = length_U - resting_U;                                  // Up neighbour link strain.
   float4      strain_L = length_L - resting_L;                                  // Left neighbour link strain.
@@ -78,7 +78,7 @@ float4 node_force (
   ////////////////////////////////////////////////////////////////////////////////
   //////////////////////// SYNERGIC MOLECULE: ELASTIC FORCE //////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  // Elastic force applied to the particle: 
+  // Elastic force applied to the particle:
   float4      Fe   = (
                       stiffness_R*displacement_R +
                       stiffness_U*displacement_U +
