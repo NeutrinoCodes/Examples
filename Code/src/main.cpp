@@ -1,10 +1,10 @@
 /// @file
 
 // OPENGL:
-#define INTEROP  true                                                                               // "true" = use OpenGL-OpenCL interoperability.
-#define GUI_SX   800                                                                                // Window x-size [px].
-#define GUI_SY   600                                                                                // Window y-size [px].
-#define GUI_NAME "neutrino 3.0"                                                                     // Window name.
+#define INTEROP    true                                                                             // "true" = use OpenGL-OpenCL interoperability.
+#define GUI_SIZE_X 800                                                                              // Window x-size [px].
+#define GUI_SIZE_Y 600                                                                              // Window y-size [px].
+#define GUI_NAME   "neutrino 3.0"                                                                   // Window name.
 
 #ifdef __linux__
   #define SHADER_HOME \
@@ -67,13 +67,19 @@ int main ()
   size_t    neighbour_L;                                                                            // Left neighbour index [#].
   size_t    neighbour_D;                                                                            // Down neighbour index [#].
 
-  // GUI PARAMETERS:
+  // GUI PARAMETERS (orbit):
+  float     orbit_x_init     = 0.0f;                                                                // x-axis orbit initial rotation.
+  float     orbit_y_init     = 0.0f;                                                                // y-axis orbit initial rotation.
   float     orbit_x;                                                                                // x-axis orbit rotation.
   float     orbit_y;                                                                                // y-axis orbit rotation.
   float     orbit_decaytime  = 1.25;                                                                // Orbit LP filter decay time [s].
   float     orbit_deadzone   = 0.1;                                                                 // Orbit rotation deadzone [0...1].
   float     orbit_rate       = 1.0;                                                                 // Orbit rotation rate [rev/s].
 
+  // GUI PARAMETERS (pan):
+  float     pan_x_init       = 0.0f;                                                                // x-axis pan initial translation.
+  float     pan_y_init       = 0.0f;                                                                // y-axis pan initial translation.
+  float     pan_z_init       = -2.0f;                                                               // z-axis pan initial translation.
   float     pan_x;                                                                                  // x-axis pan translation.
   float     pan_y;                                                                                  // y-axis pan translation.
   float     pan_z;                                                                                  // z-axis pan translation.
@@ -139,7 +145,18 @@ int main ()
   ///////////////////////////////// INITIALIZATION ///////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   bas->init (QUEUE_NUM, KERNEL_NUM, INTEROP);                                                       // Initializing Neutrino baseline...
-  gui->init (bas, GUI_SX, GUI_SY, GUI_NAME);                                                        // Initializing OpenGL context...
+  gui->init
+  (
+   bas,                                                                                             // Neutrino baseline.
+   GUI_SIZE_X,                                                                                      // GUI x-size [px].
+   GUI_SIZE_Y,                                                                                      // GUI y-size [px.]
+   GUI_NAME,                                                                                        // GUI name.
+   orbit_x_init,                                                                                    // Initial x-orbit.
+   orbit_y_init,                                                                                    // Initial y-orbit.
+   pan_x_init,                                                                                      // Initial x-pan.
+   pan_y_init,                                                                                      // Initial y-pan.
+   pan_z_init                                                                                       // Initial z-pan.
+  );
   ctx->init (bas, gui, NU_GPU);                                                                     // Initializing OpenCL context...
   S->init (bas, SHADER_HOME, SHADER_VERT, SHADER_GEOM, SHADER_FRAG);                                // Initializing OpenGL shader...
   Q->init (bas);                                                                                    // Initializing OpenCL queue...
@@ -485,7 +502,7 @@ int main ()
 
     if(gui->button_CROSS)
     {
-      //gui->close ();                                                            // Closing gui...
+      gui->close ();                                                                                // Closing gui...
     }
 
     gui->plot (S);                                                                                  // Plotting shared arguments...
