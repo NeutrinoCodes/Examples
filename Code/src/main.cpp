@@ -369,7 +369,7 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////// NEUTRINO INITIALIZATION /////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
-  bas->init (QUEUE_NUM, KERNEL_NUM, INTEROP);                                                       // Initializing Neutrino baseline...
+  bas->init (QUEUE_NUM, KERNEL_NUM);                                                                // Initializing Neutrino baseline...
   gui->init
   (
    bas,                                                                                             // Neutrino baseline.
