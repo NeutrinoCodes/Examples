@@ -39,8 +39,8 @@
 #define KERNEL_F2     "thekernel2.cl"                                                               // OpenCL kernel.
 
 // INCLUDES:
-#include "nu.hpp"                                                                                   // Neutrino's OpenGL context declarations.
-// #include "opencl.hpp"                                                                               // Neutrino's OpenCL context declarations.
+#include "opengl.hpp"                                                                               // Neutrino's OpenGL context declarations.
+#include "opencl.hpp"                                                                               // Neutrino's OpenCL context declarations.
 
 int main ()
 {
