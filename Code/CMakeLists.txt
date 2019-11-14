@@ -61,7 +61,7 @@ if(UNIX AND NOT APPLE)                                                          
     "-ldl"                                                                                          # "libdl" library.
     "-lglfw"                                                                                        # GLFW library.
     "-lm"                                                                                           # "math" library.
-    "/run/media/ezor/LINUX/BookhouseBoys/ezor/libneutrino/lib/libneutrino.a")                                                                                   # "neutrino" library.
+    ${NEUTRINO_PATH}/lib/libnu.a)                                                                   # "neutrino" library.
 
   message("Setting LINUX build directory...")                                                       # Printing message...
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/build/linux)                           # Setting build directory...
