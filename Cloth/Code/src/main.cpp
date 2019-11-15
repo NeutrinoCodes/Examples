@@ -8,23 +8,23 @@
 
 #ifdef __linux__
   #define SHADER_HOME \
-  "/run/media/ezor/LINUX/BookhouseBoys/ezor/ElasticCloth/Code/shader"                               // Linux OpenGL shaders directory.
+  "/run/media/ezor/LINUX/BookhouseBoys/ezor/NeutrinoCodes/Examples/Cloth/Code/shader"               // Linux OpenGL shaders directory.
 
   #define KERNEL_HOME \
-  "/run/media/ezor/LINUX/BookhouseBoys/ezor/ElasticCloth/Code/kernel"                               // Linux OpenCL kernels directory.
+  "/run/media/ezor/LINUX/BookhouseBoys/ezor/NeutrinoCodes/Examples/Cloth/Code/kernel"               // Linux OpenCL kernels directory.
 #endif
 
 #ifdef __APPLE__
   #define SHADER_HOME \
-  "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/ElasticCloth/Code/shader"                      // Mac OpenGL shaders directory.
+  "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/NeutrinoCodes/Examples/Cloth/Code/shader"      // Mac OpenGL shaders directory.
 
   #define KERNEL_HOME \
-  "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/ElasticCloth/Code/kernel"                      // Mac OpenCL kernels directory.
+  "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/NeutrinoCodes/Examples/Cloth/Code/kernel"      // Mac OpenCL kernels directory.
 #endif
 
 #ifdef WIN32
-  #define SHADER_HOME "F:\\BookHouseBoys\\ezor\\elastic_cloth\\Code\\shader"                        // Windows OpenGL shaders directory.
-  #define KERNEL_HOME "F:\\BookHouseBoys\\ezor\\elastic_cloth\\Code\\kernel"                        // Windows OpenCL kernels directory.
+  #define SHADER_HOME "F:\\BookHouseBoys\\ezor\\NeutrinoCodes/Examples/Cloth\\Code\\shader"         // Windows OpenGL shaders directory.
+  #define KERNEL_HOME "F:\\BookHouseBoys\\ezor\\NeutrinoCodes/Examples/Cloth\\Code\\kernel"         // Windows OpenCL kernels directory.
 #endif
 
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.
