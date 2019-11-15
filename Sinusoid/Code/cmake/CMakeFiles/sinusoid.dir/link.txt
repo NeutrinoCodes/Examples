@@ -1,0 +1,1 @@
+/usr/bin/c++  -O3 -DNDEBUG  -rdynamic CMakeFiles/sinusoid.dir/src/main.cpp.o  -o sinusoid -lOpenGL -lOpenCL -ldl -lglfw -lm /run/media/ezor/LINUX/BookhouseBoys/ezor/libnu/lib/libnu.a 
