@@ -1,0 +1,5 @@
+/run/media/ezor/LINUX/BookhouseBoys/ezor/NeutrinoCodes/Examples/Sinusoid/Code/cmake/CMakeFiles/edit_cache.dir
+/run/media/ezor/LINUX/BookhouseBoys/ezor/NeutrinoCodes/Examples/Sinusoid/Code/cmake/CMakeFiles/rebuild_cache.dir
+/run/media/ezor/LINUX/BookhouseBoys/ezor/NeutrinoCodes/Examples/Sinusoid/Code/cmake/CMakeFiles/doc.dir
+/run/media/ezor/LINUX/BookhouseBoys/ezor/NeutrinoCodes/Examples/Sinusoid/Code/cmake/CMakeFiles/sinusoid.dir
+/run/media/ezor/LINUX/BookhouseBoys/ezor/NeutrinoCodes/Examples/Sinusoid/Code/cmake/CMakeFiles/run.dir
