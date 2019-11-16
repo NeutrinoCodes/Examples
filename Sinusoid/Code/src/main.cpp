@@ -22,14 +22,14 @@
 
 #ifdef __APPLE__
   #define SHADER_HOME \
-  "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/NeutrinoCodes/Examples/Code/shader"            // Mac OpenGL shaders directory.
+  "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/NeutrinoCodes/Examples/Sinusoid/Code/shader"   // Mac OpenGL shaders directory.
   #define KERNEL_HOME \
-  "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/NeutrinoCodes/Examples/Code/kernel"            // Mac OpenCL kernels directory.
+  "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/NeutrinoCodes/Examples/Sinusoid/Code/kernel"   // Mac OpenCL kernels directory.
 #endif
 
 #ifdef WIN32
-  #define SHADER_HOME "F:\\BookHouseBoys\\ezor\\NeutrinoCodes\\Examples\\Code\\shader"              // Windows OpenGL shaders directory.
-  #define KERNEL_HOME "F:\\BookHouseBoys\\ezor\\NeutrinoCodes\\Examples\\Code\\kernel"              // Windows OpenCL kernels directory.
+  #define SHADER_HOME "F:\\BookHouseBoys\\ezor\\NeutrinoCodes\\Examples\\Sinusoid\\Code\\shader"    // Windows OpenGL shaders directory.
+  #define KERNEL_HOME "F:\\BookHouseBoys\\ezor\\NeutrinoCodes\\Examples\\Sinusoid\\Code\\kernel"    // Windows OpenCL kernels directory.
 #endif
 
 #define SHADER_VERT   "voxel.vert"                                                                  // OpenGL vertex shader.
