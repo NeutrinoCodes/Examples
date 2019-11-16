@@ -36,7 +36,7 @@ if(APPLE)                                                                       
     ${PROJECT_NAME}                                                                                 # Project name.
     "-framework OpenGL"                                                                             # OpenGL library.
     "-framework OpenCL"                                                                             # OpenCL library.
-    "/Library/GLFW/lib-macos/libglfw.3.dylib"                                                       # GLFW library.
+    ${GLFW_PATH}/lib-macos/libglfw.3.dylib                                                          # GLFW library.
     "-lm"
     "-lneutrino")
 
