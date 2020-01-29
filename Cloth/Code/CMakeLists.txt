@@ -38,6 +38,7 @@ if(APPLE)                                                                       
     "-framework OpenCL"                                                                             # OpenCL library.
     ${GLFW_PATH}/lib-macos/libglfw.3.dylib                                                          # GLFW library.
     "-lm"
+    "-lgmsh"
     ${NEUTRINO_PATH}/lib/libnu.a)
 
   message("Setting APPLE build directory...")                                                       # Printing message...
