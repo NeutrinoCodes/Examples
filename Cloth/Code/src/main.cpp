@@ -1,10 +1,10 @@
 /// @file
 
 // OPENGL:
-#define INTEROP    true                                                                             // "true" = use OpenGL-OpenCL interoperability.
-#define GUI_SIZE_X 800                                                                              // Window x-size [px].
-#define GUI_SIZE_Y 600                                                                              // Window y-size [px].
-#define GUI_NAME   "neutrino 3.0"                                                                   // Window name.
+#define INTEROP       true                                                                          // "true" = use OpenGL-OpenCL interoperability.
+#define GUI_SIZE_X    800                                                                           // Window x-size [px].
+#define GUI_SIZE_Y    600                                                                           // Window y-size [px].
+#define GUI_NAME      "neutrino 3.0"                                                                // Window name.
 
 #ifdef __linux__
   #define SHADER_HOME "../../shader"                                                                // Linux OpenGL shaders directory.
@@ -95,6 +95,7 @@ int main ()
 
   // NEUTRINO:
   neutrino* bas                = new neutrino ();                                                   // Neutrino baseline.
+  mesh*     cloth              = new mesh ();                                                       // Mesh context.
   opengl*   gui                = new opengl ();                                                     // OpenGL context.
   opencl*   ctx                = new opencl ();                                                     // OpenCL context.
   shader*   S                  = new shader ();                                                     // OpenGL shader program.
@@ -364,6 +365,7 @@ int main ()
   ////////////////////////////////////// NEUTRINO INITIALIZATION /////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   bas->init (QUEUE_NUM, KERNEL_NUM);                                                                // Initializing Neutrino baseline...
+  cloth->init (bas);
   gui->init
   (
    bas,                                                                                             // Neutrino baseline.
