@@ -371,6 +371,8 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   bas->init (QUEUE_NUM, KERNEL_NUM);                                                                // Initializing Neutrino baseline...
   cloth->init (bas);
+  cloth->read_msh ("/Users/Erik/Desktop/gmsh_test/cube.msh");
+
   gui->init
   (
    bas,                                                                                             // Neutrino baseline.
