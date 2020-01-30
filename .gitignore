@@ -1,6 +1,9 @@
 /Cloth/Code/cmake
 /Cloth/Code/build
 /Cloth/Docs/Doxygen
+/Cloth3D/Code/cmake
+/Cloth3D/Code/build
+/Cloth3D/Docs/Doxygen
 /Sinusoid/Code/cmake
 /Sinusoid/Code/build
 /Sinusoid/Docs/Doxygen

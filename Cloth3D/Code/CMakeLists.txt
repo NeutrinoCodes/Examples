@@ -7,7 +7,7 @@ message("################################ C/C++ COMPILER #######################
 message("################################################################################")         # Printing message...
 
 message("Setting project name...")                                                                  # Printing message...
-project (cloth)                                                                                     # Setting project name...
+project (cloth3D)                                                                                   # Setting project name...
 message("Project name = ${PROJECT_NAME}")                                                           # Printing message...
 
 message("Setting build type...")                                                                    # Printing message...
@@ -36,7 +36,7 @@ if(APPLE)                                                                       
     ${PROJECT_NAME}                                                                                 # Project name.
     "-framework OpenGL"                                                                             # OpenGL library.
     "-framework OpenCL"                                                                             # OpenCL library.
-    "-lm"                                                                                           # MATH library.
+    "-lgmsh"                                                                                        # GMSH library.
     ${GLFW_PATH}/lib-macos/libglfw.3.dylib                                                          # GLFW library.
     ${NEUTRINO_PATH}/lib/libnu.a)                                                                   # NEUTRINO library.
 
@@ -61,7 +61,8 @@ if(UNIX AND NOT APPLE)                                                          
     "-lOpenCL"                                                                                      # OpenCL library.
     "-ldl"                                                                                          # DL library.
     "-lglfw"                                                                                        # GLFW library.
-    "-lm"                                                                                           # MATH library.
+    "-lm"                                                                                           # "math" library.
+    "-lgmsh"                                                                                        # GMSH library.
     ${NEUTRINO_PATH}/lib/libnu.a)                                                                   # NEUTRINO library.
 
   message("Setting LINUX build directory...")                                                       # Printing message...
