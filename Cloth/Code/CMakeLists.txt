@@ -36,9 +36,9 @@ if(APPLE)                                                                       
     ${PROJECT_NAME}                                                                                 # Project name.
     "-framework OpenGL"                                                                             # OpenGL library.
     "-framework OpenCL"                                                                             # OpenCL library.
-    ${GLFW_PATH}/lib-macos/libglfw.3.dylib                                                          # GLFW library.
     "-lgmsh"
-    "-lm"
+    ${GLFW_PATH}/lib-macos/libglfw.3.dylib                                                          # GLFW library.
+    ${GMSH_LIB} ${EXTRA_LIBS}                                                                       # GMSH library.
     ${NEUTRINO_PATH}/lib/libnu.a)
 
   message("Setting APPLE build directory...")                                                       # Printing message...
