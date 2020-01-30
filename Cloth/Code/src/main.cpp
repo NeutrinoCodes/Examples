@@ -95,7 +95,7 @@ int main ()
 
   // NEUTRINO:
   neutrino* bas                = new neutrino ();                                                   // Neutrino baseline.
-  //mesh*     cloth            = new mesh ();                                                         // Mesh context.
+  mesh*     cloth              = new mesh ();                                                       // Mesh context.
   opengl*   gui                = new opengl ();                                                     // OpenGL context.
   opencl*   ctx                = new opencl ();                                                     // OpenCL context.
   shader*   S                  = new shader ();                                                     // OpenGL shader program.
@@ -135,9 +135,6 @@ int main ()
   float1*   dt                 = new float1 ();                                                     // Time step [s].
   float     simulation_time;                                                                        // Simulation time [s].
   int       time_step_index;                                                                        // Time step index [#].
-
-  gmsh::initialize ();
-  //gmsh::option::setNumber ("General.Terminal", 1);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
@@ -368,7 +365,7 @@ int main ()
   ////////////////////////////////////// NEUTRINO INITIALIZATION /////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   bas->init (QUEUE_NUM, KERNEL_NUM);                                                                // Initializing Neutrino baseline...
-  //cloth->init (bas);
+  cloth->init (bas);
   gui->init
   (
    bas,                                                                                             // Neutrino baseline.
