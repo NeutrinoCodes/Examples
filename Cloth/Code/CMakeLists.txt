@@ -36,10 +36,9 @@ if(APPLE)                                                                       
     ${PROJECT_NAME}                                                                                 # Project name.
     "-framework OpenGL"                                                                             # OpenGL library.
     "-framework OpenCL"                                                                             # OpenCL library.
-    "-lgmsh"
+    "-lgmsh"                                                                                        # GMSH library.
     ${GLFW_PATH}/lib-macos/libglfw.3.dylib                                                          # GLFW library.
-    ${GMSH_LIB} ${EXTRA_LIBS}                                                                       # GMSH library.
-    ${NEUTRINO_PATH}/lib/libnu.a)
+    ${NEUTRINO_PATH}/lib/libnu.a)                                                                   # NEUTRINO library.
 
   message("Setting APPLE build directory...")                                                       # Printing message...
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/build/mac)                             # Setting build directory...
@@ -60,10 +59,11 @@ if(UNIX AND NOT APPLE)                                                          
     ${PROJECT_NAME}                                                                                 # Project name.
     "-lOpenGL"                                                                                      # OpenGL library.
     "-lOpenCL"                                                                                      # OpenCL library.
-    "-ldl"                                                                                          # "libdl" library.
+    "-ldl"                                                                                          # DL library.
     "-lglfw"                                                                                        # GLFW library.
     "-lm"                                                                                           # "math" library.
-    ${NEUTRINO_PATH}/lib/libnu.a)                                                                   # "neutrino" library.
+    "-lgmsh"                                                                                        # GMSH library.
+    ${NEUTRINO_PATH}/lib/libnu.a)                                                                   # NEUTRINO library.
 
   message("Setting LINUX build directory...")                                                       # Printing message...
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/build/linux)                           # Setting build directory...
