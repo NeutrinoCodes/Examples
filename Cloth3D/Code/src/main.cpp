@@ -43,61 +43,73 @@
 int main ()
 {
   // DATA:
-  float     x_min            = -1.0;                                                                // "x_min" spatial boundary [m].
-  float     x_max            = +1.0;                                                                // "x_max" spatial boundary [m].
-  float     y_min            = -1.0;                                                                // "y_min" spatial boundary [m].
-  float     y_max            = +1.0;                                                                // "y_max" spatial boundary [m].
+  float     x_min               = -1.0;                                                             // "x_min" spatial boundary [m].
+  float     x_max               = +1.0;                                                             // "x_max" spatial boundary [m].
+  float     y_min               = -1.0;                                                             // "y_min" spatial boundary [m].
+  float     y_max               = +1.0;                                                             // "y_max" spatial boundary [m].
   size_t    gid;                                                                                    // Global index [#].
 
   // GUI PARAMETERS (mouse):
-  float     mouse_x          = 0.0;
-  float     mouse_y          = 0.0;
-  float     mouse_x_old      = 0.0;
-  float     mouse_y_old      = 0.0;
-  float     mouse_velocity_x = 0.0;
-  float     mouse_velocity_y = 0.0;
-  float     mouse_speed_rate = 30.0;
-  bool      mouse_sample     = false;
+  float     mouse_x             = 0.0;                                                              // x-axis current screen position [px].
+  float     mouse_y             = 0.0;                                                              // y-axis current screen position [px].
+  float     mouse_x_old         = 0.0;                                                              // x-axis old screen position [px].
+  float     mouse_y_old         = 0.0;                                                              // y-axis old screen position [px].
+  float     mouse_velocity_x    = 0.0;                                                              // x-axis screen velocity [px/s].
+  float     mouse_velocity_y    = 0.0;                                                              // y-axis screen velocity [px/s].
+  float     mouse_orbit_rate    = 1.0;                                                              // Orbit rotation rate [rev/s].
+  bool      mouse_sample        = false;                                                            // Mouse flag, for velocity computation.
+  float     mouse_dt            = 0.0;                                                              // Mouse dt [s].
+  float     mouse_dt_min        = 0.01;
+  float     mouse_dt_max        = 0.05;
+  float     mouse_pan_x_init    = 0.0f;                                                             // x-axis pan initial translation.
+  float     mouse_pan_y_init    = 0.0f;                                                             // y-axis pan initial translation.
+  float     mouse_pan_z_init    = -2.0f;                                                            // z-axis pan initial translation.
+  float     mouse_pan_x;                                                                            // x-axis pan translation.
+  float     mouse_pan_y;                                                                            // y-axis pan translation.
+  float     mouse_pan_z;                                                                            // z-axis pan translation.
+  float     mouse_pan_decaytime = 1.25;                                                             // Pan LP filter decay time [s].
+  float     mouse_pan_deadzone  = 0.0;                                                              // Pan translation deadzone [0...1].
+  float     mouse_pan_rate      = 10.0;                                                             // Pan translation rate [m/s].
 
   // GUI PARAMETERS (orbit):
-  float     orbit_x_init     = 0.0f;                                                                // x-axis orbit initial rotation.
-  float     orbit_y_init     = 0.0f;                                                                // y-axis orbit initial rotation.
+  float     orbit_x_init        = 0.0f;                                                             // x-axis orbit initial rotation.
+  float     orbit_y_init        = 0.0f;                                                             // y-axis orbit initial rotation.
   float     orbit_x;                                                                                // x-axis orbit rotation.
   float     orbit_y;                                                                                // y-axis orbit rotation.
-  float     orbit_decaytime  = 1.25;                                                                // Orbit LP filter decay time [s].
-  float     orbit_deadzone   = 0.1;                                                                 // Orbit rotation deadzone [0...1].
-  float     orbit_rate       = 1.0;                                                                 // Orbit rotation rate [rev/s].
+  float     orbit_decaytime     = 1.25;                                                             // Orbit LP filter decay time [s].
+  float     orbit_deadzone      = 0.1;                                                              // Orbit rotation deadzone [0...1].
+  float     orbit_rate          = 1.0;                                                              // Orbit rotation rate [rev/s].
 
   // GUI PARAMETERS (pan):
-  float     pan_x_init       = 0.0f;                                                                // x-axis pan initial translation.
-  float     pan_y_init       = 0.0f;                                                                // y-axis pan initial translation.
-  float     pan_z_init       = -2.0f;                                                               // z-axis pan initial translation.
+  float     pan_x_init          = 0.0f;                                                             // x-axis pan initial translation.
+  float     pan_y_init          = 0.0f;                                                             // y-axis pan initial translation.
+  float     pan_z_init          = -2.0f;                                                            // z-axis pan initial translation.
   float     pan_x;                                                                                  // x-axis pan translation.
   float     pan_y;                                                                                  // y-axis pan translation.
   float     pan_z;                                                                                  // z-axis pan translation.
-  float     pan_decaytime    = 1.25;                                                                // Pan LP filter decay time [s].
-  float     pan_deadzone     = 0.1;                                                                 // Pan rotation deadzone [0...1].
-  float     pan_rate         = 1.0;                                                                 // Pan rotation rate [rev/s].
+  float     pan_decaytime       = 1.25;                                                             // Pan LP filter decay time [s].
+  float     pan_deadzone        = 0.1;                                                              // Pan translation deadzone [0...1].
+  float     pan_rate            = 1.0;                                                              // Pan translation rate [m/s].
 
   // NEUTRINO:
-  neutrino* bas              = new neutrino ();                                                     // Neutrino baseline.
-  opengl*   gui              = new opengl ();                                                       // OpenGL context.
-  opencl*   ctx              = new opencl ();                                                       // OpenCL context.
-  shader*   S                = new shader ();                                                       // OpenGL shader program.
-  queue*    Q                = new queue ();                                                        // OpenCL queue.
-  kernel*   K1               = new kernel ();                                                       // OpenCL kernel array.
+  neutrino* bas                 = new neutrino ();                                                  // Neutrino baseline.
+  opengl*   gui                 = new opengl ();                                                    // OpenGL context.
+  opencl*   ctx                 = new opencl ();                                                    // OpenCL context.
+  shader*   S                   = new shader ();                                                    // OpenGL shader program.
+  queue*    Q                   = new queue ();                                                     // OpenCL queue.
+  kernel*   K1                  = new kernel ();                                                    // OpenCL kernel array.
 
   // MESH:
-  mesh*     cloth            = new mesh ();                                                         // Mesh context.                                                                                // Total # of nodes [#].
+  mesh*     cloth               = new mesh ();                                                      // Mesh context.                                                                                // Total # of nodes [#].
 
   // NODE KINEMATICS:
-  float4G*  position         = new float4G ();                                                      // Position [m].
-  float4G*  color            = new float4G ();                                                      // Depth [m].
+  float4G*  position            = new float4G ();                                                   // Position [m].
+  float4G*  color               = new float4G ();                                                   // Depth [m].
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
-  cloth->init (bas, "/Users/Erik/Desktop/gmsh_test/Utah_teapot.msh");                               // Initializing cloth mesh...
+  cloth->init (bas, "/Users/Erik/Desktop/gmsh_test/cube.msh");                                      // Initializing cloth mesh...
   position->init (cloth->nodes);                                                                    // Initializing position data...
   color->init (cloth->nodes);                                                                       // Initializing depth data...
   cloth->read_msh (position);                                                                       // Reading cloth mesh from file...
@@ -198,8 +210,36 @@ int main ()
         break;
     }
 
-    mouse_velocity_x = mouse_speed_rate*2.0*(mouse_x - mouse_x_old)/gui->window_size_x;
-    mouse_velocity_y = mouse_speed_rate*2.0*(mouse_y - mouse_y_old)/gui->window_size_y;
+    mouse_dt         = bas->constrain_float (bas->loop_time, mouse_dt_min, mouse_dt_max);
+    mouse_velocity_x = +(mouse_x - mouse_x_old)/(gui->window_size_x*mouse_dt);
+    mouse_velocity_y = -(mouse_y - mouse_y_old)/(gui->window_size_y*mouse_dt);
+
+    if(gui->mouse_LEFT)
+    {
+      gui->orbit (
+                  mouse_velocity_x,                                                                 // "Near clipping-plane" x-coordinate.
+                  mouse_velocity_y,                                                                 // "Near clipping-plane" y-coordinate.
+                  mouse_orbit_rate,                                                                 // Orbit angular rate coefficient [rev/s].
+                  0.0,                                                                              // Orbit deadzone threshold coefficient.
+                  orbit_decaytime                                                                   // Orbit low pass decay time [s].
+                 );
+    }
+
+    if(gui->mouse_RIGHT)
+    {
+      mouse_pan_x = mouse_velocity_x;                                                               // Setting world x-pan...
+      mouse_pan_y = mouse_velocity_y;                                                               // Setting world y-pan...
+      mouse_pan_z = (gui->axis_RIGHT_TRIGGER + 1.0)/2.0 - (gui->axis_LEFT_TRIGGER + 1.0)/2.0;       // Setting world z-pan...
+
+      gui->pan (
+                mouse_pan_x,                                                                        // World x-pan.
+                mouse_pan_y,                                                                        // World y-pan.
+                mouse_pan_z,                                                                        // World z-pan.
+                mouse_pan_rate,                                                                     // Pan rate [length/s].
+                mouse_pan_deadzone,                                                                 // Pan deadzone threshold coefficient.
+                mouse_pan_decaytime                                                                 // Pan low pass decay time [s].
+               );
+    }
 
     /*
        orbit_x          = +gui->axis_LEFT_X;                                                           // Setting "Near clipping-plane" x-coordinate...
@@ -212,24 +252,12 @@ int main ()
                 orbit_deadzone,                                                                     // Orbit deadzone threshold coefficient.
                 orbit_decaytime                                                                     // Orbit low pass decay time [s].
                );
-     */
 
-    if(gui->mouse_LEFT)
-    {
-      gui->orbit (
-                  mouse_velocity_x,                                                                 // "Near clipping-plane" x-coordinate.
-                  mouse_velocity_y,                                                                 // "Near clipping-plane" y-coordinate.
-                  orbit_rate,                                                                       // Orbit angular rate coefficient [rev/s].
-                  0.0,                                                                              // Orbit deadzone threshold coefficient.
-                  orbit_decaytime                                                                   // Orbit low pass decay time [s].
-                 );
-    }
+       pan_x = +gui->axis_RIGHT_X;                                                                     // Setting world x-pan...
+       pan_y = -gui->axis_RIGHT_Y;                                                                     // Setting world y-pan...
+       pan_z = (gui->axis_RIGHT_TRIGGER + 1.0)/2.0 - (gui->axis_LEFT_TRIGGER + 1.0)/2.0;               // Setting world z-pan...
 
-    pan_x = +gui->axis_RIGHT_X;                                                                     // Setting world x-pan...
-    pan_y = -gui->axis_RIGHT_Y;                                                                     // Setting world y-pan...
-    pan_z = (gui->axis_RIGHT_TRIGGER + 1.0)/2.0 - (gui->axis_LEFT_TRIGGER + 1.0)/2.0;               // Setting world z-pan...
-
-    gui->pan (
+       gui->pan (
               pan_x,                                                                                // World x-pan.
               pan_y,                                                                                // World y-pan.
               pan_z,                                                                                // World z-pan.
@@ -237,6 +265,8 @@ int main ()
               pan_deadzone,                                                                         // Pan deadzone threshold coefficient.
               pan_decaytime                                                                         // Pan low pass decay time [s].
              );
+
+     */
 
     if(gui->button_CROSS)
     {
