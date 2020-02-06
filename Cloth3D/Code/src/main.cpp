@@ -52,10 +52,13 @@ int main ()
   // GUI PARAMETERS (mouse):
   float     mouse_x             = 0.0;                                                              // x-axis current screen position [px].
   float     mouse_y             = 0.0;                                                              // y-axis current screen position [px].
+  float     mouse_z             = 0.0;                                                              // z-axis current screen position [px].
   float     mouse_x_old         = 0.0;                                                              // x-axis old screen position [px].
   float     mouse_y_old         = 0.0;                                                              // y-axis old screen position [px].
+  float     mouse_z_old         = 0.0;                                                              // z-axis old screen position [px].
   float     mouse_velocity_x    = 0.0;                                                              // x-axis screen velocity [px/s].
   float     mouse_velocity_y    = 0.0;                                                              // y-axis screen velocity [px/s].
+  float     mouse_velocity_z    = 0.0;                                                              // z-axis screen velocity [px/s].
   float     mouse_orbit_rate    = 1.0;                                                              // Orbit rotation rate [rev/s].
   bool      mouse_sample        = false;                                                            // Mouse flag, for velocity computation.
   float     mouse_dt            = 0.0;                                                              // Mouse dt [s].
@@ -64,12 +67,13 @@ int main ()
   float     mouse_pan_x_init    = 0.0f;                                                             // x-axis pan initial translation.
   float     mouse_pan_y_init    = 0.0f;                                                             // y-axis pan initial translation.
   float     mouse_pan_z_init    = -2.0f;                                                            // z-axis pan initial translation.
-  float     mouse_pan_x;                                                                            // x-axis pan translation.
-  float     mouse_pan_y;                                                                            // y-axis pan translation.
-  float     mouse_pan_z;                                                                            // z-axis pan translation.
+  float     mouse_pan_x         = 0.0;                                                              // x-axis pan translation.
+  float     mouse_pan_y         = 0.0;                                                              // y-axis pan translation.
+  float     mouse_pan_z         = 0.0;                                                              // z-axis pan translation.
   float     mouse_pan_decaytime = 1.25;                                                             // Pan LP filter decay time [s].
-  float     mouse_pan_deadzone  = 0.0;                                                              // Pan translation deadzone [0...1].
-  float     mouse_pan_rate      = 10.0;                                                             // Pan translation rate [m/s].
+  float     mouse_pan_deadzone  = 0.1;                                                              // Pan translation deadzone [0...1].
+  float     mouse_pan_xy_rate   = 10.0;                                                             // Pan xy-translation rate [m/s].
+  float     mouse_pan_z_rate    = 5.0;                                                              // Pan z-translation rate [m/s].
 
   // GUI PARAMETERS (orbit):
   float     orbit_x_init        = 0.0f;                                                             // x-axis orbit initial rotation.
@@ -190,30 +194,49 @@ int main ()
     Q->release (position, 0);                                                                       // Releasing OpenGL/CL shared argument...
     Q->release (color, 1);                                                                          // Releasing OpenGL/CL shared argument...
 
-    mouse_x = gui->mouse_X;
-    mouse_y = gui->mouse_Y;
+    mouse_x = gui->mouse_X;                                                                         // Getting mouse x-axis...
+    mouse_y = gui->mouse_Y;                                                                         // Getting mouse y-axis...
+    mouse_z = gui->scroll_Y;                                                                        // Getting mouse x-axis...
 
-    switch(mouse_sample)
+    switch(mouse_sample)                                                                            // Sampling mouse position...
     {
       case false:
-        mouse_x      = gui->mouse_X;
-        mouse_y      = gui->mouse_Y;
-        mouse_sample = true;
+        mouse_x      = gui->mouse_X;                                                                // Getting mouse x-axis...
+        mouse_y      = gui->mouse_Y;                                                                // Getting mouse y-axis...
+        mouse_z      = gui->scroll_Y;                                                               // Getting mouse z-axis...
+        mouse_sample = true;                                                                        // Setting sample flag...
         break;
 
       case true:
-        mouse_x_old  = mouse_x;
-        mouse_y_old  = mouse_y;
-        mouse_x      = gui->mouse_X;
-        mouse_y      = gui->mouse_Y;
-        mouse_sample = false;
+        mouse_x_old  = mouse_x;                                                                     // Backing up mouse x-axis...
+        mouse_y_old  = mouse_y;                                                                     // Backing up mouse y-axis...
+        mouse_z_old  = mouse_z;                                                                     // Backing up mouse z-axis...
+        mouse_x      = gui->mouse_X;                                                                // Getting mouse x-axis...
+        mouse_y      = gui->mouse_Y;                                                                // Getting mouse y-axis...
+        mouse_z      = gui->scroll_Y;                                                               // Getting mouse z-axis...
+        mouse_sample = false;                                                                       // Resetting sample flag...
         break;
     }
 
-    mouse_dt         = bas->constrain_float (bas->loop_time, mouse_dt_min, mouse_dt_max);
-    mouse_velocity_x = +(mouse_x - mouse_x_old)/(gui->window_size_x*mouse_dt);
-    mouse_velocity_y = -(mouse_y - mouse_y_old)/(gui->window_size_y*mouse_dt);
+    mouse_dt         = bas->constrain_float (bas->loop_time, mouse_dt_min, mouse_dt_max);           // Getting loop time...
+    mouse_velocity_x = +(mouse_x - mouse_x_old)/(gui->window_size_x*mouse_dt);                      // Computing mouse x-velocity [px/s]...
+    mouse_velocity_y = -(mouse_y - mouse_y_old)/(gui->window_size_y*mouse_dt);                      // Computing mouse y-velocity [px/s]...
+    mouse_velocity_z = +(mouse_z - mouse_z_old)/(gui->window_size_y*mouse_dt);                      // Computing mouse z-velocity [px/s]...
+    mouse_pan_x      = mouse_velocity_x;                                                            // Setting world x-pan...
+    mouse_pan_y      = mouse_velocity_y;                                                            // Setting world y-pan...
+    mouse_pan_z      = mouse_velocity_z;                                                            // Setting world z-pan...
 
+    // Doing mouse pan z-movement...
+    gui->pan (
+              0.0,                                                                                  // World x-pan.
+              0.0,                                                                                  // World y-pan.
+              mouse_z,                                                                              // World z-pan.
+              mouse_pan_z_rate,                                                                     // Pan rate [length/s].
+              mouse_pan_deadzone,                                                                   // Pan deadzone threshold coefficient.
+              mouse_pan_decaytime                                                                   // Pan low pass decay time [s].
+             );
+
+    // Doing mouse orbit movement...
     if(gui->mouse_LEFT)
     {
       gui->orbit (
@@ -225,27 +248,23 @@ int main ()
                  );
     }
 
+    // Doing mouse pan xy-movement...
     if(gui->mouse_RIGHT)
     {
-      mouse_pan_x = mouse_velocity_x;                                                               // Setting world x-pan...
-      mouse_pan_y = mouse_velocity_y;                                                               // Setting world y-pan...
-      mouse_pan_z = (gui->axis_RIGHT_TRIGGER + 1.0)/2.0 - (gui->axis_LEFT_TRIGGER + 1.0)/2.0;       // Setting world z-pan...
-
       gui->pan (
                 mouse_pan_x,                                                                        // World x-pan.
                 mouse_pan_y,                                                                        // World y-pan.
                 mouse_pan_z,                                                                        // World z-pan.
-                mouse_pan_rate,                                                                     // Pan rate [length/s].
+                mouse_pan_xy_rate,                                                                  // Pan rate [length/s].
                 mouse_pan_deadzone,                                                                 // Pan deadzone threshold coefficient.
                 mouse_pan_decaytime                                                                 // Pan low pass decay time [s].
                );
     }
 
-    /*
-       orbit_x          = +gui->axis_LEFT_X;                                                           // Setting "Near clipping-plane" x-coordinate...
-       orbit_y          = -gui->axis_LEFT_Y;                                                           // Setting "Near clipping-plane" y-coordinate...
+    orbit_x = +gui->axis_LEFT_X;                                                                    // Setting "Near clipping-plane" x-coordinate...
+    orbit_y = -gui->axis_LEFT_Y;                                                                    // Setting "Near clipping-plane" y-coordinate...
 
-       gui->orbit (
+    gui->orbit (
                 orbit_x,                                                                            // "Near clipping-plane" x-coordinate.
                 orbit_y,                                                                            // "Near clipping-plane" y-coordinate.
                 orbit_rate,                                                                         // Orbit angular rate coefficient [rev/s].
@@ -253,11 +272,11 @@ int main ()
                 orbit_decaytime                                                                     // Orbit low pass decay time [s].
                );
 
-       pan_x = +gui->axis_RIGHT_X;                                                                     // Setting world x-pan...
-       pan_y = -gui->axis_RIGHT_Y;                                                                     // Setting world y-pan...
-       pan_z = (gui->axis_RIGHT_TRIGGER + 1.0)/2.0 - (gui->axis_LEFT_TRIGGER + 1.0)/2.0;               // Setting world z-pan...
+    pan_x   = +gui->axis_RIGHT_X;                                                                   // Setting world x-pan...
+    pan_y   = -gui->axis_RIGHT_Y;                                                                   // Setting world y-pan...
+    pan_z   = (gui->axis_RIGHT_TRIGGER + 1.0)/2.0 - (gui->axis_LEFT_TRIGGER + 1.0)/2.0;             // Setting world z-pan...
 
-       gui->pan (
+    gui->pan (
               pan_x,                                                                                // World x-pan.
               pan_y,                                                                                // World y-pan.
               pan_z,                                                                                // World z-pan.
@@ -265,8 +284,6 @@ int main ()
               pan_deadzone,                                                                         // Pan deadzone threshold coefficient.
               pan_decaytime                                                                         // Pan low pass decay time [s].
              );
-
-     */
 
     if(gui->button_CROSS)
     {
