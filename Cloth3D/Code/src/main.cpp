@@ -43,48 +43,46 @@
 int main ()
 {
   // DATA:
-  float     x_min               = -1.0;                                                             // "x_min" spatial boundary [m].
-  float     x_max               = +1.0;                                                             // "x_max" spatial boundary [m].
-  float     y_min               = -1.0;                                                             // "y_min" spatial boundary [m].
-  float     y_max               = +1.0;                                                             // "y_max" spatial boundary [m].
+  float     x_min              = -1.0;                                                              // "x_min" spatial boundary [m].
+  float     x_max              = +1.0;                                                              // "x_max" spatial boundary [m].
+  float     y_min              = -1.0;                                                              // "y_min" spatial boundary [m].
+  float     y_max              = +1.0;                                                              // "y_max" spatial boundary [m].
   size_t    gid;                                                                                    // Global index [#].
 
   // GUI PARAMETERS (orbit):
-  float     orbit_x_init        = 0.0f;                                                             // x-axis orbit initial rotation.
-  float     orbit_y_init        = 0.0f;                                                             // y-axis orbit initial rotation.
+  float     orbit_x_init       = 0.0f;                                                              // x-axis orbit initial rotation.
+  float     orbit_y_init       = 0.0f;                                                              // y-axis orbit initial rotation.
 
   // GUI PARAMETERS (pan):
-  float     pan_x_init          = 0.0f;                                                             // x-axis pan initial translation.
-  float     pan_y_init          = 0.0f;                                                             // y-axis pan initial translation.
-  float     pan_z_init          = -2.0f;                                                            // z-axis pan initial translation.
+  float     pan_x_init         = 0.0f;                                                              // x-axis pan initial translation.
+  float     pan_y_init         = 0.0f;                                                              // y-axis pan initial translation.
+  float     pan_z_init         = -2.0f;                                                             // z-axis pan initial translation.
 
   // GUI PARAMETERS (mouse):
-  float     mouse_orbit_rate    = 1.0;                                                              // Orbit rotation rate [rev/s].
-  float     mouse_pan_xy_rate   = 10.0;                                                             // Pan xy-translation rate [m/s].
-  float     mouse_pan_z_rate    = 5.0;                                                              // Pan z-translation rate [m/s].
-  float     mouse_decaytime     = 1.25;                                                             // Pan LP filter decay time [s].
+  float     mouse_orbit_rate   = 1.0;                                                               // Orbit rotation rate [rev/s].
+  float     mouse_pan_rate     = 10.0;                                                              // Pan translation rate [m/s].
+  float     mouse_decaytime    = 1.25;                                                              // Pan LP filter decay time [s].
 
   // GUI PARAMETERS (gamepad):
-  float     gamepad_orbit_rate  = 1.0;                                                              // Orbit angular rate coefficient [rev/s].
-  float     gamepad_pan_xy_rate = 1.0;                                                              // Pan xy-translation rate [m/s].
-  float     gamepad_pan_z_rate  = 1.0;                                                              // Pan z-translation rate [m/s].
-  float     gamepad_decaytime   = 1.25;                                                             // Low pass filter decay time [s].
-  float     gamepad_deadzone    = 0.1;                                                              // Gamepad joystick deadzone [0...1].
+  float     gamepad_orbit_rate = 1.0;                                                               // Orbit angular rate coefficient [rev/s].
+  float     gamepad_pan_rate   = 1.0;                                                               // Pan translation rate [m/s].
+  float     gamepad_decaytime  = 1.25;                                                              // Low pass filter decay time [s].
+  float     gamepad_deadzone   = 0.1;                                                               // Gamepad joystick deadzone [0...1].
 
   // NEUTRINO:
-  neutrino* bas                 = new neutrino ();                                                  // Neutrino baseline.
-  opengl*   gui                 = new opengl ();                                                    // OpenGL context.
-  opencl*   ctx                 = new opencl ();                                                    // OpenCL context.
-  shader*   S                   = new shader ();                                                    // OpenGL shader program.
-  queue*    Q                   = new queue ();                                                     // OpenCL queue.
-  kernel*   K1                  = new kernel ();                                                    // OpenCL kernel array.
+  neutrino* bas                = new neutrino ();                                                   // Neutrino baseline.
+  opengl*   gui                = new opengl ();                                                     // OpenGL context.
+  opencl*   ctx                = new opencl ();                                                     // OpenCL context.
+  shader*   S                  = new shader ();                                                     // OpenGL shader program.
+  queue*    Q                  = new queue ();                                                      // OpenCL queue.
+  kernel*   K1                 = new kernel ();                                                     // OpenCL kernel array.
 
   // MESH:
-  mesh*     cloth               = new mesh ();                                                      // Mesh context.                                                                                // Total # of nodes [#].
+  mesh*     cloth              = new mesh ();                                                       // Mesh context.                                                                                // Total # of nodes [#].
 
   // NODE KINEMATICS:
-  float4G*  position            = new float4G ();                                                   // Position [m].
-  float4G*  color               = new float4G ();                                                   // Depth [m].
+  float4G*  position           = new float4G ();                                                    // Position [m].
+  float4G*  color              = new float4G ();                                                    // Depth [m].
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
@@ -172,15 +170,13 @@ int main ()
 
     gui->mouse_navigation (
                            mouse_orbit_rate,                                                        // Orbit angular rate coefficient [rev/s].
-                           mouse_pan_xy_rate,                                                       // Pan xy-translation rate [m/s].
-                           mouse_pan_z_rate,                                                        // Pan z-translation rate [m/s].
+                           mouse_pan_rate,                                                          // Pan translation rate [m/s].
                            mouse_decaytime                                                          // Orbit low pass decay time [s].
                           );
 
     gui->gamepad_navigation (
                              gamepad_orbit_rate,                                                    // Orbit angular rate coefficient [rev/s].
-                             gamepad_pan_xy_rate,                                                   // Pan xy-translation rate [m/s].
-                             gamepad_pan_z_rate,                                                    // Pan z-translation rate [m/s].
+                             gamepad_pan_rate,                                                      // Pan translation rate [m/s].
                              gamepad_decaytime,                                                     // Low pass filter decay time [s].
                              gamepad_deadzone                                                       // Gamepad joystick deadzone [0...1].
                             );
