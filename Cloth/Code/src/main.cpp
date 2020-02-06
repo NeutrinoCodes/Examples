@@ -77,7 +77,7 @@ int main ()
 
   // GUI PARAMETERS (gamepad):
   float     gamepad_orbit_rate = 1.0;                                                               // Orbit angular rate coefficient [rev/s].
-  float     gamepad_pan_rate   = 0.5;                                                               // Pan translation rate [m/s].
+  float     gamepad_pan_rate   = 1.0;                                                               // Pan translation rate [m/s].
   float     gamepad_decaytime  = 1.25;                                                              // Low pass filter decay time [s].
   float     gamepad_deadzone   = 0.1;                                                               // Gamepad joystick deadzone [0...1].
 

@@ -60,7 +60,7 @@ int main ()
 
   // GUI PARAMETERS (mouse):
   float     mouse_orbit_rate   = 1.0;                                                               // Orbit rotation rate [rev/s].
-  float     mouse_pan_rate     = 10.0;                                                              // Pan translation rate [m/s].
+  float     mouse_pan_rate     = 5.0;                                                               // Pan translation rate [m/s].
   float     mouse_decaytime    = 1.25;                                                              // Pan LP filter decay time [s].
 
   // GUI PARAMETERS (gamepad):

@@ -4,14 +4,14 @@
 /// @brief    It implements an example of a Neutrino application.
 
 // OPENGL:
-#define GUI_SIZE_X  800                                                                             // Window x-size [px].
-#define GUI_SIZE_Y  600                                                                             // Window y-size [px].
-#define GUI_NAME    "neutrino 3.0"                                                                  // Window name.
+#define GUI_SIZE_X    800                                                                           // Window x-size [px].
+#define GUI_SIZE_Y    600                                                                           // Window y-size [px].
+#define GUI_NAME      "neutrino 3.0"                                                                // Window name.
 
 // OPENCL:
-#define QUEUE_NUM   1                                                                               // Number of OpenCL queues [#].
-#define KERNEL_NUM  1                                                                               // Number of OpenCL kernel [#].
-#define KERNEL_FILE "sine_kernel.cl"                                                                // OpenCL kernel.
+#define QUEUE_NUM     1                                                                             // Number of OpenCL queues [#].
+#define KERNEL_NUM    1                                                                             // Number of OpenCL kernel [#].
+#define KERNEL_FILE   "sine_kernel.cl"                                                              // OpenCL kernel.
 
 #ifdef __linux__
   #define SHADER_HOME "../../shader"                                                                // Linux OpenGL shaders directory.
@@ -70,7 +70,7 @@ int main ()
 
   // GUI PARAMETERS (gamepad):
   float     gamepad_orbit_rate = 1.0;                                                               // Orbit angular rate coefficient [rev/s].
-  float     gamepad_pan_rate   = 0.5;                                                               // Pan translation rate [m/s].
+  float     gamepad_pan_rate   = 1.0;                                                               // Pan translation rate [m/s].
   float     gamepad_decaytime  = 1.25;                                                              // Low pass filter decay time [s].
   float     gamepad_deadzone   = 0.1;                                                               // Gamepad joystick deadzone [0...1].
 
