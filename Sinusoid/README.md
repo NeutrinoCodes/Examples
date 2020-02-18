@@ -6,174 +6,41 @@ _A fast and light library for GPU-based computation and interactive data visuali
 
 © Alessandro LUCANTONIO, Erik ZORZIN - 2018-2020
 
-**PLEASE NOTICE THE FOLLOWING LIST OF HARDWARE AND SOFTWARE REQUIREMENTS ARE IN COMMON WITH THOSE
-ONES FOR THE INSTALLATION AND USAGE OF THE "NEUTRINO" LIBRARY. PLEASE CHECK THE SAME REQUIREMENTS
-HAVE BEEN ALREADY MET DURING THAT INSTALLATION BY READING THE README.md FILE IN THE "NEUTRINO"
-REPOSITORY.**
+## Sinusoid example
 
-Hardware requirements:
-----
-- OpenCL-compatible GPU with support for OpenCL-OpenGL.
+This example is the "Hello world!" of Neutrino.
 
-It is better if the "interoperability" sharing modality exists. By using the tool  `clinfo`, under
-Mac check for the `cl_APPLE_gl_sharing` extension, while under Linux or Windows check for the
-`cl_khr_gl_sharing` extension.
+It shows the function `z = A*sin(k*x - omega*t) + A*cos(k*y - omega*t)` computed on a discrete
+square array of points and animated in time.
 
-Software requirements for Mac:
-----
-- OpenCL v1.2 (runtime/loader + headers) *
-- OpenGL v4.6 (library + headers) *
-- GLAD (https://glad.dav1d.de/) **
-- GLFW v3.3 (https://www.glfw.org/)
-- GCC v9.1 ***
-- CMake v3.14.5 ***
-- Make ***
-- Git v2.21 ***
-- GraphViz (https://graphviz.org/) ***
-- Doxygen v1.8.15 (http://www.doxygen.nl/) ***
-- Clinfo (https://github.com/Oblomov/clinfo) ***
+The user can change the point of view of the simulation by acting on the mouse, or
+trackpad:
+- grasping while keeping pressed the left button will orbit the view.
+- grasping while keeping pressed the right button will pan the view.
+- scrolling the mouse wheel (or using the trackpad scroll gesture the way it is configured in your
+system) will zoom in/out the view.
 
-\* They should be already present by default in the system.
+The same can be done by means of any GLFW compatible gamepad (e.g. PS4 Dual Shock gamepad) in this
+way:
+- left analog joystick: orbit.
+- right analog joystick: pan.
+- L2 and R2 buttons (triggers): zoom in/out.
 
-\** The GLAD loader should be generated from its webpage using the following settings:
-- Language = C/C++
-- gl = Version 4.6
-- Profile = Core
+The PS4 Dual Shock gamepad can be connected either via USB or bluetooth: in the latter case, the
+"share" button and the "PS" button must be pressed for a while in order to start the pairing
+procedure.
 
-Download the zip file containing the code and extract it in a
-custom directory, e.g. `/Users/yourname/glad`.
+The initial point of view has been set by putting the observer above the cloth ("x-y" plane aligned
+with the computer screen, "x" axis pointing up, "y" axis pointing right, "z" axis pointing inside
+the screen).
 
-\*** If not present, they could be installed by using `brew` package manager (https://brew.sh/).
+The simulation can be terminated by pressing "ESC" on the keyboard or by pressing the "CROSS" button
+on the gamepad.
 
-Software requirements for Linux:
-----
-- OpenCL v1.2 (runtime/loader + headers) *
-- OpenGL v4.6 (library + headers) *
-- GLAD (https://glad.dav1d.de/) **
-- GLFW v3.3 (https://www.glfw.org/)
-- GCC v9.1 *
-- CMake v3.14.5 *
-- Make *
-- Git v2.21 *
-- GraphViz (https://graphviz.org/) *
-- Doxygen v1.8.15 (http://www.doxygen.nl/) *
-- Clinfo (https://github.com/Oblomov/clinfo) *
+**For the compilation of this example please follow the generic instructions written in the
+README.md file in the root of the "Examples" repository.**
 
-\* If not present, they could be installed by using the system's package manager.
-
-\** The GLAD loader should be generated from its webpage using the following settings:
-- Language = C/C++
-- gl = Version 4.6
-- Profile = Core
-
-Download the zip file containing the code and extract it in a
-custom directory, e.g. `˜/glad`.
-
-Software requirements for Windows:
-----
-- OpenCL v1.2 (runtime/loader + headers) *
-- OpenGL v4.6 (library + headers) *
-- GLAD (https://glad.dav1d.de/) **
-- GLFW v3.3 (https://www.glfw.org/)
-- Visual Studio 2019 (https://visualstudio.microsoft.com/) with "Desktop development
-with C++ --> C++ CMake tools for Windows" workload.
-- Git v2.21 (https://gitforwindows.org/)
-- GraphViz (https://graphviz.org/)
-- Doxygen v1.8.15 (http://www.doxygen.nl/)
-- Clinfo (https://github.com/Oblomov/clinfo)
-
-\* To be installed within the graphics card drivers coming from the manufacturer.
-
-\** The GLAD loader should be generated from its webpage using the following settings:
-- Language = C/C++
-- gl = Version 4.6
-- Profile = Core
-
-Download the zip file containing the code and extract it in a
-custom directory, e.g. `C:\Users\yourname\glad`.
-
-Compilation
-----
-
-### Mac
-1. From the command shell, navigate into your favourite directory and clone the Neutrino project
-using the command `git clone https://github.com/NeutrinoCodes/examples.git`.
-2. Cd into neutrino's project directory and edit the configuration script in the Code
-subdirectory: `./configure_mac` by setting your paths. Provide the **absolute** path for the
-following variables in the script:
-- `DCMAKE_C_COMPILER`
-- `DCMAKE_CXX_COMPILER`
-- `DGLAD_PATH`
-- `DGLFW_PATH`
-- `DNEUTRINO_PATH`
-
-During the installation of the Neutrino library you might already have set the following environment
-variables in your `/Users/yourname/.bash_profile` in order to be used in the script:
-
-e.g.
-
-`export CC="/usr/local/bin/gcc-9"`
-`export CCX="/usr/local/bin/g++-9"`
-`export CPATH="/usr/local/include"`
-`export LIBRARY_PATH="/usr/local/lib"`
-`export NEUTRINOCODES_PATH="/users/yourname/NeutrinoCodes"`
-`export NEUTRINO_PATH=$NEUTRINOCODES_PATH/libnu`
-`export GLAD_PATH=$NEUTRINOCODES_PATH/glad`
-`export GLFW_PATH=$NEUTRINOCODES_PATH/glfw`
-
-P.S. after setting these variables, remember to exit and re-open the command shell or launch the
-shell command `source /Users/yourname/.bash_profile` in order to have them refreshed by the system.
-The first four variables are mandatory, because we are using gcc instead of Xcode.
-In case you already exported these variables during the installation of the Neutrino library please
-don't do it again now but only provide the asbolute paths for them as describe above for the
-`./configure_mac` of **this** example (not to be confused with the corresponding file of the neutrino
-library).
-
-3. Then launch it by typing `./configure_mac` at the command prompt. The Cmake configuration files
-will be generated.
-4. Enter the `cmake` directory and type `make install` (use `make clean` to remove old build files
-  if necessary).
-
-### Linux
-1. From the command shell, navigate into your favourite directory and clone neutrino project using
-the command `git clone https://github.com/NeutrinoCodes/neutrino.git`.
-2. Cd into neutrino's project directory and edit the configuration script in the Code
-subdirectory: `./configure_linux` by setting your paths. Provide the **absolute** path for the
-following variables in the script:
-- `DGLAD_PATH`
-- `DGLFW_PATH`
-- `DNEUTRINO_PATH`
-
-During the installation of the Neutrino library you might already have set the following environment
-variables in your `/Users/yourname/.bash_profile` in order to be used in the script:
-
-e.g.
-
-`export NEUTRINOCODES_PATH="/users/yourname/NeutrinoCodes"`
-`export NEUTRINO_PATH=$NEUTRINOCODES_PATH/libnu`
-`export GLAD_PATH=$NEUTRINOCODES_PATH/glad`
-`export GLFW_PATH=$NEUTRINOCODES_PATH/glfw`
-
-P.S. after setting these variables, remember to exit and re-open the command shell or launch the
-shell command `source /Users/yourname/.bash_profile` in order to have them refreshed by the system.
-In case you already exported these variables during the installation of the Neutrino library please
-don't do it again now but only provide the asbolute paths for them as describe above for the
-`./configure_linux` of **this** example (not to be confused with the corresponding file of the
-neutrino library).
-
-3. Then launch it by typing `./configure_linux` at the command prompt. The Cmake configuration files
-will be generated.
-4. Enter the `cmake` directory and type `make install` (use `make clean` to remove old build files
-  if necessary).
-
-### Windows
-1. Launch Command Prompt, navigate into your favorite directory and clone neutrino project using the command `git clone https://github.com/NeutrinoCodes/neutrino.git`.
-2. Launch Visual Studio 2019 and select neutrino project folder.
-3. Project -> CMake settings for neutrino -> Edit JSON; add the string `-DGLAD_PATH=C:/path/to/glad` `-DGLFW_PATH=C:/path/to/glfw` `-DCL_PATH=C:/path/to/opencl` to the parameter `cmakeCommandArgs` to specify the paths of GLAD, GLFW, and OpenCL headers (root directory). Also set the parameter `buildRoot` to `${projectDir}\\build\\windows`. Note: if you installed the NVIDIA GPU Computing Toolkit, `-DCL_PATH` will be something like `\"C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v9.1/\"` (notice the trailing and ending slashes, to be used if the path contains spaces).
-4. Build -> Build All. The `.lib` file will be placed in the `libnu\lib` folder under the Neutrino project root directory.
-
-### Final considerations
-The `libnu` folder would be later used in order to build Neutrino applications. See the "Examples"
-repository.
+Once compiled, the executable can be found in `Code/build/mac` or `Code/build/linux` or
+`Code\build\windows` according to the OS.
 
 © Alessandro LUCANTONIO, Erik ZORZIN - 2018-2020
