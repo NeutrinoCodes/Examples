@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "\\Cloth",
+    "\\Cloth\\Code",
+    "\\Sinusoid",
+    "\\Sinusoid\\Code",
+    "\\Sinusoid\\Code\\kernel",
+    "\\Sinusoid\\Code\\shader",
+    "\\Sinusoid\\Code\\src"
+  ],
+  "PreviewInSolutionExplorer": false
+}
