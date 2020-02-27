@@ -7,24 +7,19 @@
 #define GUI_NAME   "neutrino 3.0"                                                                   // Window name.
 
 #ifdef __linux__
-  #define SHADER_HOME \
-  "/run/media/ezor/LINUX/BookhouseBoys/ezor/NeutrinoCodes/Examples/Cloth/Code/shader"               // Linux OpenGL shaders directory.
-
-  #define KERNEL_HOME \
-  "/run/media/ezor/LINUX/BookhouseBoys/ezor/NeutrinoCodes/Examples/Cloth/Code/kernel"               // Linux OpenCL kernels directory.
+  #define SHADER_HOME "../../shader"                                                                // Linux OpenGL shaders directory.
+  #define KERNEL_HOME "../../kernel"                                                                // Linux OpenCL kernels directory.
 #endif
 
 #ifdef __APPLE__
-  #define SHADER_HOME \
-  "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/NeutrinoCodes/Examples/Cloth/Code/shader"      // Mac OpenGL shaders directory.
+  #define SHADER_HOME "../../shader"                                                                // Mac OpenGL shaders directory.
 
-  #define KERNEL_HOME \
-  "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/NeutrinoCodes/Examples/Cloth/Code/kernel"      // Mac OpenCL kernels directory.
+  #define KERNEL_HOME "../../kernel"                                                                // Mac OpenCL kernels directory.
 #endif
 
 #ifdef WIN32
-  #define SHADER_HOME "F:\\BookHouseBoys\\ezor\\NeutrinoCodes\\Examples\\Cloth\\Code\\shader"       // Windows OpenGL shaders directory.
-  #define KERNEL_HOME "F:\\BookHouseBoys\\ezor\\NeutrinoCodes\\Examples\\Cloth\\Code\\kernel"       // Windows OpenCL kernels directory.
+  #define SHADER_HOME "..\\..\\shader"                                                              // Windows OpenGL shaders directory.
+  #define KERNEL_HOME "..\\..\\kernel"                                                              // Windows OpenCL kernels directory.
 #endif
 
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.
