@@ -36,9 +36,9 @@ if(APPLE)                                                                       
     ${PROJECT_NAME}                                                                                 # Project name.
     "-framework OpenGL"                                                                             # OpenGL library.
     "-framework OpenCL"                                                                             # OpenCL library.
+    "-lm"                                                                                           # MATH library.
     ${GLFW_PATH}/lib-macos/libglfw.3.dylib                                                          # GLFW library.
-    "-lm"
-    "-lneutrino")
+    ${NEUTRINO_PATH}/lib/libnu.a)                                                                   # NEUTRINO library.
 
   message("Setting APPLE build directory...")                                                       # Printing message...
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/build/mac)                             # Setting build directory...

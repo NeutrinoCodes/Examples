@@ -1,30 +1,25 @@
 /// @file
 
 // OPENGL:
-#define INTEROP    true                                                                             // "true" = use OpenGL-OpenCL interoperability.
-#define GUI_SIZE_X 800                                                                              // Window x-size [px].
-#define GUI_SIZE_Y 600                                                                              // Window y-size [px].
-#define GUI_NAME   "neutrino 3.0"                                                                   // Window name.
+#define INTEROP       true                                                                          // "true" = use OpenGL-OpenCL interoperability.
+#define GUI_SIZE_X    800                                                                           // Window x-size [px].
+#define GUI_SIZE_Y    600                                                                           // Window y-size [px].
+#define GUI_NAME      "neutrino 3.0"                                                                // Window name.
 
 #ifdef __linux__
-  #define SHADER_HOME \
-  "/run/media/ezor/LINUX/BookhouseBoys/ezor/NeutrinoCodes/Examples/Gravity/Code/shader"             // Linux OpenGL shaders directory.
-
-  #define KERNEL_HOME \
-  "/run/media/ezor/LINUX/BookhouseBoys/ezor/NeutrinoCodes/Examples/Gravity/Code/kernel"             // Linux OpenCL kernels directory.
+  #define SHADER_HOME "../../shader"                                                                // Linux OpenGL shaders directory.
+  #define KERNEL_HOME "../../kernel"                                                                // Linux OpenCL kernels directory.
 #endif
 
 #ifdef __APPLE__
-  #define SHADER_HOME \
-  "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/NeutrinoCodes/Examples/Gravity/Code/shader"    // Mac OpenGL shaders directory.
+  #define SHADER_HOME "../../shader"                                                                // Mac OpenGL shaders directory.
 
-  #define KERNEL_HOME \
-  "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/NeutrinoCodes/Examples/Gravity/Code/kernel"    // Mac OpenCL kernels directory.
+  #define KERNEL_HOME "../../kernel"                                                                // Mac OpenCL kernels directory.
 #endif
 
 #ifdef WIN32
-  #define SHADER_HOME "F:\\BookHouseBoys\\ezor\\NeutrinoCodes\\Examples\\Cloth\\Gravity\\shader"    // Windows OpenGL shaders directory.
-  #define KERNEL_HOME "F:\\BookHouseBoys\\ezor\\NeutrinoCodes\\Examples\\Cloth\\Gravity\\kernel"    // Windows OpenCL kernels directory.
+  #define SHADER_HOME "..\\..\\shader"                                                              // Windows OpenGL shaders directory.
+  #define KERNEL_HOME "..\\..\\kernel"                                                              // Windows OpenCL kernels directory.
 #endif
 
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.
@@ -44,29 +39,33 @@
 int main ()
 {
   // DATA:
-  float     x_min            = -1.0;                                                                // "x_min" spatial boundary [m].
-  float     x_max            = +1.0;                                                                // "x_max" spatial boundary [m].
-  float     y_min            = -1.0;                                                                // "y_min" spatial boundary [m].
-  float     y_max            = +1.0;                                                                // "y_max" spatial boundary [m].
-  float     z_min            = -1.0;                                                                // "z_min" spatial boundary [m].
-  float     z_max            = +1.0;                                                                // "z_max" spatial boundary [m].
-  size_t    nodes_x          = 25;                                                                  // Number of nodes in "X" direction [].
-  size_t    nodes_y          = 25;                                                                  // Number of nodes in "Y" direction [].
-  size_t    nodes_z          = 25;                                                                  // Number of nodes in "Y" direction [].
-  size_t    nodes            = nodes_x*nodes_y*nodes_z;                                             // Total # of nodes [#].
-  float     dx               = (x_max - x_min)/(nodes_x - 1);                                       // x-axis mesh spatial size [m].
-  float     dy               = (y_max - y_min)/(nodes_y - 1);                                       // y-axis mesh spatial size [m].
-  float     dz               = (z_max - z_min)/(nodes_z - 1);                                       // z-axis mesh spatial size [m].
+  float     x_min              = -1.0;                                                              // "x_min" spatial boundary [m].
+  float     x_max              = +1.0;                                                              // "x_max" spatial boundary [m].
+  float     y_min              = -1.0;                                                              // "y_min" spatial boundary [m].
+  float     y_max              = +1.0;                                                              // "y_max" spatial boundary [m].
+  float     z_min              = -1.0;                                                              // "z_min" spatial boundary [m].
+  float     z_max              = +1.0;                                                              // "z_max" spatial boundary [m].
+  float     x;
+  float     y;
+  float     z;
+  float     r;
+  size_t    nodes_x            = 25;                                                                // Number of nodes in "X" direction [].
+  size_t    nodes_y            = 25;                                                                // Number of nodes in "Y" direction [].
+  size_t    nodes_z            = 25;                                                                // Number of nodes in "Y" direction [].
+  size_t    nodes              = nodes_x*nodes_y*nodes_z;                                           // Total # of nodes [#].
+  float     dx                 = (x_max - x_min)/(nodes_x - 1);                                     // x-axis mesh spatial size [m].
+  float     dy                 = (y_max - y_min)/(nodes_y - 1);                                     // y-axis mesh spatial size [m].
+  float     dz                 = (z_max - z_min)/(nodes_z - 1);                                     // z-axis mesh spatial size [m].
   size_t    i;                                                                                      // "x" direction index [].
   size_t    j;                                                                                      // "y" direction index [].
   size_t    k;                                                                                      // "z" direction index [].
   size_t    gid;                                                                                    // Global index [].
-  size_t    face_R           = nodes_x - 1;                                                         // Right face index [].
-  size_t    face_U           = nodes_y - 1;                                                         // Up face index [].
-  size_t    face_F           = nodes_z - 1;                                                         // Front face index [].
-  size_t    face_L           = 0;                                                                   // Left face index [].
-  size_t    face_D           = 0;                                                                   // Down face index [].
-  size_t    face_B           = 0;                                                                   // Back face index [].
+  size_t    face_R             = nodes_x - 1;                                                       // Right face index [].
+  size_t    face_U             = nodes_y - 1;                                                       // Up face index [].
+  size_t    face_F             = nodes_z - 1;                                                       // Front face index [].
+  size_t    face_L             = 0;                                                                 // Left face index [].
+  size_t    face_D             = 0;                                                                 // Down face index [].
+  size_t    face_B             = 0;                                                                 // Back face index [].
   size_t    neighbour_R;                                                                            // Right neighbour index [].
   size_t    neighbour_U;                                                                            // Up neighbour index [].
   size_t    neighbour_F;                                                                            // Front neighbour index [].
@@ -75,76 +74,78 @@ int main ()
   size_t    neighbour_B;                                                                            // Back neighbour index [].
 
   // GUI PARAMETERS (orbit):
-  float     orbit_x_init     = 0.0f;                                                                // x-axis orbit initial rotation.
-  float     orbit_y_init     = 0.0f;                                                                // y-axis orbit initial rotation.
-  float     orbit_x;                                                                                // x-axis orbit rotation.
-  float     orbit_y;                                                                                // y-axis orbit rotation.
-  float     orbit_decaytime  = 1.25;                                                                // Orbit LP filter decay time [s].
-  float     orbit_deadzone   = 0.1;                                                                 // Orbit rotation deadzone [0...1].
-  float     orbit_rate       = 1.0;                                                                 // Orbit rotation rate [rev/s].
+  float     orbit_x_init       = 0.0f;                                                              // x-axis orbit initial rotation.
+  float     orbit_y_init       = 0.0f;                                                              // y-axis orbit initial rotation.
 
   // GUI PARAMETERS (pan):
-  float     pan_x_init       = 0.0f;                                                                // x-axis pan initial translation.
-  float     pan_y_init       = 0.0f;                                                                // y-axis pan initial translation.
-  float     pan_z_init       = -2.0f;                                                               // z-axis pan initial translation.
-  float     pan_x;                                                                                  // x-axis pan translation.
-  float     pan_y;                                                                                  // y-axis pan translation.
-  float     pan_z;                                                                                  // z-axis pan translation.
-  float     pan_decaytime    = 1.25;                                                                // Pan LP filter decay time [s].
-  float     pan_deadzone     = 0.1;                                                                 // Pan rotation deadzone [0...1].
-  float     pan_rate         = 1.0;                                                                 // Pan rotation rate [rev/s].
+  float     pan_x_init         = 0.0f;                                                              // x-axis pan initial translation.
+  float     pan_y_init         = 0.0f;                                                              // y-axis pan initial translation.
+  float     pan_z_init         = -2.0f;                                                             // z-axis pan initial translation.
+
+  // GUI PARAMETERS (mouse):
+  float     mouse_orbit_rate   = 1.0;                                                               // Orbit rotation rate [rev/s].
+  float     mouse_pan_rate     = 5.0;                                                               // Pan translation rate [m/s].
+  float     mouse_decaytime    = 1.25;                                                              // Pan LP filter decay time [s].
+
+  // GUI PARAMETERS (gamepad):
+  float     gamepad_orbit_rate = 1.0;                                                               // Orbit angular rate coefficient [rev/s].
+  float     gamepad_pan_rate   = 1.0;                                                               // Pan translation rate [m/s].
+  float     gamepad_decaytime  = 1.25;                                                              // Low pass filter decay time [s].
+  float     gamepad_deadzone   = 0.1;                                                               // Gamepad joystick deadzone [0...1].
 
   // SIMULATION PARAMETERS:
-  float     rho              = 1000.0;                                                              // Space mass density [kg/m^3].
-  float     E                = 100000.0;                                                            // Space Young modulus [kg/(m*s^2)].
-  float     mu               = 700.0;                                                               // Space viscosity [Pa*s].
-  float     m                = rho*dx*dy*dz;                                                        // Space mass [kg].
-  float     K                = E*0.01*dy/dx;                                                        // Space elastic constant [kg/s^2].
-  float     C                = mu*dx*dy*dz;                                                         // Space damping [kg*s*m].
-  float     dt_critical      = sqrt (m/K);                                                          // Critical time step [s].
-  float     dt_simulation    = 0.1* dt_critical;                                                    // Simulation time step [s].
+  float     rho                = 1000.0;                                                            // Space mass density [kg/m^3].
+  float     E                  = 100000.0;                                                          // Space Young modulus [kg/(m*s^2)].
+  float     mu                 = 700.0;                                                             // Space viscosity [Pa*s].
+  float     m                  = rho*dx*dy*dz;                                                      // Space mass [kg].
+  float     g                  = 3*9.81;                                                            // External gravity field [m/s^2].
+  float     R_0                = 3*sqrt (dx*dx + dy*dy + dz*dz);                                    // Radius of central gravity source [m].
+  float     K                  = E*0.01*dy/dx;                                                      // Space elastic constant [kg/s^2].
+  float     C                  = mu*dx*dy*dz;                                                       // Space damping [kg*s*m].
+  float     dt_critical        = sqrt (m/K);                                                        // Critical time step [s].
+  float     dt_simulation      = 0.1* dt_critical;                                                  // Simulation time step [s].
 
   // NEUTRINO:
-  neutrino* bas              = new neutrino ();                                                     // Neutrino baseline.
-  opengl*   gui              = new opengl ();                                                       // OpenGL context.
-  opencl*   ctx              = new opencl ();                                                       // OpenCL context.
-  shader*   S                = new shader ();                                                       // OpenGL shader program.
-  queue*    Q                = new queue ();                                                        // OpenCL queue.
-  kernel*   K1               = new kernel ();                                                       // OpenCL kernel array.
-  kernel*   K2               = new kernel ();                                                       // OpenCL kernel array.
-  size_t    kernel_sx        = nodes;                                                               // Kernel dimension "x" [#].
-  size_t    kernel_sy        = 0;                                                                   // Kernel dimension "y" [#].
-  size_t    kernel_sz        = 0;                                                                   // Kernel dimension "z" [#].
+  neutrino* bas                = new neutrino ();                                                   // Neutrino baseline.
+  opengl*   gui                = new opengl ();                                                     // OpenGL context.
+  opencl*   ctx                = new opencl ();                                                     // OpenCL context.
+  shader*   S                  = new shader ();                                                     // OpenGL shader program.
+  queue*    Q                  = new queue ();                                                      // OpenCL queue.
+  kernel*   K1                 = new kernel ();                                                     // OpenCL kernel array.
+  kernel*   K2                 = new kernel ();                                                     // OpenCL kernel array.
+  size_t    kernel_sx          = nodes;                                                             // Kernel dimension "x" [#].
+  size_t    kernel_sy          = 0;                                                                 // Kernel dimension "y" [#].
+  size_t    kernel_sz          = 0;                                                                 // Kernel dimension "z" [#].
 
   // NODE KINEMATICS:
-  float4G*  position         = new float4G ();                                                      // Position [m].
-  float4G*  depth            = new float4G ();                                                      // Depth [m].
-  float4*   velocity         = new float4 ();                                                       // Velocity [m/s].
-  float4*   acceleration     = new float4 ();                                                       // Acceleration [m/s^2].
+  float4G*  position           = new float4G ();                                                    // Position [m].
+  float4G*  depth              = new float4G ();                                                    // Depth [m].
+  float4*   velocity           = new float4 ();                                                     // Velocity [m/s].
+  float4*   acceleration       = new float4 ();                                                     // Acceleration [m/s^2].
 
   // NODE KINEMATICS (INTERMEDIATE):
-  float4*   position_int     = new float4 ();                                                       // Position (intermediate) [m].
-  float4*   velocity_int     = new float4 ();                                                       // Velocity (intermediate) [m/s].
-  float4*   acceleration_int = new float4 ();                                                       // Acceleration (intermediate) [m/s^2].
+  float4*   position_int       = new float4 ();                                                     // Position (intermediate) [m].
+  float4*   velocity_int       = new float4 ();                                                     // Velocity (intermediate) [m/s].
+  float4*   acceleration_int   = new float4 ();                                                     // Acceleration (intermediate) [m/s^2].
 
   // NODE DYNAMICS:
-  float4*   gravity          = new float4 ();                                                       // Gravity [m/s^2].
-  float4*   stiffness        = new float4 ();                                                       // Stiffness.
-  float4*   resting          = new float4 ();                                                       // Resting.
-  float4*   friction         = new float4 ();                                                       // Friction.
-  float4*   mass             = new float4 ();                                                       // Mass [kg].
+  float4*   gravity            = new float4 ();                                                     // Gravity [m/s^2].
+  float4*   stiffness          = new float4 ();                                                     // Stiffness.
+  float4*   resting            = new float4 ();                                                     // Resting.
+  float4*   friction           = new float4 ();                                                     // Friction.
+  float4*   mass               = new float4 ();                                                     // Mass [kg].
 
   // MESH CONNECTIVITY:
-  int1*     index_R          = new int1 ();                                                         // Right neighbour index [].
-  int1*     index_U          = new int1 ();                                                         // Up neighbour index [].
-  int1*     index_F          = new int1 ();                                                         // Front neighbour index [].
-  int1*     index_L          = new int1 ();                                                         // Left neighbour index [].
-  int1*     index_D          = new int1 ();                                                         // Down neighbour index [].
-  int1*     index_B          = new int1 ();                                                         // Back neighbour index [].
-  float4*   freedom          = new float4 ();                                                       // Freedom/constrain flag [].
+  int1*     index_R            = new int1 ();                                                       // Right neighbour index [].
+  int1*     index_U            = new int1 ();                                                       // Up neighbour index [].
+  int1*     index_F            = new int1 ();                                                       // Front neighbour index [].
+  int1*     index_L            = new int1 ();                                                       // Left neighbour index [].
+  int1*     index_D            = new int1 ();                                                       // Down neighbour index [].
+  int1*     index_B            = new int1 ();                                                       // Back neighbour index [].
+  float4*   freedom            = new float4 ();                                                     // Freedom/constrain flag [].
 
   // SIMULATION TIME:
-  float1*   dt               = new float1 ();                                                       // Time step [s].
+  float1*   dt                 = new float1 ();                                                     // Time step [s].
   float     simulation_time;                                                                        // Simulation time [s].
   int       time_step_index;                                                                        // Time step index [#].
 
@@ -218,37 +219,55 @@ int main ()
         depth->data[gid].z        = 0.0;                                                            // Setting "z" initial color...
         depth->data[gid].w        = 1.0;                                                            // Setting "w" initial color...
 
-        gravity->data[gid].x      = 0.0;                                                            // Setting "x" gravity...
-        gravity->data[gid].y      = 0.0;                                                            // Setting "y" gravity...
-        gravity->data[gid].z      = -9.81;                                                          // Setting "z" gravity...
-        gravity->data[gid].w      = 1.0;                                                            // Setting "w" gravity...
+        x                         = x_min + i*dx;
+        y                         = y_min + j*dy;
+        z                         = z_min + k*dz;
+        r                         = sqrt (x*x + y*y + z*z);
 
-        stiffness->data[gid].x    = K;                                                              // Setting "x" stiffness...
-        stiffness->data[gid].y    = K;                                                              // Setting "y" stiffness...
-        stiffness->data[gid].z    = K;                                                              // Setting "z" stiffness...
-        stiffness->data[gid].w    = 1.0;                                                            // Setting "w" stiffness...
+        if(r > R_0)
+        {
+          gravity->data[gid].x = -g*x/(r*r*r);                                                      // Setting "x" gravity...
 
-        resting->data[gid].x      = dx;                                                             // Setting "x" resting position...
-        resting->data[gid].y      = dy;                                                             // Setting "y" resting position...
-        resting->data[gid].z      = dz;                                                             // Setting "z" resting position...
-        resting->data[gid].w      = 1.0;                                                            // Setting "w" resting position...
+          gravity->data[gid].y = -g*y/(r*r*r);                                                      // Setting "y" gravity...
 
-        friction->data[gid].x     = C;                                                              // Setting "x" friction...
-        friction->data[gid].y     = C;                                                              // Setting "y" friction...
-        friction->data[gid].z     = C;                                                              // Setting "z" friction...
-        friction->data[gid].w     = 1.0;                                                            // Setting "w" friction...
+          gravity->data[gid].z = -g*z/(r*r*r);                                                      // Setting "z" gravity...
+        }
 
-        mass->data[gid].x         = m;                                                              // Setting "x" mass...
-        mass->data[gid].y         = m;                                                              // Setting "y" mass...
-        mass->data[gid].z         = m;                                                              // Setting "z" mass...
-        mass->data[gid].w         = 1.0;                                                            // Setting "w" mass...
+        else
+        {
+          gravity->data[gid].x = -g*x*r;
+          gravity->data[gid].y = -g*y*r;
+          gravity->data[gid].z = -g*z*r;
+        }
 
-        freedom->data[gid].x      = 1.0;                                                            // Setting "x" freedom...
-        freedom->data[gid].y      = 1.0;                                                            // Setting "y" freedom...
-        freedom->data[gid].z      = 1.0;                                                            // Setting "z" freedom...
-        freedom->data[gid].w      = 1.0;                                                            // Setting "w" freedom...
+        gravity->data[gid].w   = 1.0;                                                               // Setting "w" gravity...
 
-        dt->data[gid]             = dt_simulation;                                                  // Setting time step...
+        stiffness->data[gid].x = K;                                                                 // Setting "x" stiffness...
+        stiffness->data[gid].y = K;                                                                 // Setting "y" stiffness...
+        stiffness->data[gid].z = K;                                                                 // Setting "z" stiffness...
+        stiffness->data[gid].w = 1.0;                                                               // Setting "w" stiffness...
+
+        resting->data[gid].x   = dx;                                                                // Setting "x" resting position...
+        resting->data[gid].y   = dy;                                                                // Setting "y" resting position...
+        resting->data[gid].z   = dz;                                                                // Setting "z" resting position...
+        resting->data[gid].w   = 1.0;                                                               // Setting "w" resting position...
+
+        friction->data[gid].x  = C;                                                                 // Setting "x" friction...
+        friction->data[gid].y  = C;                                                                 // Setting "y" friction...
+        friction->data[gid].z  = C;                                                                 // Setting "z" friction...
+        friction->data[gid].w  = 1.0;                                                               // Setting "w" friction...
+
+        mass->data[gid].x      = m;                                                                 // Setting "x" mass...
+        mass->data[gid].y      = m;                                                                 // Setting "y" mass...
+        mass->data[gid].z      = m;                                                                 // Setting "z" mass...
+        mass->data[gid].w      = 1.0;                                                               // Setting "w" mass...
+
+        freedom->data[gid].x   = 1.0;                                                               // Setting "x" freedom...
+        freedom->data[gid].y   = 1.0;                                                               // Setting "y" freedom...
+        freedom->data[gid].z   = 1.0;                                                               // Setting "z" freedom...
+        freedom->data[gid].w   = 1.0;                                                               // Setting "w" freedom...
+
+        dt->data[gid]          = dt_simulation;                                                     // Setting time step...
 
         // When on bulk:
         if(
@@ -754,29 +773,18 @@ int main ()
     Q->release (position, 0);                                                                       // Releasing OpenGL/CL shared argument...
     Q->release (depth, 1);                                                                          // Releasing OpenGL/CL shared argument...
 
-    orbit_x = gui->axis_LEFT_X;                                                                     // Setting "Near clipping-plane" x-coordinate...
-    orbit_y = -gui->axis_LEFT_Y;                                                                    // Setting "Near clipping-plane" y-coordinate...
+    gui->mouse_navigation (
+                           mouse_orbit_rate,                                                        // Orbit angular rate coefficient [rev/s].
+                           mouse_pan_rate,                                                          // Pan translation rate [m/s].
+                           mouse_decaytime                                                          // Orbit low pass decay time [s].
+                          );
 
-    gui->orbit (
-                orbit_x,                                                                            // "Near clipping-plane" x-coordinate.
-                orbit_y,                                                                            // "Near clipping-plane" y-coordinate.
-                orbit_rate,                                                                         // Orbit angular rate coefficient [rev/s].
-                orbit_deadzone,                                                                     // Orbit deadzone threshold coefficient.
-                orbit_decaytime                                                                     // Orbit low pass decay time [s].
-               );
-
-    pan_x   = +gui->axis_RIGHT_X;                                                                   // Setting world x-pan...
-    pan_y   = -gui->axis_RIGHT_Y;                                                                   // Setting world y-pan...
-    pan_z   = (gui->axis_RIGHT_TRIGGER + 1.0)/2.0 - (gui->axis_LEFT_TRIGGER + 1.0)/2.0;             // Setting world z-pan...
-
-    gui->pan (
-              pan_x,                                                                                // World x-pan.
-              pan_y,                                                                                // World y-pan.
-              pan_z,                                                                                // World z-pan.
-              pan_rate,                                                                             // Pan rate [length/s].
-              pan_deadzone,                                                                         // Pan deadzone threshold coefficient.
-              pan_decaytime                                                                         // Pan low pass decay time [s].
-             );
+    gui->gamepad_navigation (
+                             gamepad_orbit_rate,                                                    // Orbit angular rate coefficient [rev/s].
+                             gamepad_pan_rate,                                                      // Pan translation rate [m/s].
+                             gamepad_decaytime,                                                     // Low pass filter decay time [s].
+                             gamepad_deadzone                                                       // Gamepad joystick deadzone [0...1].
+                            );
 
     if(gui->button_CROSS)
     {
