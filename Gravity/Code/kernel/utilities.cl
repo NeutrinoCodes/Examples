@@ -139,11 +139,11 @@ void assign_color(float4* color, float4* position)
         // Taking the component-wise absolute value of the position vector...
         float4 p = fabs(*position)*SCALE;
 
-        // Extracting the z-component of the displacement...
-        p *= (float4)(0.0f, 0.0f, 1.0f, 0.0f);
+        // Extracting the 3D vector of the displacement...
+        p *= (float4)(1.0f, 1.0f, 1.0f, 0.0f);
 
         // Setting color based on linear-interpolation colormap and adjusting alpha component...
-        *color = (float4)(RMIN+(RMAX-RMIN)*p.z, 0.0f, BMIN+(BMAX-BMIN)*p.z, 1.0f);
+        *color = (float4)(RMIN+(RMAX-RMIN)*length(p), 0.0f, BMIN+(BMAX-BMIN)*length(p), 1.0f);
 }
 
 #endif
