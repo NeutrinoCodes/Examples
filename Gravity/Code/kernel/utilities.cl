@@ -2,11 +2,6 @@
 #define utilities_cl
 
 #define SAFEDIV(X, Y, EPSILON)    (X)/(Y + EPSILON)
-#define RMIN                      0.4f                                          // Offset red channel for colormap
-#define RMAX                      0.5f                                          // Maximum red channel for colormap
-#define BMIN                      0.0f                                          // Offset blue channel for colormap
-#define BMAX                      1.0f                                          // Maximum blue channel for colormap
-#define SCALE                     1.5f                                          // Scale factor for plot
 
 void link_displacements (
         float4 position_R,                                                      // Right neighbour position [m].
@@ -134,16 +129,9 @@ void fix_projective_space (
 }
 
 // Assign color based on a custom colormap.
-void assign_color(float4* color, float4* position)
+void assign_color(float4* color, float4* gravity)
 {
-        // Taking the component-wise absolute value of the position vector...
-        float4 p = fabs(*position)*SCALE;
-
-        // Extracting the 3D vector of the displacement...
-        p *= (float4)(1.0f, 1.0f, 1.0f, 0.0f);
-
-        // Setting color based on linear-interpolation colormap and adjusting alpha component...
-        *color = (float4)(RMIN+(RMAX-RMIN)*length(p), 0.0f, BMIN+(BMAX-BMIN)*length(p), 1.0f);
+        *color = (float4)(100.0f*length(*gravity), 1.0f, 1.0f, 1.0f);
 }
 
 #endif
