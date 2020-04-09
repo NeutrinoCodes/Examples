@@ -1,28 +1,26 @@
 /// @file
 #include "utilities.cl"
 
-__kernel void thekernel(__global float4*    position,                           // Position [m].
-                        __global float4*    depth,                              // Depth color [#]
-                        __global float4*    position_int,                       // Position (intermediate) [m].
-                        __global float4*    velocity,                           // Velocity [m/s].
-                        __global float4*    velocity_int,                       // Velocity (intermediate) [m/s].
-                        __global float4*    acceleration,                       // Acceleration [m/s^2].
-                        __global float4*    acceleration_int,                   // Acceleration (intermediate) [m/s^2].
-                        __global float4*    gravity,                            // Gravity [m/s^2].
-                        __global float4*    stiffness,                          // Stiffness
-                        __global float4*    resting,                            // Resting distance [m].
-                        __global float4*    friction,                           // Friction
-                        __global float4*    mass,                               // Mass [kg].
-                        __global long*      neighbour_R,                        // Right neighbour [#].
-                        __global long*      neighbour_U,                        // Up neighbour [#].
-                        __global long*      neighbour_F,                        // Front neighbour [#].
-                        __global long*      neighbour_L,                        // Left neighbour [#].
-                        __global long*      neighbour_D,                        // Down neighbour [#].
-                        __global long*      neighbour_B,                        // Back neighbour [#].
-                        __global float4*    freedom,                            // Freedom flag [#].
-                        __global float*     dt_simulation)                      // Simulation time step [s].
+__kernel void thekernel(__global float4*    position,                                               // Position [m].
+                        __global float4*    color,                                                  // Color [#]
+                        __global float4*    position_int,                                           // Position (intermediate) [m].
+                        __global float4*    velocity,                                               // Velocity [m/s].
+                        __global float4*    velocity_int,                                           // Velocity (intermediate) [m/s].
+                        __global float4*    acceleration,                                           // Acceleration [m/s^2].
+                        __global float4*    acceleration_int,                                       // Acceleration (intermediate) [m/s^2].
+                        __global float*     stiffness,                                              // Stiffness
+                        __global float*     resting,                                                // Resting distance [m].
+                        __global float*     friction,                                               // Friction
+                        __global float*     mass,                                                   // Mass [kg].
+                        __global long*      neighbour_R,                                            // Right neighbour [#].
+                        __global long*      neighbour_U,                                            // Up neighbour [#].
+                        __global long*      neighbour_F,                                            // Front neighbour [#].
+                        __global long*      neighbour_L,                                            // Left neighbour [#].
+                        __global long*      neighbour_D,                                            // Down neighbour [#].
+                        __global long*      neighbour_B,                                            // Back neighbour [#].
+                        __global float*     freedom,                                                // Freedom flag [#].
+                        float dt)                                                                   // Simulation time step [s].
 {
-
         ////////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////// GLOBAL INDEX /////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////
@@ -39,10 +37,9 @@ __kernel void thekernel(__global float4*    position,                           
         ////////////////////////////////////////////////////////////////////////////////
         /////////////////// SYNERGIC MOLECULE: DYNAMIC VARIABLES ///////////////////////
         ////////////////////////////////////////////////////////////////////////////////
-        float4 m   = mass[gid];                                                 // Current node mass.
-        float4 g   = gravity[gid];                                              // Current node gravity field.
-        float4 C   = friction[gid];                                             // Current node friction.
-        float4 fr  = freedom[gid];                                              // Current freedom flag.
+        float m   = mass[gid];                                                 // Current node mass.
+        float C   = friction[gid];                                             // Current node friction.
+        float fr  = freedom[gid];                                              // Current freedom flag.
 
         ////////////////////////////////////////////////////////////////////////////////
         ////////////////////// SYNERGIC MOLECULE: LINK INDEXES /////////////////////////
@@ -102,20 +99,19 @@ __kernel void thekernel(__global float4*    position,                           
 
         // COMPUTING LINK DISPLACEMENTS:
         link_displacements(
+                P,                                                              // Position [m].
                 position_R,                                                     // Right neighbour position [m].
                 position_U,                                                     // Up neighbour position [m].
                 position_F,                                                     // Front neighbour position [m].
                 position_L,                                                     // Left neighbour position [m].
                 position_D,                                                     // Down neighbour position [m].
                 position_B,                                                     // Back neighbour position [m].
-                P,                                                              // Position [m].
                 resting_R,                                                      // Right neighbour resting position [m].
                 resting_U,                                                      // Up neighbour resting position [m].
                 resting_F,                                                      // Front neighbour resting position [m].
                 resting_L,                                                      // Left neighbour resting position [m].
                 resting_D,                                                      // Down neighbour resting position [m].
                 resting_B,                                                      // Back neighbour resting position [m].
-                fr,                                                             // Freedom flag [#].
                 &displacement_R,                                                // Right neighbour displacement [m].
                 &displacement_U,                                                // Up neighbour displacement [m].
                 &displacement_F,                                                // Front neighbour displacement [m].
