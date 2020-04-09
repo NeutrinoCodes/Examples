@@ -3,8 +3,15 @@
 
 #define SAFEDIV(X, Y, EPSILON)    (X)/(Y + EPSILON)
 
-void link_displacements (
-        float4 P,                                                                                   // Position [m].
+void links(
+
+        )
+{
+
+}
+
+void displacements (
+        float4 P,                                                                               // Position [m].
         float4 position_R,                                                                          // Right neighbour position [m].
         float4 position_U,                                                                          // Up neighbour position [m].
         float4 position_F,                                                                          // Front neighbour position [m].
@@ -40,44 +47,87 @@ void link_displacements (
         float length_D = length(link_D);                                                            // Down neighbour link length.
         float length_B = length(link_B);                                                            // Back neighbour link length.
 
-        ////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////// SYNERGIC MOLECULE: LINK STRAIN ///////////////////////
-        ////////////////////////////////////////////////////////////////////////////////
-        float4 epsilon = (float4)(1.0f, 1.0f, 1.0f, 1.0f) - fr;                 // Safety margin for division.
-        float strain_R = SAFEDIV(length_R - resting_R, length_R, epsilon);     // Right neighbour link strain.
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////// SYNERGIC MOLECULE: LINK STRAIN ////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        float4 epsilon = (float4)(1.0f, 1.0f, 1.0f, 1.0f) - fr;                                     // Safety margin for division.
 
+        float strain_R = SAFEDIV(length_R - resting_R, length_R, epsilon);                          // Right neighbour link strain.
+        float strain_U = SAFEDIV(length_U - resting_U, length_U, epsilon);                          // Up neighbour link strain.
+        float strain_F = SAFEDIV(length_F - resting_F, length_F, epsilon);                          // Front neighbour link strain.
+        float strain_L = SAFEDIV(length_L - resting_L, length_L, epsilon);                          // Left neighbour link strain.
+        float strain_D = SAFEDIV(length_D - resting_D, length_D, epsilon);                          // Down neighbour link strain.
+        float strain_B = SAFEDIV(length_B - resting_B, length_B, epsilon);                          // Back neighbour link strain.
 
-        ////////////////////////////////////////////////////////////////////////////////
-        //////////////// SYNERGIC MOLECULE: LINKED PARTICLE DISPLACEMENT ///////////////
-        ////////////////////////////////////////////////////////////////////////////////
-        *displacement_R = link_R*strain_R;                                      // Right neighbour link displacement.
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////// SYNERGIC MOLECULE: LINKED PARTICLE DISPLACEMENT /////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        *displacement_R = strain_R*link_R;                                                          // Right neighbour link displacement.
+        *displacement_U = strain_U*link_U;                                                          // Up neighbour link displacement.
+        *displacement_F = strain_U*link_F;                                                          // Front neighbour link displacement.
+        *displacement_L = strain_U*link_L;                                                          // Left neighbour link displacement.
+        *displacement_D = strain_U*link_D;                                                          // Down neighbour link displacement.
+        *displacement_B = strain_U*link_B;                                                          // Back neighbour link displacement.
+}
 
+void dispatches(
+        float4 V,                                                                                   // Position [m].
+        float4 velocity_R,                                                                          // Right neighbour velocity [m].
+        float4 velocity_U,                                                                          // Up neighbour velocity [m].
+        float4 velocity_F,                                                                          // Front neighbour velocity [m].
+        float4 velocity_L,                                                                          // Left neighbour velocity [m].
+        float4 velocity_D,                                                                          // Down neighbour velocity [m].
+        float4 velocity_B,                                                                          // Back neighbour velocity [m].
+        float4* dispatch_R,                                                                         // Right neighbour dispatch [m/s].
+        float4* dispatch_U,                                                                         // Up neighbour dispatch [m/s].
+        float4* dispatch_F,                                                                         // Front neighbour dispatch [m/s].
+        float4* dispatch_L,                                                                         // Left neighbour dispatch [m/s].
+        float4* displatch_D,                                                                        // Down neighbour dispatch [m/s].
+        float4* displatch_B                                                                         // Back neighbour dispatch [m/s].
+        )
+{
+        *dispatch_R = velocity_R - V;                                                               // Right neighbour dispatch [m/s].
+        *dispatch_U = velocity_U - V;                                                               // Up neighbour dispatch [m/s].
+        *dispatch_F = velocity_F - V;                                                               // Front neighbour dispatch [m/s].
+        *dispatch_L = velocity_L - V;                                                               // Left neighbour dispatch [m/s].
+        *dispatch_D = velocity_D - V;                                                               // Down neighbour dispatch [m/s].
+        *dispatch_B = velocity_B - V;                                                               // Back neighbour dispatch [m/s].
 }
 
 float4 node_force (
-        float4 stiffness_R,                                                     // Right neighbour stiffness.
-        float4 stiffness_U,                                                     // Up neighbour stiffness.
-        float4 stiffness_F,                                                     // Front neighbour stiffness.
-        float4 stiffness_L,                                                     // Left neighbour stiffness.
-        float4 stiffness_D,                                                     // Down neighbour stiffness.
-        float4 stiffness_B,                                                     // Back neighbour stiffness.
-        float4 displacement_R,                                                  // Right neighbour displacement [m].
-        float4 displacement_U,                                                  // Up neighbour displacement [m].
-        float4 displacement_F,                                                  // Front neighbour displacement [m].
-        float4 displacement_L,                                                  // Left neighbour displacement [m].
-        float4 displacement_D,                                                  // Down neighbour displacement [m].
-        float4 displacement_B,                                                  // Back neighbour displacement [m].
-        float4 C,                                                               // Friction coefficient.
-        float4 V,                                                               // Velocity [m/s].
-        float4 m,                                                               // Mass [kg].
-        float4 g,                                                               // Gravity [m/s^2].
-        float4 fr                                                               // Freedom flag [#].
+        stiffness_R,                                                                                // Right neighbour stiffness.
+        stiffness_U,                                                                                // Up neighbour stiffness.
+        stiffness_F,                                                                                // Front neighbour stiffness.
+        stiffness_L,                                                                                // Left neighbour stiffness.
+        stiffness_D,                                                                                // Down neighbour stiffness.
+        stiffness_B,                                                                                // Back neighbour stiffness.
+        friction_R,                                                                                 // Right neighbour friction.
+        friction_U,                                                                                 // Up neighbour friction.
+        friction_F,                                                                                 // Front neighbour friction.
+        friction_L,                                                                                 // Left neighbour friction.
+        friction_D,                                                                                 // Down neighbour friction.
+        friction_B,                                                                                 // Back neighbour friction.
+        displacement_R,                                                                             // Right neighbour displacement [m].
+        displacement_U,                                                                             // Up neighbour displacement [m].
+        displacement_F,                                                                             // Front neighbour displacement [m].
+        displacement_L,                                                                             // Left neighbour displacement [m].
+        displacement_D,                                                                             // Down neighbour displacement [m].
+        displacement_B,                                                                             // Back neighbour displacement [m].
+        dispatch_R,                                                                                 // Right neighbour velocity [m].
+        dispatch_U,                                                                                 // Up neighbour velocity [m].
+        dispatch_F,                                                                                 // Front neighbour velocity [m].
+        dispatch_L,                                                                                 // Left neighbour velocity [m].
+        dispatch_D,                                                                                 // Down neighbour velocity [m].
+        dispatch_B,                                                                                 // Back neighbour velocity [m].
+        P,                                                                                          // Position [m].
+        V,                                                                                          // Velocity [m/s].
+        m,                                                                                          // Mass [kg].
+        fr                                                                                          // Freedom flag [#].
         )
 {
-        ////////////////////////////////////////////////////////////////////////////////
-        //////////////////////// SYNERGIC MOLECULE: ELASTIC FORCE //////////////////////
-        ////////////////////////////////////////////////////////////////////////////////
-        // Elastic force applied to the particle:
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////// SYNERGIC MOLECULE: ELASTIC FORCE ///////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////
         float4 Fe   = (
                 stiffness_R*displacement_R +
                 stiffness_U*displacement_U +
@@ -87,9 +137,21 @@ float4 node_force (
                 stiffness_B*displacement_B
                 );
 
-        ////////////////////////////////////////////////////////////////////////////////
-        //////////////////////// SYNERGIC MOLECULE: VISCOUS FORCE //////////////////////
-        ////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////// SYNERGIC MOLECULE: VISCOUS FORCE ///////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        // Elastic force applied to the particle:
+        float4 Fv   = -(
+                friction_R*(velocity_R - V)+
+                friction_U*(velocity_U - V)+
+                friction_F*(velocity_F - V)+
+                friction_L*(velocity_L - V)+
+                friction_D*(velocity_D - V)+
+                friction_B*(velocity_B - V)
+                );
+
+
+
         float4 Fv   = -C*V;                                                     // Viscous force applied to the particle.
 
         ////////////////////////////////////////////////////////////////////////////////
