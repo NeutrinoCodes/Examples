@@ -114,20 +114,19 @@ __kernel void thekernel(__global float4*    position,                           
 
         // COMPUTING LINK DISPLACEMENTS:
         link_displacements(
+                P,                                                              // Position [m].
                 P_R,                                                            // Right neighbour position [m].
                 P_U,                                                            // Up neighbour position [m].
                 P_F,                                                            // Front neighbour position [m].
                 P_L,                                                            // Left neighbour position [m].
                 P_D,                                                            // Down neighbour position [m].
                 P_B,                                                            // Back neighbour position [m].
-                P,                                                              // Position [m].
                 resting_R,                                                      // Right neighbour resting position [m].
                 resting_U,                                                      // Up neighbour resting position [m].
                 resting_F,                                                      // Front neighbour resting position [m].
                 resting_L,                                                      // Left neighbour resting position [m].
                 resting_D,                                                      // Down neighbour resting position [m].
                 resting_B,                                                      // Back neighbour resting position [m].
-                fr,                                                             // Freedom flag [#].
                 &D_R,                                                           // Right neighbour displacement [m].
                 &D_U,                                                           // Up neighbour displacement [m].
                 &D_F,                                                           // Front neighbour displacement [m].

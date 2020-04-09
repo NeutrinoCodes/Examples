@@ -4,68 +4,54 @@
 #define SAFEDIV(X, Y, EPSILON)    (X)/(Y + EPSILON)
 
 void link_displacements (
-        float4 position_R,                                                      // Right neighbour position [m].
-        float4 position_U,                                                      // Up neighbour position [m].
-        float4 position_F,                                                      // Front neighbour position [m].
-        float4 position_L,                                                      // Left neighbour position [m].
-        float4 position_D,                                                      // Down neighbour position [m].
-        float4 position_B,                                                      // Back neighbour position [m].
-        float4 P,                                                               // Position [m].
-        float4 resting_R,                                                       // Right neighbour resting position [m].
-        float4 resting_U,                                                       // Up neighbour resting position [m].
-        float4 resting_F,                                                       // Front neighbour resting position [m].
-        float4 resting_L,                                                       // Left neighbour resting position [m].
-        float4 resting_D,                                                       // Down neighbour resting position [m].
-        float4 resting_B,                                                       // Back neighbour resting position [m].
-        float4 fr,                                                              // Freedom flag [#].
-        float4* displacement_R,                                                 // Right neighbour displacement [m].
-        float4* displacement_U,                                                 // Up neighbour displacement [m].
-        float4* displacement_F,                                                 // Front neighbour displacement [m].
-        float4* displacement_L,                                                 // Left neighbour displacement [m].
-        float4* displacement_D,                                                 // Down neighbour displacement [m].
-        float4* displacement_B                                                  // Back neighbour displacement [m].
+        float4 P,                                                                                   // Position [m].
+        float4 position_R,                                                                          // Right neighbour position [m].
+        float4 position_U,                                                                          // Up neighbour position [m].
+        float4 position_F,                                                                          // Front neighbour position [m].
+        float4 position_L,                                                                          // Left neighbour position [m].
+        float4 position_D,                                                                          // Down neighbour position [m].
+        float4 position_B,                                                                          // Back neighbour position [m].
+        float4 resting,                                                                             // Right neighbour resting position [m].
+        float4* displacement_R,                                                                     // Right neighbour displacement [m].
+        float4* displacement_U,                                                                     // Up neighbour displacement [m].
+        float4* displacement_F,                                                                     // Front neighbour displacement [m].
+        float4* displacement_L,                                                                     // Left neighbour displacement [m].
+        float4* displacement_D,                                                                     // Down neighbour displacement [m].
+        float4* displacement_B                                                                      // Back neighbour displacement [m].
         )
 {
-        ////////////////////////////////////////////////////////////////////////////////
-        ////////////////////// SYNERGIC MOLECULE: LINKED NODE VECTOR ///////////////////
-        ////////////////////////////////////////////////////////////////////////////////
-        float4 link_R = position_R - P;                                         // Right neighbour link vector.
-        float4 link_U = position_U - P;                                         // Up neighbour link vector.
-        float4 link_F = position_F - P;                                         // Front neighbour link vector.
-        float4 link_L = position_L - P;                                         // Left neighbour link vector.
-        float4 link_D = position_D - P;                                         // Down neighbour link vector.
-        float4 link_B = position_B - P;                                         // Back neighbour link vector.
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////// SYNERGIC MOLECULE: LINKED NODE VECTOR //////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        float4 link_R = position_R - P;                                                             // Right neighbour link vector.
+        float4 link_U = position_U - P;                                                             // Up neighbour link vector.
+        float4 link_F = position_F - P;                                                             // Front neighbour link vector.
+        float4 link_L = position_L - P;                                                             // Left neighbour link vector.
+        float4 link_D = position_D - P;                                                             // Down neighbour link vector.
+        float4 link_B = position_B - P;                                                             // Back neighbour link vector.
 
-        ////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////// SYNERGIC MOLECULE: LINK LENGTH ///////////////////////
-        ////////////////////////////////////////////////////////////////////////////////
-        float4 length_R = length(link_R);                                       // Right neighbour link length.
-        float4 length_U = length(link_U);                                       // Up neighbour link length.
-        float4 length_F = length(link_F);                                       // Front neighbour link length.
-        float4 length_L = length(link_L);                                       // Left neighbour link length.
-        float4 length_D = length(link_D);                                       // Down neighbour link length.
-        float4 length_B = length(link_B);                                       // Back neighbour link length.
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////// SYNERGIC MOLECULE: LINK LENGTH ///////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        float length_R = length(link_R);                                                            // Right neighbour link length.
+        float length_U = length(link_U);                                                            // Up neighbour link length.
+        float length_F = length(link_F);                                                            // Front neighbour link length.
+        float length_L = length(link_L);                                                            // Left neighbour link length.
+        float length_D = length(link_D);                                                            // Down neighbour link length.
+        float length_B = length(link_B);                                                            // Back neighbour link length.
 
         ////////////////////////////////////////////////////////////////////////////////
         ///////////////////////// SYNERGIC MOLECULE: LINK STRAIN ///////////////////////
         ////////////////////////////////////////////////////////////////////////////////
         float4 epsilon = (float4)(1.0f, 1.0f, 1.0f, 1.0f) - fr;                 // Safety margin for division.
-        float4 strain_R = length_R - resting_R;                                 // Right neighbour link strain.
-        float4 strain_U = length_U - resting_U;                                 // Up neighbour link strain.
-        float4 strain_F = length_F - resting_F;                                 // Front neighbour link strain.
-        float4 strain_L = length_L - resting_L;                                 // Left neighbour link strain.
-        float4 strain_D = length_D - resting_D;                                 // Down neighbour link strain.
-        float4 strain_B = length_B - resting_B;                                 // Back neighbour link strain.
+        float strain_R = SAFEDIV(length_R - resting_R, length_R, epsilon);     // Right neighbour link strain.
+
 
         ////////////////////////////////////////////////////////////////////////////////
         //////////////// SYNERGIC MOLECULE: LINKED PARTICLE DISPLACEMENT ///////////////
         ////////////////////////////////////////////////////////////////////////////////
-        *displacement_R = strain_R*SAFEDIV(link_R, length_R, epsilon);          // Right neighbour link displacement.
-        *displacement_U = strain_U*SAFEDIV(link_U, length_U, epsilon);          // Up neighbour link displacement.
-        *displacement_F = strain_F*SAFEDIV(link_F, length_F, epsilon);          // Front neighbour link displacement.
-        *displacement_L = strain_L*SAFEDIV(link_L, length_L, epsilon);          // Left neighbour link displacement.
-        *displacement_D = strain_D*SAFEDIV(link_D, length_D, epsilon);          // Down neighbour link displacement.
-        *displacement_B = strain_B*SAFEDIV(link_B, length_B, epsilon);          // Back neighbour link displacement.
+        *displacement_R = link_R*strain_R;                                      // Right neighbour link displacement.
+
 }
 
 float4 node_force (
@@ -109,7 +95,30 @@ float4 node_force (
         ////////////////////////////////////////////////////////////////////////////////
         ///////////////////// SYNERGIC MOLECULE: GRAVITATIONAL FORCE ///////////////////
         ////////////////////////////////////////////////////////////////////////////////
-        float4 Fg   = m*g;                                                      // Gravitational force applied to the particle.
+        float4 link_R = position_R - P;                                         // Right neighbour link vector.
+        float4 link_U = position_U - P;                                         // Up neighbour link vector.
+        float4 link_F = position_F - P;                                         // Front neighbour link vector.
+        float4 link_L = position_L - P;                                         // Left neighbour link vector.
+        float4 link_D = position_D - P;                                         // Down neighbour link vector.
+        float4 link_B = position_B - P;                                         // Back neighbour link vector.
+
+        float length_R = length(link_R);                                       // Right neighbour link length.
+        float length_U = length(link_U);                                       // Up neighbour link length.
+        float length_F = length(link_F);                                       // Front neighbour link length.
+        float length_L = length(link_L);                                       // Left neighbour link length.
+        float length_D = length(link_D);                                       // Down neighbour link length.
+        float length_B = length(link_B);                                       // Back neighbour link length.
+
+        float epsilon = 1.0f - fr.x;                 // Safety margin for division.
+
+        float Fg_R = link_R*SAFEDIV(1.0f, length_R*length_R*length_R, epsilon);
+        float Fg_U = link_U*SAFEDIV(1.0f, length_U*length_U*length_U, epsilon);
+        float Fg_F = link_F*SAFEDIV(1.0f, length_F*length_F*length_F, epsilon);
+        float Fg_L = link_L*SAFEDIV(1.0f, length_L*length_L*length_L, epsilon);
+        float Fg_D = link_D*SAFEDIV(1.0f, length_D*length_D*length_D, epsilon);
+        float Fg_B = link_B*SAFEDIV(1.0f, length_B*length_B*length_B, epsilon);
+
+        float4 Fg   = Fg_R + Fg_U + Fg_F + Fg_L + Fg_D + Fg_B;                  // Gravitational force applied to the particle.
 
         ////////////////////////////////////////////////////////////////////////////////
         ///////////////////////// SYNERGIC MOLECULE: TOTAL FORCE ///////////////////////
@@ -131,7 +140,7 @@ void fix_projective_space (
 // Assign color based on a custom colormap.
 void assign_color(float4* color, float4* gravity)
 {
-        *color = (float4)(100.0f*length(*gravity), 1.0f, 1.0f, 1.0f);
+        //*color = (float4)(100.0f*length(*gravity), 1.0f, 1.0f, 1.0f);
 }
 
 #endif
