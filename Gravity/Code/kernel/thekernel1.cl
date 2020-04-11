@@ -1,4 +1,5 @@
 /// @file
+#include "utilities_cl"
 #define SAFEDIV(X, Y, FREEDOM)    (X)/(Y + 1.0 - FREEDOM)
 
 __kernel void thekernel(__global float4*    position,                                               // Position [m].
@@ -94,7 +95,7 @@ __kernel void thekernel(__global float4*    position,                           
         //////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////// SYNERGIC MOLECULE: LINK STRAIN ////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
-        float strain_R = SAFEDIV(length_R - resting_R, length_R, fr);                               // Right neighbour link strain.
+        float strain_R = length_R - resting_R/ length_R;                               // Right neighbour link strain.
         float strain_U = SAFEDIV(length_U - resting_U, length_U, fr);                               // Up neighbour link strain.
         float strain_F = SAFEDIV(length_F - resting_F, length_F, fr);                               // Front neighbour link strain.
         float strain_L = SAFEDIV(length_L - resting_L, length_L, fr);                               // Left neighbour link strain.
@@ -182,12 +183,12 @@ __kernel void thekernel(__global float4*    position,                           
         ////////////////////////////// SYNERGIC MOLECULE: GRAVITATIONAL FORCE ////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
         float4 Fg = -(
-                m*m_R*link_R*SAFEDIV(1.0f, pown(length_R, 3), fr) +
-                m*m_U*link_U*SAFEDIV(1.0f, pown(length_U, 3), fr) +
-                m*m_F*link_F*SAFEDIV(1.0f, pown(length_F, 3), fr) +
-                m*m_L*link_L*SAFEDIV(1.0f, pown(length_L, 3), fr) +
-                m*m_D*link_D*SAFEDIV(1.0f, pown(length_D, 3), fr) +
-                m*m_B*link_B*SAFEDIV(1.0f, pown(length_B, 3), fr)
+                m*m_R*gravity(length_R, R0)*normalize(link_R) +
+                m*m_U*gravity(length_U, R0)*normalize(link_U) +
+                m*m_F*gravity(length_F, R0)*normalize(link_F) +
+                m*m_L*gravity(length_L, R0)*normalize(link_L) +
+                m*m_D*gravity(length_D, R0)*normalize(link_D) +
+                m*m_B*gravity(length_B, R0)*normalize(link_B)
                 );
 
         //////////////////////////////////////////////////////////////////////////////////////////////
@@ -202,7 +203,7 @@ __kernel void thekernel(__global float4*    position,                           
         A = F/m;                                                                // Computing acceleration [m/s^2]...
 
         // UPDATING POSITION:
-        P += V*dt + A*dt*dt/2.0f;                                               // Updating position [m]...
+        P += V*dt + A*dt*dt/2.0;                                               // Updating position [m]...
 
         // UPDATING INTERMEDIATE KINEMATICS:
         position_int[gid] = P;                                                  // Updating position (intermediate) [m]...
