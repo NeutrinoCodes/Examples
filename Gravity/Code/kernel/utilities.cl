@@ -1,6 +1,11 @@
 #ifndef utilities_cl
 #define utilities_cl
 
+float sum_float(float a, float b, float epsilon, float* c, float* error)
+{
+
+}
+
 float gravity(float r, float R0)
 {
         return clamp(r, 0, R0) + pown(step(R0, r)*r, -2);
@@ -8,7 +13,14 @@ float gravity(float r, float R0)
 
 float strain(float L, float R, float R0, float Rmax)
 {
-        return (clamp(L, R0, Rmax) - R)/clamp(L, R0, Rmax);
+        float La = length(Pa);
+        float Lb = length(Pb);
+        if ((La < epsilon) && (Lb < epsilon))
+        {
+                Pa *= 1000.0;
+                Pb *= 1000.0;
+        }
+        return (clamp(L, R0, Rmax) - clamp(R, R0, Rmax))/clamp(L, R0, Rmax);
 }
 
 void fix_projective_space (float4* vector)
