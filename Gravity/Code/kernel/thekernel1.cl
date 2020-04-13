@@ -10,7 +10,7 @@ __kernel void thekernel(__global float4*    position,                           
                         __global float4*    acceleration,                                           // Acceleration [m/s^2].
                         __global float4*    acceleration_int,                                       // Acceleration (intermediate) [m/s^2].
                         __global float*     stiffness,                                              // Stiffness
-                        __global float*     resting,                                                // Resting distance [m].
+                        __global float4*    resting,                                                // Resting distance [m].
                         __global float*     friction,                                               // Friction
                         __global float*     mass,                                                   // Mass [kg].
                         __global long*      neighbour_R,                                            // Right neighbour [#].
@@ -73,6 +73,16 @@ __kernel void thekernel(__global float4*    position,                           
         float4 position_B = position[index_B];                                                      // Setting back neighbour position coordinates [m]...
 
         //////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////// SYNERGIC MOLECULE: RESTING POSITIONS //////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////
+        float4 resting_R = (float4)(resting[gid].x, 0.0, 0.0, resting[gid].w);                      // Setting right resting position [m]...
+        float4 resting_U = (float4)(0.0, resting[gid].y, 0.0, resting[gid].w);                      // Setting up neighbour position coordinates [m]...
+        float4 resting_F = (float4)(0.0, 0.0, resting[gid].z, resting[gid].w);                      // Setting front neighbour position coordinates [m]...
+        float4 resting_L = (float4)(-resting[gid].x, 0.0, 0.0, resting[gid].w);                     // Setting left neighbour position coordinates [m]...
+        float4 resting_D = (float4)(0.0, -resting[gid].y, 0.0, resting[gid].w);                     // Setting down neighbour position coordinates [m]...
+        float4 resting_B = (float4)(0.0, 0.0, -resting[gid].z, resting[gid].w);                     // Setting back neighbour position coordinates [m]...
+
+        //////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////// SYNERGIC MOLECULE: LINK VECTORS ///////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
         float4 link_R = position_R - P;                                                             // Right neighbour link vector.
@@ -95,17 +105,17 @@ __kernel void thekernel(__global float4*    position,                           
         //////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////// SYNERGIC MOLECULE: LINK STRAIN ////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
-        float strain_R = length_R - resting_R/ length_R;                               // Right neighbour link strain.
-        float strain_U = SAFEDIV(length_U - resting_U, length_U, fr);                               // Up neighbour link strain.
-        float strain_F = SAFEDIV(length_F - resting_F, length_F, fr);                               // Front neighbour link strain.
-        float strain_L = SAFEDIV(length_L - resting_L, length_L, fr);                               // Left neighbour link strain.
-        float strain_D = SAFEDIV(length_D - resting_D, length_D, fr);                               // Down neighbour link strain.
-        float strain_B = SAFEDIV(length_B - resting_B, length_B, fr);                               // Back neighbour link strain.
+        float strain_R = strain(length_R, resting_R, R0, Rmax);                                     // Right neighbour link strain.
+        float strain_U = strain(length_U, resting_U, R0, Rmax);                                     // Up neighbour link strain.
+        float strain_F = strain(length_F, resting_F, R0, Rmax);                                     // Front neighbour link strain.
+        float strain_L = strain(length_L, resting_L, R0, Rmax);                                     // Left neighbour link strain.
+        float strain_D = strain(length_D, resting_D, R0, Rmax);                                     // Down neighbour link strain.
+        float strain_B = strain(length_B, resting_B, R0, Rmax);                                     // Back neighbour link strain.
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         //////////////////////// SYNERGIC MOLECULE: LINKED PARTICLE DISPLACEMENT /////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
-        float4 displacement_R = strain_R*link_R;                                                    // Right neighbour link displacement.
+        float4 displacement_R = position_R - P + resting_R;                                                    // Right neighbour link displacement.
         float4 displacement_U = strain_U*link_U;                                                    // Up neighbour link displacement.
         float4 displacement_F = strain_U*link_F;                                                    // Front neighbour link displacement.
         float4 displacement_L = strain_U*link_L;                                                    // Left neighbour link displacement.
