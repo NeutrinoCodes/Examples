@@ -118,13 +118,13 @@ int main ()
 
   // NODE PROPERTIES:
   float     m                  = rho*dx*dy*dz;                                                      // Space mass [kg].
-  float     R0                 = 0.01f;                                                             // Particle's radius [m].
+  float     R0                 = 0.008f;                                                            // Particle's radius [m].
   float4G*  color              = new float4G ();                                                    // Color [m].
   float1*   mass               = new float1 ();                                                     // Mass [kg].
   float1*   radius             = new float1 ();                                                     // Particle radius [m]...
 
   // LINK PROPERTIES:
-  float     K                  = E/40.0f;                                                           // Space elastic constant [kg/s^2].
+  float     K                  = E*dz*dx/dy;                                                        // Space elastic constant [kg/s^2].
   float     C                  = mu*dx*dy*dz;                                                       // Space damping [kg*s*m].
   float1*   friction           = new float1 ();                                                     // Friction.
   float4*   resting            = new float4 ();                                                     // Resting distance [m].
