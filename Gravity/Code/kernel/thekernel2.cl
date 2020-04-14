@@ -241,7 +241,7 @@ __kernel void thekernel(__global float4*    position,                           
         }
         else
         {
-                Fg_R = (l_R_mag/R0)*(m*m_R/pown(R0, 2))*normalize(l_R);
+                Fg_R = (m*m_R/pown(R0, 2))*normalize(l_R);
         }
 
         if(l_U_mag > R0)
@@ -250,7 +250,7 @@ __kernel void thekernel(__global float4*    position,                           
         }
         else
         {
-                Fg_U = (l_U_mag/R0)*(m*m_U/pown(R0, 2))*normalize(l_U);
+                Fg_U = (m*m_U/pown(R0, 2))*normalize(l_U);
         }
 
         if(l_F_mag > R0)
@@ -259,7 +259,7 @@ __kernel void thekernel(__global float4*    position,                           
         }
         else
         {
-                Fg_F = (l_F_mag/R0)*(m*m_F/pown(R0, 2))*normalize(l_F);
+                Fg_F = (m*m_F/pown(R0, 2))*normalize(l_F);
         }
 
         if(l_L_mag > R0)
@@ -268,7 +268,7 @@ __kernel void thekernel(__global float4*    position,                           
         }
         else
         {
-                Fg_L = (l_L_mag/R0)*(m*m_L/pown(R0, 2))*normalize(l_L);
+                Fg_L = (m*m_L/pown(R0, 2))*normalize(l_L);
         }
 
         if(l_D_mag > R0)
@@ -277,7 +277,7 @@ __kernel void thekernel(__global float4*    position,                           
         }
         else
         {
-                Fg_D = (l_D_mag/R0)*(m*m_D/pown(R0, 2))*normalize(l_D);
+                Fg_D = (m*m_D/pown(R0, 2))*normalize(l_D);
         }
 
         if(l_B_mag > R0)
@@ -286,10 +286,10 @@ __kernel void thekernel(__global float4*    position,                           
         }
         else
         {
-                Fg_B = (l_B_mag/R0)*(m*m_B/pown(R0, 2))*normalize(l_B);
+                Fg_B = (m*m_B/pown(R0, 2))*normalize(l_B);
         }
 
-        Fg = -10.0f*(Fg_R + Fg_U + Fg_F + Fg_L + Fg_D + Fg_B);                                               // Computing gravitational force [N]...
+        Fg = 10.0f*(Fg_R + Fg_U + Fg_F + Fg_L + Fg_D + Fg_B);                                               // Computing gravitational force [N]...
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////// SYNERGIC MOLECULE: TOTAL FORCE ////////////////////////////
