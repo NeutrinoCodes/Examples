@@ -11,14 +11,15 @@ float gravity(float r, float R0)
         return clamp(r, 0, R0) + pown(step(R0, r)*r, -2);
 }
 
-float strain(float L, float R, float R0, float Rmax)
+float strain(float Pa, float Pb, float R0, float Rmax)
 {
-        float La = length(Pa);
-        float Lb = length(Pb);
-        if ((La < epsilon) && (Lb < epsilon))
+        if (length(Pb - Pa) == 0)
         {
-                Pa *= 1000.0;
-                Pb *= 1000.0;
+                Fe = (float4)(0.0, 0.0, 0.0, 1.0);
+        }
+        else
+        {
+
         }
         return (clamp(L, R0, Rmax) - clamp(R, R0, Rmax))/clamp(L, R0, Rmax);
 }
