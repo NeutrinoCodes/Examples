@@ -113,8 +113,8 @@ int main ()
 
   // FABRIC PROPERTIES:
   float     rho                = 1000.0f;                                                           // Space mass density [kg/m^3].
-  float     E                  = 100000.0f;                                                         // Space Young modulus [kg/(m*s^2)].
-  float     mu                 = 700.0f;                                                            // Space viscosity [Pa*s].
+  float     E                  = 10000.0f;                                                          // Space Young modulus [kg/(m*s^2)].
+  float     mu                 = 100000.0f;                                                         // Space viscosity [Pa*s].
 
   // NODE PROPERTIES:
   float     m                  = rho*dx*dy*dz;                                                      // Space mass [kg].
