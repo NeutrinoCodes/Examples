@@ -212,13 +212,13 @@ __kernel void thekernel(__global float4*    position,                           
         //////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////// SYNERGIC MOLECULE: ELASTIC FORCE ///////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
-        float4 Fe = 4.0f*(C_R*dp_R + C_U*dp_U + C_F*dp_F + C_L*dp_L + C_D*dp_D + C_B*dp_B);                     // Computing elastic force [N]...
+        float4 Fe = (C_R*dp_R + C_U*dp_U + C_F*dp_F + C_L*dp_L + C_D*dp_D + C_B*dp_B);                     // Computing elastic force [N]...
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////// SYNERGIC MOLECULE: VISCOUS FORCE ///////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Elastic force applied to the particle:
-        float4 Fv = 100.0f*(B_R*dv_R + B_U*dv_U + B_F*dv_F + B_L*dv_L + B_D*dv_D + B_B*dv_B);                    // Computing friction force [N]...
+        float4 Fv = -(B_R*v_R + B_U*v_U + B_F*v_F + B_L*v_L + B_D*v_D + B_B*v_B);                    // Computing friction force [N]...
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////// SYNERGIC MOLECULE: GRAVITATIONAL FORCE ////////////////////////
@@ -286,7 +286,8 @@ __kernel void thekernel(__global float4*    position,                           
                 Fg_B = (m*m_B/pown(R0, 2))*normalize(l_B);
         }
 
-        Fg = 10.0f*(Fg_R + Fg_U + Fg_F + Fg_L + Fg_D + Fg_B);                                                      // Computing gravitational force [N]...
+        //Fg = -(Fg_R + Fg_U + Fg_F + Fg_L + Fg_D + Fg_B);
+        Fg = (float4)(0.0f, 0.0f, 0.0001f, 1.0f);                                                     // Computing gravitational force [N]...
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////// SYNERGIC MOLECULE: TOTAL FORCE ////////////////////////////
