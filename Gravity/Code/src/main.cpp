@@ -118,7 +118,7 @@ int main ()
 
   // NODE PROPERTIES:
   float     m                  = rho*dx*dy*dz;                                                      // Space mass [kg].
-  float     R0                 = 0.01f;                                                             // Particle's radius [m].
+  float     R0                 = 0.1f;                                                              // Particle's radius [m].
   float4G*  color              = new float4G ();                                                    // Color [m].
   float1*   mass               = new float1 ();                                                     // Mass [kg].
   float1*   radius             = new float1 ();                                                     // Particle radius [m]...

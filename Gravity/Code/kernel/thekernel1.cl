@@ -218,7 +218,8 @@ __kernel void thekernel(__global float4*    position,                           
         ///////////////////////////////// SYNERGIC MOLECULE: VISCOUS FORCE ///////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Elastic force applied to the particle:
-        float4 Fv = -(B_R*v_R + B_U*v_U + B_F*v_F - B_L*v_L - B_D*v_D - B_B*v_B);                   // Computing friction force [N]...
+        //float4 Fv = -(B_R*v_R + B_U*v_U + B_F*v_F - B_L*v_L - B_D*v_D - B_B*v_B);                   // Computing friction force [N]...
+        float4 Fv = -B_R*v;
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////// SYNERGIC MOLECULE: GRAVITATIONAL FORCE ////////////////////////
@@ -238,7 +239,7 @@ __kernel void thekernel(__global float4*    position,                           
         }
         else
         {
-                Fg_R = (m*m_R/pown(R0, 2))*normalize(l_R);
+                Fg_R = (l_R_mag/R0)*(m*m_R/pown(R0, 2))*normalize(l_R);
         }
 
         if(l_U_mag > R0)
@@ -247,7 +248,7 @@ __kernel void thekernel(__global float4*    position,                           
         }
         else
         {
-                Fg_U = (m*m_U/pown(R0, 2))*normalize(l_U);
+                Fg_U = (l_U_mag/R0)*(m*m_U/pown(R0, 2))*normalize(l_U);
         }
 
         if(l_F_mag > R0)
@@ -256,7 +257,7 @@ __kernel void thekernel(__global float4*    position,                           
         }
         else
         {
-                Fg_F = (m*m_F/pown(R0, 2))*normalize(l_F);
+                Fg_F = (l_F_mag/R0)*(m*m_F/pown(R0, 2))*normalize(l_F);
         }
 
         if(l_L_mag > R0)
@@ -265,7 +266,7 @@ __kernel void thekernel(__global float4*    position,                           
         }
         else
         {
-                Fg_L = (m*m_L/pown(R0, 2))*normalize(l_L);
+                Fg_L = (l_L_mag/R0)*(m*m_L/pown(R0, 2))*normalize(l_L);
         }
 
         if(l_D_mag > R0)
@@ -274,7 +275,7 @@ __kernel void thekernel(__global float4*    position,                           
         }
         else
         {
-                Fg_D = (m*m_D/pown(R0, 2))*normalize(l_D);
+                Fg_D = (l_D_mag/R0)*(m*m_D/pown(R0, 2))*normalize(l_D);
         }
 
         if(l_B_mag > R0)
@@ -283,11 +284,11 @@ __kernel void thekernel(__global float4*    position,                           
         }
         else
         {
-                Fg_B = (m*m_B/pown(R0, 2))*normalize(l_B);
+                Fg_B = (l_B_mag/R0)*(m*m_B/pown(R0, 2))*normalize(l_B);
         }
 
-        //Fg = -(Fg_R + Fg_U + Fg_F + Fg_L + Fg_D + Fg_B);
-        Fg = (float4)(0.0f, 0.0f, 10.0f, 1.0f);                                                     // Computing gravitational force [N]...
+        Fg = 0.5f*(Fg_R + Fg_U + Fg_F + Fg_L + Fg_D + Fg_B);
+        //Fg = (float4)(0.0f, 0.0f, 10.0f, 1.0f);                                                     // Computing gravitational force [N]...
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////// SYNERGIC MOLECULE: TOTAL FORCE ////////////////////////////
