@@ -32,6 +32,7 @@ __kernel void thekernel(__global float4*    position,                           
         float4 p = position_int[gid];                                                               // Getting point coordinates [m]...
         float4 v = velocity_int[gid];                                                               // Getting velocity [m/s]...
         float4 a = acceleration_int[gid];                                                           // Getting acceleration [m/s^2]...
+        float4 a_new;                                                                               // New acceleration [m/s^2]...
         float4 c = color[gid];                                                                      // Getting color coordinates [#]...
 
         //////////////////////////////////////////////////////////////////////////////////////////////
@@ -221,8 +222,7 @@ __kernel void thekernel(__global float4*    position,                           
         ///////////////////////////////// SYNERGIC MOLECULE: VISCOUS FORCE ///////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Elastic force applied to the particle:
-        //float4 Fv = -(B_R*v_R + B_U*v_U + B_F*v_F + B_L*v_L + B_D*v_D + B_B*v_B);             // Computing friction force [N]...
-        float4 Fv = -B_R*v;
+        float4 Fv = -(B_R*v_R + B_U*v_U + B_F*v_F - B_L*v_L - B_D*v_D - B_B*v_B);                   // Computing friction force [N]...
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////// SYNERGIC MOLECULE: GRAVITATIONAL FORCE ////////////////////////
@@ -290,8 +290,8 @@ __kernel void thekernel(__global float4*    position,                           
                 Fg_B = (m*m_B/pown(R0, 2))*normalize(l_B);
         }
 
-        Fg = -(Fg_R + Fg_U + Fg_F + Fg_L + Fg_D + Fg_B);                                               // Computing gravitational force [N]...
-        //Fg = (float4)(0.0f, 0.0f, 10.0f, 1.0f);
+        //Fg = -(Fg_R + Fg_U + Fg_F + Fg_L + Fg_D + Fg_B);                                               // Computing gravitational force [N]...
+        Fg = (float4)(0.0f, 0.0f, 10.0f, 1.0f);
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////// SYNERGIC MOLECULE: TOTAL FORCE ////////////////////////////
@@ -299,7 +299,15 @@ __kernel void thekernel(__global float4*    position,                           
         float4 F_new    = fr*(Fe + Fv + Fg);                                                        // Total force applied to the particle [N].
 
         // COMPUTING ACCELERATION:
-        float4 a_new = F_new/m;                                                                            // Computing acceleration [m/s^2]...
+        if(m == 0)
+        {
+                a_new = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
+        }
+        else
+        {
+                a_new = F_new/m;                                                                      // Computing acceleration [m/s^2]...
+        }
+
 
         // PREDICTOR (velocity @ t_(n+1) based on new acceleration):
         v = v_old + dt*(a + a_new)/2.0f;                                                            // Computing velocity [m/s]...
@@ -318,13 +326,20 @@ __kernel void thekernel(__global float4*    position,                           
         ///////////////////////////////// SYNERGIC MOLECULE: VISCOUS FORCE ///////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Elastic force applied to the particle:
-        //Fv = -(B_R*v_R + B_U*v_U + B_F*v_F + B_L*v_L + B_D*v_D + B_B*v_B);                    // Computing friction force [N]...
-        Fv = -B_R*v;
+        Fv = -(B_R*v_R + B_U*v_U + B_F*v_F - B_L*v_L - B_D*v_D - B_B*v_B);                          // Computing friction force [N]...
 
         F_new    = fr*(Fe + Fv + Fg);                                                               // Total force applied to the particle [N].
 
         // COMPUTING ACCELERATION:
-        a_new = F_new/m;                                                                            // Computing acceleration [m/s^2]...
+        if (m == 0)
+        {
+                a_new = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
+        }
+        else
+        {
+                a_new = F_new/m;                                                                      // Computing acceleration [m/s^2]...
+        }
+
 
         // CORRECTOR (velocity @ t_(n+1) based on new acceleration):
         v = v_old + dt*(a + a_new)/2.0f;

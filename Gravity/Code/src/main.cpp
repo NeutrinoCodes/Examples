@@ -114,7 +114,7 @@ int main ()
   // FABRIC PROPERTIES:
   float     rho                = 1000.0f;                                                           // Space mass density [kg/m^3].
   float     E                  = 10000.0f;                                                          // Space Young modulus [kg/(m*s^2)].
-  float     mu                 = 100000.0f;                                                         // Space viscosity [Pa*s].
+  float     mu                 = 100.0f;                                                            // Space viscosity [Pa*s].
 
   // NODE PROPERTIES:
   float     m                  = rho*dx*dy*dz;                                                      // Space mass [kg].
@@ -261,6 +261,7 @@ int main ()
         else                                                                                        // When on all faces:
         {
           freedom->data[gid] = 0.0f;                                                                // Setting freedom...
+          mass->data[gid]    = 0.0f;                                                                // Setting mass...
         }
 
         // When on left face (excluding borders and corners):
