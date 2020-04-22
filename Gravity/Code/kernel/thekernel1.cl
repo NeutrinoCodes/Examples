@@ -168,127 +168,41 @@ __kernel void thekernel(__global float4*    position,                           
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////////// SYNERGIC MOLECULE: NEIGHBOUR VELOCITIES ////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        float4 v_R = velocity[i_R];                                                                        // Setting right neighbour velocity coordinates [m]...
-        float4 v_U = velocity[i_U];                                                                        // Setting up neighbour velocity coordinates [m]...
-        float4 v_F = velocity[i_F];                                                                        // Setting front neighbour velocity coordinates [m]...
-        float4 v_L = velocity[i_L];                                                                        // Setting left neighbour velocity coordinates [m]...
-        float4 v_D = velocity[i_D];                                                                        // Setting down neighbour velocity coordinates [m]...
-        float4 v_B = velocity[i_B];                                                                        // Setting back neighbour velocity coordinates [m]...
-
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////////// SYNERGIC MOLECULE: NEIGHBOUR DISPATCHES ////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        float4 dv_R = v_R - v;                                                                             // Right neighbour dispatch [m/s].
-        float4 dv_U = v_U - v;                                                                             // Up neighbour dispatch [m/s].
-        float4 dv_F = v_F - v;                                                                             // Front neighbour dispatch [m/s].
-        float4 dv_L = v_L - v;                                                                             // Left neighbour dispatch [m/s].
-        float4 dv_D = v_D - v;                                                                             // Down neighbour dispatch [m/s].
-        float4 dv_B = v_B - v;                                                                             // Back neighbour dispatch [m/s].
-
-        //////////////////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////// SYNERGIC MOLECULE: LINK STIFFNESS ////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
         // NOTE: the stiffness of a dummy zero-length link must be 0.
-        float C_R = stiffness[i_R];                                                                        // Setting right neighbour stiffness...
-        float C_U = stiffness[i_U];                                                                        // Setting up neighbour stiffness...
-        float C_F = stiffness[i_F];                                                                        // Setting front neighbour stiffness...
-        float C_L = stiffness[i_L];                                                                        // Setting left neighbour stiffness...
-        float C_D = stiffness[i_D];                                                                        // Setting down neighbour stiffness...
-        float C_B = stiffness[i_B];                                                                        // Setting back neighbour stiffness...
+        float K = stiffness[gid];                                                                   // Setting link stiffness...
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////// SYNERGIC MOLECULE: LINK FRICTION /////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
         // NOTE: the friction of a dummy zero-length link must be 0.
-        float B_R = friction[i_R];                                                                         // Setting right neighbour friction...
-        float B_U = friction[i_U];                                                                         // Setting up neighbour friction...
-        float B_F = friction[i_F];                                                                         // Setting front neighbour friction...
-        float B_L = friction[i_L];                                                                         // Setting left neighbour friction...
-        float B_D = friction[i_D];                                                                         // Setting down neighbour friction...
-        float B_B = friction[i_B];                                                                         // Setting back neighbour friction...
+        float B = friction[gid];                                                                    // Setting particle friction...
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////// SYNERGIC MOLECULE: ELASTIC FORCE ///////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
-        float4 Fe = (C_R*dp_R + C_U*dp_U + C_F*dp_F + C_L*dp_L + C_D*dp_D + C_B*dp_B);              // Computing elastic force [N]...
+        float4 Fe = K*(dp_R + dp_U + dp_F + dp_L + dp_D + dp_B);                                    // Computing elastic force [N]...
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////// SYNERGIC MOLECULE: VISCOUS FORCE ///////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Elastic force applied to the particle:
-        //float4 Fv = -(B_R*v_R + B_U*v_U + B_F*v_F - B_L*v_L - B_D*v_D - B_B*v_B);                   // Computing friction force [N]...
-        float4 Fv = -B_R*v;
+        float4 Fv = -B*v;                                                                           // Computing friction force [N]...
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////// SYNERGIC MOLECULE: GRAVITATIONAL FORCE ////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
         float4 Fg;
 
-        float4 Fg_R;
-        float4 Fg_U;
-        float4 Fg_F;
-        float4 Fg_L;
-        float4 Fg_D;
-        float4 Fg_B;
-
-        if(l_R_mag > R0)
+        if(length(p) > R0)
         {
-                Fg_R = (m*m_R/pown(l_R_mag, 2))*normalize(l_R);
+                Fg = -(m*1000.0f/pown(length(p), 2))*normalize(p);                                      // Computing gravitational force [N]...
         }
         else
         {
-                Fg_R = (l_R_mag/R0)*(m*m_R/pown(R0, 2))*normalize(l_R);
+                Fg = -(length(p)/R0)*(m*1000.0f/pown(length(p), 2))*normalize(p);                       // Computing gravitational force [N]...
         }
-
-        if(l_U_mag > R0)
-        {
-                Fg_U = (m*m_U/pown(l_U_mag, 2))*normalize(l_U);
-        }
-        else
-        {
-                Fg_U = (l_U_mag/R0)*(m*m_U/pown(R0, 2))*normalize(l_U);
-        }
-
-        if(l_F_mag > R0)
-        {
-                Fg_F = (m*m_F/pown(l_F_mag, 2))*normalize(l_F);
-        }
-        else
-        {
-                Fg_F = (l_F_mag/R0)*(m*m_F/pown(R0, 2))*normalize(l_F);
-        }
-
-        if(l_L_mag > R0)
-        {
-                Fg_L = (m*m_L/pown(l_L_mag, 2))*normalize(l_L);
-        }
-        else
-        {
-                Fg_L = (l_L_mag/R0)*(m*m_L/pown(R0, 2))*normalize(l_L);
-        }
-
-        if(l_D_mag > R0)
-        {
-                Fg_D = (m*m_D/pown(l_D_mag, 2))*normalize(l_D);
-        }
-        else
-        {
-                Fg_D = (l_D_mag/R0)*(m*m_D/pown(R0, 2))*normalize(l_D);
-        }
-
-        if(l_B_mag > R0)
-        {
-                Fg_B = (m*m_B/pown(l_B_mag, 2))*normalize(l_B);
-        }
-        else
-        {
-                Fg_B = (l_B_mag/R0)*(m*m_B/pown(R0, 2))*normalize(l_B);
-        }
-
-        Fg = 0.5f*(Fg_R + Fg_U + Fg_F + Fg_L + Fg_D + Fg_B);
-        //Fg = (float4)(0.0f, 0.0f, 10.0f, 1.0f);                                                     // Computing gravitational force [N]...
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////// SYNERGIC MOLECULE: TOTAL FORCE ////////////////////////////
