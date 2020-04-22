@@ -114,11 +114,11 @@ int main ()
   // FABRIC PROPERTIES:
   float     rho                = 1000.0f;                                                           // Space mass density [kg/m^3].
   float     E                  = 10000.0f;                                                          // Space Young modulus [kg/(m*s^2)].
-  float     mu                 = 100.0f;                                                            // Space viscosity [Pa*s].
+  float     mu                 = 1000.0f;                                                           // Space viscosity [Pa*s].
 
   // NODE PROPERTIES:
   float     m                  = rho*dx*dy*dz;                                                      // Space mass [kg].
-  float     R0                 = 0.1f;                                                              // Particle's radius [m].
+  float     R0                 = 0.01f;                                                             // Particle's radius [m].
   float4G*  color              = new float4G ();                                                    // Color [m].
   float1*   mass               = new float1 ();                                                     // Mass [kg].
   float1*   radius             = new float1 ();                                                     // Particle radius [m]...
