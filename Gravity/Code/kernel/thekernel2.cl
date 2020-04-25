@@ -42,6 +42,7 @@ __kernel void thekernel(__global float4*    position,                           
         float fr  = freedom[gid];                                                                   // Current freedom flag.
         float dt  = time[gid];                                                                      // Current dt.
         float R0  = radius[gid];                                                                    // Current particle radius.
+        float4 F_new;
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         //////////////////////////////// SYNERGIC MOLECULE: LINK INDEXES /////////////////////////////
@@ -114,7 +115,7 @@ __kernel void thekernel(__global float4*    position,                           
         float4 dp_D;                                                                                // Down neighbour link displacement.
         float4 dp_B;                                                                                // Back neighbour link displacement.
 
-        if(l_R_mag > 0.0f)
+        if(l_R_mag > R0)
         {
                 dp_R = (l_R_mag - r_R_mag)*normalize(l_R);                                               // Right neighbour link displacement.
         }
@@ -123,7 +124,7 @@ __kernel void thekernel(__global float4*    position,                           
                 dp_R = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                     // Right neighbour link displacement.
         }
 
-        if(l_U_mag > 0.0f)
+        if(l_U_mag > R0)
         {
                 dp_U = (l_U_mag - r_U_mag)*normalize(l_U);                                        // Up neighbour link displacement.
         }
@@ -132,7 +133,7 @@ __kernel void thekernel(__global float4*    position,                           
                 dp_U = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                     // Up neighbour link displacement.
         }
 
-        if(l_F_mag > 0.0f)
+        if(l_F_mag > R0)
         {
                 dp_F = (l_F_mag - r_F_mag)*normalize(l_F);                                        // Front neighbour link displacement.
         }
@@ -141,7 +142,7 @@ __kernel void thekernel(__global float4*    position,                           
                 dp_F = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                     // Front neighbour link displacement.
         }
 
-        if(l_L_mag > 0.0f)
+        if(l_L_mag > R0)
         {
                 dp_L = (l_L_mag - r_L_mag)*normalize(l_L);                                        // Left neighbour link displacement.
         }
@@ -150,7 +151,7 @@ __kernel void thekernel(__global float4*    position,                           
                 dp_L = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                     // Left neighbour link displacement.
         }
 
-        if(l_D_mag > 0.0f)
+        if(l_D_mag > R0)
         {
                 dp_D = (l_D_mag - r_D_mag)*normalize(l_D);                                        // Down neighbour link displacement.
         }
@@ -159,7 +160,7 @@ __kernel void thekernel(__global float4*    position,                           
                 dp_D = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                     // Down neighbour link displacement.
         }
 
-        if(l_B_mag > 0.0f)
+        if(l_B_mag > R0)
         {
                 dp_B = (l_B_mag - r_B_mag)*normalize(l_B);                                        // Back neighbour link displacement.
         }
@@ -199,55 +200,74 @@ __kernel void thekernel(__global float4*    position,                           
         //////////////////////////////////////////////////////////////////////////////////////////////
         float4 Fg;
 
+        p.w = 0.0f;
+
         if(length(p) > R0)
         {
-                Fg = -(m*1000.0f/pown(length(p), 2))*normalize(p);                                      // Computing gravitational force [N]...
+                //Fg = -(m*5.0f/pown(length(p), 2))*normalize(p);                                      // Computing gravitational force [N]...
+                Fg = -50.0f*normalize(p);
+                p.w = 1.0f;
         }
         else
         {
-                Fg = -(length(p)/R0)*(m*1000.0f/pown(length(p), 2))*normalize(p);                       // Computing gravitational force [N]...
+                //Fg = -(length(p)/R0)*(m*5.0f/pown(length(p), 2))*normalize(p);                       // Computing gravitational force [N]...
+                Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
         }
 
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////// SYNERGIC MOLECULE: TOTAL FORCE ////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        float4 F_new    = fr*(Fe + Fv + Fg);                                                        // Total force applied to the particle [N].
+        F_new    = fr*(Fe + Fv + Fg);                                                                   // Total force applied to the particle [N].
 
         // COMPUTING ACCELERATION:
-        if(m == 0)
+        if (m > 0.0f)
+        {
+                a_new = F_new/m;                                                                                     // Computing acceleration [m/s^2]...
+        }
+        else
         {
                 a_new = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
         }
-        else
-        {
-                a_new = F_new/m;                                                                      // Computing acceleration [m/s^2]...
-        }
-
 
         // PREDICTOR (velocity @ t_(n+1) based on new acceleration):
-        v = v_old + dt*(a + a_new)/2.0f;                                                            // Computing velocity [m/s]...
+        v = v_old + dt*(a + a_new)/2.0f;                                                               // Computing velocity [m/s]...
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////// SYNERGIC MOLECULE: VISCOUS FORCE ///////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Elastic force applied to the particle:
-        Fv = -B*v;                                                                                  // Computing friction force [N]...
+        Fv = -B*v;                                                                                     // Computing friction force [N]...
 
-        F_new    = fr*(Fe + Fv + Fg);                                                               // Total force applied to the particle [N].
-
-        // COMPUTING ACCELERATION:
-        if (m == 0)
+        if(length(p) > R0)
         {
-                a_new = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
+                //Fg = -(m*5.0f/pown(length(p), 2))*normalize(p);                                      // Computing gravitational force [N]...
+                Fg = -50.0f*normalize(p);
+                p.w = 1.0f;
         }
         else
         {
-                a_new = F_new/m;                                                                      // Computing acceleration [m/s^2]...
+                //Fg = -(length(p)/R0)*(m*5.0f/pown(length(p), 2))*normalize(p);                       // Computing gravitational force [N]...
+                Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
+        }
+
+        F_new    = fr*(Fe + Fv + Fg);                                                                   // Total force applied to the particle [N].
+
+        // COMPUTING ACCELERATION:
+        if (m > 0.0f)
+        {
+                a_new = F_new/m;                                                                  // Computing acceleration [m/s^2]...
+        }
+        else
+        {
+                a_new = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
         }
 
 
         // CORRECTOR (velocity @ t_(n+1) based on new acceleration):
         v = v_old + dt*(a + a_new)/2.0f;
+
+        // ASSIGNING COLOR:
+        a.w = 0.0f;
+        c.x =   1.0f/(fabs((l_R_mag/r_R_mag) - (l_L_mag/r_L_mag)) +
+                      fabs((l_U_mag/r_U_mag) - (l_D_mag/r_D_mag)) +
+                      fabs((l_F_mag/r_F_mag) - (l_B_mag/r_B_mag)));
 
         // FIXING PROJECTIVE SPACE:
         p.w = 1.0f;

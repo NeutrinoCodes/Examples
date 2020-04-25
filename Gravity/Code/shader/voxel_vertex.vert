@@ -129,10 +129,10 @@ void main(void)
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////// VOXEL'S FACE COLORS //////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  vs_out.color_L = vec4(diffusion_L*vec3(voxel_color), 1.0);                    // LEFT:  computing face "ABDC" color.
-  vs_out.color_R = vec4(diffusion_R*vec3(voxel_color), 1.0);                    // RIGHT: computing face "EFHG" color.
-  vs_out.color_D = vec4(diffusion_D*vec3(voxel_color), 1.0);                    // DOWN:  computing face "ABFE" color.
-  vs_out.color_U = vec4(diffusion_U*vec3(voxel_color), 1.0);                    // UP:    computing face "CDHG" color.
-  vs_out.color_B = vec4(diffusion_B*vec3(voxel_color), 1.0);                    // BACK:  computing face "AEGC" color.
-  vs_out.color_F = vec4(diffusion_F*vec3(voxel_color), 1.0);                    // FRONT: computing face "BFHD" color.
+  vs_out.color_L = vec4(diffusion_L*voxel_color);                               // LEFT:  computing face "ABDC" color.
+  vs_out.color_R = vec4(diffusion_R*voxel_color);                               // RIGHT: computing face "EFHG" color.
+  vs_out.color_D = vec4(diffusion_D*voxel_color);                               // DOWN:  computing face "ABFE" color.
+  vs_out.color_U = vec4(diffusion_U*voxel_color);                               // UP:    computing face "CDHG" color.
+  vs_out.color_B = vec4(diffusion_B*voxel_color);                               // BACK:  computing face "AEGC" color.
+  vs_out.color_F = vec4(diffusion_F*voxel_color);                               // FRONT: computing face "BFHD" color.
 }
