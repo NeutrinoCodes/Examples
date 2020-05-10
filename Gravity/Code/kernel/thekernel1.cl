@@ -200,14 +200,14 @@ __kernel void thekernel(__global float4*    position,                           
 
         if(length(p) > R0)
         {
-                //Fg = -(m*5.0f/pown(length(p), 2))*normalize(p);                                      // Computing gravitational force [N]...
-                Fg = -50.0f*normalize(p);
+                Fg = -(m*5.0f/pown(length(p), 2))*normalize(p);                                      // Computing gravitational force [N]...
+                //Fg = -50.0f*normalize(p);
                 p.w = 1.0f;
-
         }
         else
         {
-                Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                                             // Computing gravitational force [N]...
+                //Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
+                //v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                                          // Computing gravitational force [N]...
         }
 
         F    = fr*(Fe + Fv + Fg);                                                                   // Total force applied to the particle [N].
