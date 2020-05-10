@@ -204,14 +204,15 @@ __kernel void thekernel(__global float4*    position,                           
 
         if(length(p) > R0)
         {
-                //Fg = -(m*5.0f/pown(length(p), 2))*normalize(p);                                      // Computing gravitational force [N]...
-                Fg = -50.0f*normalize(p);
+                Fg = -(m*5.0f/pown(length(p), 2))*normalize(p);                                      // Computing gravitational force [N]...
+                //Fg = -50.0f*normalize(p);
                 p.w = 1.0f;
         }
         else
         {
                 //Fg = -(length(p)/R0)*(m*5.0f/pown(length(p), 2))*normalize(p);                       // Computing gravitational force [N]...
-                Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
+                //Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
+                //v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
         }
 
         F_new    = fr*(Fe + Fv + Fg);                                                                   // Total force applied to the particle [N].
@@ -235,16 +236,19 @@ __kernel void thekernel(__global float4*    position,                           
         // Elastic force applied to the particle:
         Fv = -B*v;                                                                                     // Computing friction force [N]...
 
+        p.w = 0.0f;
+
         if(length(p) > R0)
         {
-                //Fg = -(m*5.0f/pown(length(p), 2))*normalize(p);                                      // Computing gravitational force [N]...
-                Fg = -50.0f*normalize(p);
+                Fg = -(m*5.0f/pown(length(p), 2))*normalize(p);                                      // Computing gravitational force [N]...
+                //Fg = -50.0f*normalize(p);
                 p.w = 1.0f;
         }
         else
         {
                 //Fg = -(length(p)/R0)*(m*5.0f/pown(length(p), 2))*normalize(p);                       // Computing gravitational force [N]...
-                Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
+                //Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
+                //v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
         }
 
         F_new    = fr*(Fe + Fv + Fg);                                                                   // Total force applied to the particle [N].
