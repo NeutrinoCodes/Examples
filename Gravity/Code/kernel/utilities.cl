@@ -1,40 +1,40 @@
 #ifndef utilities_cl
 #define utilities_cl
 
-float sum_float(float a, float b, float epsilon, float* c, float* error)
-{
+#define ONE4 (float4)(1.0f, 1.0f, 1.0f, 1.0f)
 
+float pippo(float4 A, float4 B, float4 C)
+{
+  float d;
+
+  d = 1.0f;
+  //d = (A.x*B.y - B.x*A.y)*C.z - (A.x*B.z - B.x*A-z)*C.y + (A.y*B.z - B.y*A.z)*C.x;
+
+  return d;
+}
+/*
+float curv2D(float4 A, float4 B, float4 C)
+{
+  float T;
+  float c;
+
+  A.w = 0.0f;
+  B.w = 0.0f;
+  C.w = 0.0f;
+
+  T = 0.5f*sqrt(pown(det(A, B, ONE4), 2) + pown(B, C, ONE4) + pown(C, A, ONE4));
+  c = 4.0f*T/(length(A - B)*length(B - C)*length(C - A));
+
+  return c;
 }
 
-float gravity(float r, float R0)
+float curv3D(float4 P, float4 R, float4 U, float4 F, float4 L, float4 D, float4 B)
 {
-        return clamp(r, 0, R0) + pown(step(R0, r)*r, -2);
+  float4 c;
+
+  c = fabs(curv2D(U, P, D)*curv2D(R, P, L)*curv2D(F, P, B));
+
+  return c;
 }
-
-float strain(float Pa, float Pb, float R0, float Rmax)
-{
-        if (length(Pb - Pa) == 0)
-        {
-                Fe = (float4)(0.0, 0.0, 0.0, 1.0);
-        }
-        else
-        {
-
-        }
-        return (clamp(L, R0, Rmax) - clamp(R, R0, Rmax))/clamp(L, R0, Rmax);
-}
-
-void fix_projective_space (float4* vector)
-{
-        *vector *= (float4)(1.0f, 1.0f, 1.0f, 0.0f);                            // Nullifying 4th projective component...
-
-        *vector += (float4)(0.0f, 0.0f, 0.0f, 1.0f);                            // Setting 4th projective component to "1.0f"...
-}
-
-// Assign color based on a custom colormap.
-void assign_color(float4* color, float4* gravity)
-{
-        //*color = (float4)(100.0f*length(*gravity), 1.0f, 1.0f, 1.0f);
-}
-
+*/
 #endif

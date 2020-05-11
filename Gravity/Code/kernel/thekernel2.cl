@@ -1,4 +1,5 @@
 /// @file
+//#include "utilities.cl"
 
 __kernel void thekernel(__global float4*    position,                                               // Position [m].
                         __global float4*    color,                                                  // Color [#]
@@ -211,7 +212,7 @@ __kernel void thekernel(__global float4*    position,                           
         else
         {
                 //Fg = -(length(p)/R0)*(m*5.0f/pown(length(p), 2))*normalize(p);                       // Computing gravitational force [N]...
-                //Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
+                Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
                 //v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
         }
 
@@ -247,7 +248,7 @@ __kernel void thekernel(__global float4*    position,                           
         else
         {
                 //Fg = -(length(p)/R0)*(m*5.0f/pown(length(p), 2))*normalize(p);                       // Computing gravitational force [N]...
-                //Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
+                Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
                 //v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
         }
 
@@ -272,6 +273,8 @@ __kernel void thekernel(__global float4*    position,                           
         c.x =   1.0f/(fabs((l_R_mag/r_R_mag) - (l_L_mag/r_L_mag)) +
                       fabs((l_U_mag/r_U_mag) - (l_D_mag/r_D_mag)) +
                       fabs((l_F_mag/r_F_mag) - (l_B_mag/r_B_mag)));
+
+        //float area
 
         // FIXING PROJECTIVE SPACE:
         p.w = 1.0f;

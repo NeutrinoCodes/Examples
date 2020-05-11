@@ -1,4 +1,5 @@
 /// @file
+#include "utilities.cl"
 
 __kernel void thekernel(__global float4*    position,                                               // Position [m].
                         __global float4*    color,                                                  // Color [#]
@@ -206,7 +207,7 @@ __kernel void thekernel(__global float4*    position,                           
         }
         else
         {
-                //Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
+                Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
                 //v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                                          // Computing gravitational force [N]...
         }
 
