@@ -1,5 +1,5 @@
 /// @file
-//#include "utilities.cl"
+#include "utilities.cl"
 
 __kernel void thekernel(__global float4*    position,                                               // Position [m].
                         __global float4*    color,                                                  // Color [#]
@@ -79,12 +79,12 @@ __kernel void thekernel(__global float4*    position,                           
         //////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////// SYNERGIC MOLECULE: NEIGHBOUR RESTING DISTANCES /////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
-        float r_R_mag = resting[i_R].x;                                                          // Setting right neighbour position coordinates [m]...
-        float r_U_mag = resting[i_U].y;                                                          // Setting up neighbour position coordinates [m]...
-        float r_F_mag = resting[i_F].z;                                                          // Setting front neighbour position coordinates [m]...
-        float r_L_mag = resting[i_L].x;                                                          // Setting left neighbour position coordinates [m]...
-        float r_D_mag = resting[i_D].y;                                                          // Setting down neighbour position coordinates [m]...
-        float r_B_mag = resting[i_B].z;                                                          // Setting back neighbour position coordinates [m]...
+        float r_R_mag = resting[i_R].x;                                                             // Setting right neighbour position coordinates [m]...
+        float r_U_mag = resting[i_U].y;                                                             // Setting up neighbour position coordinates [m]...
+        float r_F_mag = resting[i_F].z;                                                             // Setting front neighbour position coordinates [m]...
+        float r_L_mag = resting[i_L].x;                                                             // Setting left neighbour position coordinates [m]...
+        float r_D_mag = resting[i_D].y;                                                             // Setting down neighbour position coordinates [m]...
+        float r_B_mag = resting[i_B].z;                                                             // Setting back neighbour position coordinates [m]...
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////// SYNERGIC MOLECULE: LINK VECTORS ///////////////////////////
@@ -118,56 +118,56 @@ __kernel void thekernel(__global float4*    position,                           
 
         if(l_R_mag > R0)
         {
-                dp_R = (l_R_mag - r_R_mag)*normalize(l_R);                                               // Right neighbour link displacement.
+                dp_R = (l_R_mag - r_R_mag)*normalize(l_R);                                          // Right neighbour link displacement.
         }
         else
         {
-                dp_R = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                     // Right neighbour link displacement.
+                dp_R = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                            // Right neighbour link displacement.
         }
 
         if(l_U_mag > R0)
         {
-                dp_U = (l_U_mag - r_U_mag)*normalize(l_U);                                        // Up neighbour link displacement.
+                dp_U = (l_U_mag - r_U_mag)*normalize(l_U);                                          // Up neighbour link displacement.
         }
         else
         {
-                dp_U = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                     // Up neighbour link displacement.
+                dp_U = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                            // Up neighbour link displacement.
         }
 
         if(l_F_mag > R0)
         {
-                dp_F = (l_F_mag - r_F_mag)*normalize(l_F);                                        // Front neighbour link displacement.
+                dp_F = (l_F_mag - r_F_mag)*normalize(l_F);                                          // Front neighbour link displacement.
         }
         else
         {
-                dp_F = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                     // Front neighbour link displacement.
+                dp_F = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                            // Front neighbour link displacement.
         }
 
         if(l_L_mag > R0)
         {
-                dp_L = (l_L_mag - r_L_mag)*normalize(l_L);                                        // Left neighbour link displacement.
+                dp_L = (l_L_mag - r_L_mag)*normalize(l_L);                                          // Left neighbour link displacement.
         }
         else
         {
-                dp_L = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                     // Left neighbour link displacement.
+                dp_L = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                            // Left neighbour link displacement.
         }
 
         if(l_D_mag > R0)
         {
-                dp_D = (l_D_mag - r_D_mag)*normalize(l_D);                                        // Down neighbour link displacement.
+                dp_D = (l_D_mag - r_D_mag)*normalize(l_D);                                          // Down neighbour link displacement.
         }
         else
         {
-                dp_D = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                     // Down neighbour link displacement.
+                dp_D = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                            // Down neighbour link displacement.
         }
 
         if(l_B_mag > R0)
         {
-                dp_B = (l_B_mag - r_B_mag)*normalize(l_B);                                        // Back neighbour link displacement.
+                dp_B = (l_B_mag - r_B_mag)*normalize(l_B);                                          // Back neighbour link displacement.
         }
         else
         {
-                dp_B = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                     // Back neighbour link displacement.
+                dp_B = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                            // Back neighbour link displacement.
         }
 
         float4 v_old = v;                                                                           // Velocity backup [m/s]...
@@ -203,78 +203,50 @@ __kernel void thekernel(__global float4*    position,                           
 
         p.w = 0.0f;
 
-        if(length(p) > R0)
+        if((m > 0.0f) && (length(p) > R0))
         {
-                Fg = -(m*5.0f/pown(length(p), 2))*normalize(p);                                      // Computing gravitational force [N]...
-                //Fg = -50.0f*normalize(p);
-                p.w = 1.0f;
+                Fg = -(m*0.1f/pown(length(p), 2))*normalize(p);                                     // Computing gravitational force [N]...
+                F_new    = fr*(Fe + Fv + Fg);                                                       // Total force applied to the particle [N]...
+                a_new = F_new/m;                                                                    // Computing acceleration [m/s^2]...
+
+                // PREDICTOR (velocity @ t_(n+1) based on new acceleration):
+                v = v_old + dt*(a + a_new)/2.0f;                                                    // Computing velocity [m/s]...
         }
         else
         {
-                //Fg = -(length(p)/R0)*(m*5.0f/pown(length(p), 2))*normalize(p);                       // Computing gravitational force [N]...
-                Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
-                //v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
+                a = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
+                v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
         }
 
-        F_new    = fr*(Fe + Fv + Fg);                                                                   // Total force applied to the particle [N].
-
-        // COMPUTING ACCELERATION:
-        if (m > 0.0f)
-        {
-                a_new = F_new/m;                                                                                     // Computing acceleration [m/s^2]...
-        }
-        else
-        {
-                a_new = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
-        }
-
-        // PREDICTOR (velocity @ t_(n+1) based on new acceleration):
-        v = v_old + dt*(a + a_new)/2.0f;                                                               // Computing velocity [m/s]...
+        p.w = 1.0f;
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////// SYNERGIC MOLECULE: VISCOUS FORCE ///////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Elastic force applied to the particle:
-        Fv = -B*v;                                                                                     // Computing friction force [N]...
+        Fv = -B*v;                                                                                  // Computing friction force [N]...
 
         p.w = 0.0f;
 
-        if(length(p) > R0)
+        if((m > 0.0f) && (length(p) > R0))
         {
-                Fg = -(m*5.0f/pown(length(p), 2))*normalize(p);                                      // Computing gravitational force [N]...
-                //Fg = -50.0f*normalize(p);
-                p.w = 1.0f;
+                Fg = -(m*0.1f/pown(length(p), 2))*normalize(p);                                     // Computing gravitational force [N]...
+                F_new    = fr*(Fe + Fv + Fg);                                                       // Total force applied to the particle [N]...
+                a_new = F_new/m;                                                                    // Computing acceleration [m/s^2]...
+
+                // PREDICTOR (velocity @ t_(n+1) based on new acceleration):
+                v = v_old + dt*(a + a_new)/2.0f;                                                    // Computing velocity [m/s]...
         }
         else
         {
-                //Fg = -(length(p)/R0)*(m*5.0f/pown(length(p), 2))*normalize(p);                       // Computing gravitational force [N]...
-                Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
-                //v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
+                a = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
+                v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
         }
 
-        F_new    = fr*(Fe + Fv + Fg);                                                                   // Total force applied to the particle [N].
-
-        // COMPUTING ACCELERATION:
-        if (m > 0.0f)
-        {
-                a_new = F_new/m;                                                                  // Computing acceleration [m/s^2]...
-        }
-        else
-        {
-                a_new = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
-        }
-
-
-        // CORRECTOR (velocity @ t_(n+1) based on new acceleration):
-        v = v_old + dt*(a + a_new)/2.0f;
+        p.w = 1.0f;
 
         // ASSIGNING COLOR:
-        a.w = 0.0f;
-        c.x =   1.0f/(fabs((l_R_mag/r_R_mag) - (l_L_mag/r_L_mag)) +
-                      fabs((l_U_mag/r_U_mag) - (l_D_mag/r_D_mag)) +
-                      fabs((l_F_mag/r_F_mag) - (l_B_mag/r_B_mag)));
-
-        //float area
+        c.x = log(curv3D(p, p_R, p_U, p_F, p_L, p_D, p_B));
 
         // FIXING PROJECTIVE SPACE:
         p.w = 1.0f;
