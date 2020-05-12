@@ -118,7 +118,7 @@ int main ()
 
   // NODE PROPERTIES:
   float     m                  = rho*dx*dy*dz;                                                      // Space mass [kg].
-  float     R0                 = 0.2f;                                                              // Particle's radius [m].
+  float     R0                 = 0.5f;                                                              // Particle's radius [m].
   float4G*  color              = new float4G ();                                                    // Color [m].
   float1*   mass               = new float1 ();                                                     // Mass [kg].
   float1*   radius             = new float1 ();                                                     // Particle radius [m]...
@@ -132,7 +132,7 @@ int main ()
 
   // SIMULATION PARAMETERS:
   float     dt_critical        = sqrt (m/K);                                                        // Critical time step [s].
-  float     dt_simulation      = 0.01f*dt_critical;                                                  // Simulation time step [s].
+  float     dt_simulation      = 0.1f*dt_critical;                                                  // Simulation time step [s].
   float1*   time               = new float1 ();                                                     // Time [s].
 
   // MESH CONNECTIVITY:

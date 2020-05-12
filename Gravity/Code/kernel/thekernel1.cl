@@ -199,35 +199,25 @@ __kernel void thekernel(__global float4*    position,                           
 
         p.w = 0.0f;
 
-        if(length(p) > R0)
+        if((m > 0.0f) && (length(p) > R0))
         {
-                Fg = -(m*5.0f/pown(length(p), 2))*normalize(p);                                      // Computing gravitational force [N]...
-                //Fg = -50.0f*normalize(p);
-                p.w = 1.0f;
+                Fg = -(m*0.1f/pown(length(p), 2))*normalize(p);                                     // Computing gravitational force [N]...
+                F    = fr*(Fe + Fv + Fg);                                                           // Total force applied to the particle [N].
+                a = F/m;                                                                            // Computing acceleration [m/s^2]...
         }
         else
         {
-                Fg = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
-                //v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                                          // Computing gravitational force [N]...
+                a = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                               // Total force applied to the particle [N].
+                v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                               // Computing gravitational force [N]...
         }
 
-        F    = fr*(Fe + Fv + Fg);                                                                   // Total force applied to the particle [N].
+        p.w = 1.0f;
 
         //////////////////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////// VERLET INTEGRATION ///////////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
-        // COMPUTING ACCELERATION:
-        if (m > 0.0f)
-        {
-                a = F/m;                                                                                     // Computing acceleration [m/s^2]...
-        }
-        else
-        {
-                a = (float4)(0.0f, 0.0f, 0.0f, 1.0f);
-        }
-
         // UPDATING POSITION:
-        p += v*dt + a*dt*dt/2.0f;                                                                           // Updating position [m]...
+        p += v*dt + a*dt*dt/2.0f;                                                                   // Updating position [m]...
 
         // FIXING PROJECTIVE SPACE:
         p.w = 1.0f;
@@ -235,7 +225,7 @@ __kernel void thekernel(__global float4*    position,                           
         a.w = 1.0f;
 
         // UPDATING INTERMEDIATE KINEMATICS:
-        position_int[gid] = p;                                                                             // Updating position (intermediate) [m]...
-        velocity_int[gid] = v;                                                                             // Updating position (intermediate) [m/s]...
-        acceleration_int[gid] = a;                                                                         // Updating position (intermediate) [m/s^2]...
+        position_int[gid] = p;                                                                      // Updating position (intermediate) [m]...
+        velocity_int[gid] = v;                                                                      // Updating position (intermediate) [m/s]...
+        acceleration_int[gid] = a;                                                                  // Updating position (intermediate) [m/s^2]...
 }
