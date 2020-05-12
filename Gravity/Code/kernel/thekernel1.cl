@@ -115,7 +115,7 @@ __kernel void thekernel(__global float4*    position,                           
         float4 dp_D;                                                                                       // Down neighbour link displacement.
         float4 dp_B;                                                                                       // Back neighbour link displacement.
 
-        if(l_R_mag > R0)
+        if(l_R_mag > 0.0f)
         {
                 dp_R = (l_R_mag - r_R_mag)*normalize(l_R);                                               // Right neighbour link displacement.
         }
@@ -124,7 +124,7 @@ __kernel void thekernel(__global float4*    position,                           
                 dp_R = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                     // Right neighbour link displacement.
         }
 
-        if(l_U_mag > R0)
+        if(l_U_mag > 0.0f)
         {
                 dp_U = (l_U_mag - r_U_mag)*normalize(l_U);                                        // Up neighbour link displacement.
         }
@@ -133,7 +133,7 @@ __kernel void thekernel(__global float4*    position,                           
                 dp_U = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                     // Up neighbour link displacement.
         }
 
-        if(l_F_mag > R0)
+        if(l_F_mag > 0.0f)
         {
                 dp_F = (l_F_mag - r_F_mag)*normalize(l_F);                                        // Front neighbour link displacement.
         }
@@ -142,7 +142,7 @@ __kernel void thekernel(__global float4*    position,                           
                 dp_F = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                     // Front neighbour link displacement.
         }
 
-        if(l_L_mag > R0)
+        if(l_L_mag > 0.0f)
         {
                 dp_L = (l_L_mag - r_L_mag)*normalize(l_L);                                        // Left neighbour link displacement.
         }
@@ -151,7 +151,7 @@ __kernel void thekernel(__global float4*    position,                           
                 dp_L = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                     // Left neighbour link displacement.
         }
 
-        if(l_D_mag > R0)
+        if(l_D_mag > 0.0f)
         {
                 dp_D = (l_D_mag - r_D_mag)*normalize(l_D);                                        // Down neighbour link displacement.
         }
@@ -160,7 +160,7 @@ __kernel void thekernel(__global float4*    position,                           
                 dp_D = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                                     // Down neighbour link displacement.
         }
 
-        if(l_B_mag > R0)
+        if(l_B_mag > 0.0f)
         {
                 dp_B = (l_B_mag - r_B_mag)*normalize(l_B);                                        // Back neighbour link displacement.
         }
@@ -201,7 +201,7 @@ __kernel void thekernel(__global float4*    position,                           
 
         if((m > 0.0f) && (length(p) > R0))
         {
-                Fg = -(m*0.1f/pown(length(p), 2))*normalize(p);                                     // Computing gravitational force [N]...
+                Fg = -(m*10.0f/pown(length(p), 2))*normalize(p);                                     // Computing gravitational force [N]...
                 F    = fr*(Fe + Fv + Fg);                                                           // Total force applied to the particle [N].
                 a = F/m;                                                                            // Computing acceleration [m/s^2]...
         }
