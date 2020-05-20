@@ -4,32 +4,30 @@
 #define INTEROP    true                                                                             // "true" = use OpenGL-OpenCL interoperability.
 #define GUI_SIZE_X 800                                                                              // Window x-size [px].
 #define GUI_SIZE_Y 600                                                                              // Window y-size [px].
-#define GUI_NAME   "neutrino 3.0"                                                                   // Window name.
+#define GUI_NAME   "Neutrino - Gmsh"                                                                // Window name.
 
 #ifdef __linux__
-  #define SHADER_HOME \
-  "/run/media/ezor/LINUX/BookhouseBoys/ezor/NeutrinoCodes/Examples/Cloth3D/Code/shader"             // Linux OpenGL shaders directory.
-
-  #define KERNEL_HOME \
-  "/run/media/ezor/LINUX/BookhouseBoys/ezor/NeutrinoCodes/Examples/Cloth3D/Code/kernel"             // Linux OpenCL kernels directory.
+  #define SHADER_HOME "../../shader"                                                                // Linux OpenGL shaders directory.
+  #define KERNEL_HOME "../../kernel"                                                                // Linux OpenCL kernels directory.
+  #define GMHS_HOME   "../../mesh/"                                                                 // Linux GMSH mesh directory.
 #endif
 
 #ifdef __APPLE__
-  #define SHADER_HOME \
-  "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/NeutrinoCodes/Examples/Cloth3D/Code/shader"    // Mac OpenGL shaders directory.
-
-  #define KERNEL_HOME \
-  "/Users/Erik/Documents/PROJECTS/BookhouseBoys/ezor/NeutrinoCodes/Examples/Cloth3D/Code/kernel"    // Mac OpenCL kernels directory.
+  #define SHADER_HOME "../../shader"                                                                // Mac OpenGL shaders directory.
+  #define KERNEL_HOME "../../kernel"                                                                // Mac OpenCL kernels directory.
+  #define GMHS_HOME   "../../mesh/"                                                                 // Mac GMSH mesh directory.
 #endif
 
 #ifdef WIN32
-  #define SHADER_HOME "F:\\BookHouseBoys\\ezor\\NeutrinoCodes\\Examples\\Cloth3D\\Code\\shader"     // Windows OpenGL shaders directory.
-  #define KERNEL_HOME "F:\\BookHouseBoys\\ezor\\NeutrinoCodes\\Examples\\Cloth3D\\Code\\kernel"     // Windows OpenCL kernels directory.
+  #define SHADER_HOME "..\\..\\shader"                                                              // Windows OpenGL shaders directory.
+  #define KERNEL_HOME "..\\..\\kernel"                                                              // Windows OpenCL kernels directory.
+  #define GMHS_HOME   "..\\..\\mesh\\"                                                              // Windows GMSH mesh directory.
 #endif
 
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.
 #define SHADER_GEOM   "voxel_geometry.geom"                                                         // OpenGL geometry shader.
 #define SHADER_FRAG   "voxel_fragment.frag"                                                         // OpenGL fragment shader.
+#define GMHS_MESH     "cube.msh"                                                                    // GMSH mesh.
 
 // OPENCL:
 #define QUEUE_NUM     1                                                                             // # of OpenCL queues [#].
@@ -87,7 +85,7 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
-  cloth->init (bas, "/Users/Erik/Desktop/gmsh_test/cube.msh");                                      // Initializing cloth mesh...
+  cloth->init (bas, std::string(GMHS_HOME) + std::string(GMHS_MESH));                               // Initializing cloth mesh...
   position->init (cloth->nodes);                                                                    // Initializing position data...
   color->init (cloth->nodes);                                                                       // Initializing depth data...
   cloth->read_msh (position);                                                                       // Reading cloth mesh from file...
