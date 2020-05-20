@@ -6,7 +6,7 @@
 // OPENGL:
 #define GUI_SIZE_X    800                                                                           // Window x-size [px].
 #define GUI_SIZE_Y    600                                                                           // Window y-size [px].
-#define GUI_NAME      "neutrino 3.0"                                                                // Window name.
+#define GUI_NAME      "Neutrino - Sinusoid"                                                         // Window name.
 
 // OPENCL:
 #define QUEUE_NUM     1                                                                             // Number of OpenCL queues [#].

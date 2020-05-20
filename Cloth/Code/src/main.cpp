@@ -4,7 +4,7 @@
 #define INTEROP       true                                                                          // "true" = use OpenGL-OpenCL interoperability.
 #define GUI_SIZE_X    800                                                                           // Window x-size [px].
 #define GUI_SIZE_Y    600                                                                           // Window y-size [px].
-#define GUI_NAME      "neutrino 3.0"                                                                // Window name.
+#define GUI_NAME      "Neutrino - Cloth"                                                            // Window name.
 
 #ifdef __linux__
   #define SHADER_HOME "../../shader"                                                                // Linux OpenGL shaders directory.
@@ -13,7 +13,6 @@
 
 #ifdef __APPLE__
   #define SHADER_HOME "../../shader"                                                                // Mac OpenGL shaders directory.
-
   #define KERNEL_HOME "../../kernel"                                                                // Mac OpenCL kernels directory.
 #endif
 
