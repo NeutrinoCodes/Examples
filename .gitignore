@@ -10,4 +10,6 @@
 /Gravity/Code/cmake
 /Gravity/Code/build
 /Gravity/Docs/Doxygen
+/build
 .vs
+.vscode

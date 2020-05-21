@@ -1,3 +1,0 @@
-#!/bin/sh
-cmake -B"./cmake" -H"./" \
--DNEUTRINO_PATH=/run/media/ezor/LINUX/BookhouseBoys/ezor/libnu
