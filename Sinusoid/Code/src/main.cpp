@@ -145,6 +145,8 @@ int main ()
              NU_GPU                                                                                 // GPU client.
             );
 
+  // EZOR 21MAY2020: problem in S->init.
+
   // Initializing OpenGL shader...
   S->init (
            bas,                                                                                     // Neutrino baseline.
