@@ -14,18 +14,18 @@
 #define KERNEL_FILE   "sine_kernel.cl"                                                              // OpenCL kernel.
 
 #ifdef __linux__
-  #define SHADER_HOME "../../shader"                                                                // Linux OpenGL shaders directory.
-  #define KERNEL_HOME "../../kernel"                                                                // Linux OpenCL kernels directory.
+  #define SHADER_HOME "../Sinusoid/Code/shader"                                                     // Linux OpenGL shaders directory.
+  #define KERNEL_HOME "../Sinusoid/Code/kernel"                                                     // Linux OpenCL kernels directory.
 #endif
 
 #ifdef __APPLE__
-  #define SHADER_HOME "../../shader"                                                                // Mac OpenGL shaders directory.
-  #define KERNEL_HOME "../../kernel"                                                                // Mac OpenCL kernels directory.
+  #define SHADER_HOME "../Sinusoid/Code/shader"                                                     // Mac OpenGL shaders directory.
+  #define KERNEL_HOME "../Sinusoid/Code/kernel"                                                     // Mac OpenCL kernels directory.
 #endif
 
 #ifdef WIN32
-  #define SHADER_HOME "..\\..\\shader"                                                              // Windows OpenGL shaders directory.
-  #define KERNEL_HOME "..\\..\\kernel"                                                              // Windows OpenCL kernels directory.
+  #define SHADER_HOME "..\\Sinusoid\\Code\\shader"                                                  // Windows OpenGL shaders directory.
+  #define KERNEL_HOME "..\\Sinusoid\\Code\\kernel"                                                  // Windows OpenCL kernels directory.
 #endif
 
 #define SHADER_VERT   "voxel.vert"                                                                  // OpenGL vertex shader.
@@ -144,8 +144,6 @@ int main ()
              gui,                                                                                   // GUI.
              NU_GPU                                                                                 // GPU client.
             );
-
-  // EZOR 21MAY2020: problem in S->init.
 
   // Initializing OpenGL shader...
   S->init (
