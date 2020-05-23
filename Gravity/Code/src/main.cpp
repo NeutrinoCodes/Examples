@@ -7,18 +7,18 @@
 #define GUI_NAME      "Neutrino - Gravity"                                                          // Window name.
 
 #ifdef __linux__
-  #define SHADER_HOME "../../shader"                                                                // Linux OpenGL shaders directory.
-  #define KERNEL_HOME "../../kernel"                                                                // Linux OpenCL kernels directory.
+  #define SHADER_HOME "../Gravity/Code/shader"                                                      // Linux OpenGL shaders directory.
+  #define KERNEL_HOME "../Gravity/Code/kernel"                                                      // Linux OpenCL kernels directory.
 #endif
 
 #ifdef __APPLE__
-  #define SHADER_HOME "../../shader"                                                                // Mac OpenGL shaders directory.
-  #define KERNEL_HOME "../../kernel"                                                                // Mac OpenCL kernels directory.
+  #define SHADER_HOME "../Gravity/Code/shader"                                                      // Mac OpenGL shaders directory.
+  #define KERNEL_HOME "../Gravity/Code/kernel"                                                      // Mac OpenCL kernels directory.
 #endif
 
 #ifdef WIN32
-  #define SHADER_HOME "..\\..\\shader"                                                              // Windows OpenGL shaders directory.
-  #define KERNEL_HOME "..\\..\\kernel"                                                              // Windows OpenCL kernels directory.
+  #define SHADER_HOME "..\\Gravity\\Code\\shader"                                                   // Windows OpenGL shaders directory.
+  #define KERNEL_HOME "..\\Gravity\\Code\\kernel"                                                   // Windows OpenCL kernels directory.
 #endif
 
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.

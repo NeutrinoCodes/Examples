@@ -4,24 +4,24 @@
 #define INTEROP    true                                                                             // "true" = use OpenGL-OpenCL interoperability.
 #define GUI_SIZE_X 800                                                                              // Window x-size [px].
 #define GUI_SIZE_Y 600                                                                              // Window y-size [px].
-#define GUI_NAME   "Neutrino - Gmsh"                                                                // Window name.
+#define GUI_NAME   "Neutrino - Mesh"                                                                // Window name.
 
 #ifdef __linux__
-  #define SHADER_HOME "../../shader"                                                                // Linux OpenGL shaders directory.
-  #define KERNEL_HOME "../../kernel"                                                                // Linux OpenCL kernels directory.
-  #define GMHS_HOME   "../../mesh/"                                                                 // Linux GMSH mesh directory.
+  #define SHADER_HOME "../Mesh/Code/shader"                                                         // Linux OpenGL shaders directory.
+  #define KERNEL_HOME "../Mesh/Code/kernel"                                                         // Linux OpenCL kernels directory.
+  #define GMHS_HOME   "../Mesh/Code/mesh/"                                                          // Linux GMSH mesh directory.
 #endif
 
 #ifdef __APPLE__
-  #define SHADER_HOME "../../shader"                                                                // Mac OpenGL shaders directory.
-  #define KERNEL_HOME "../../kernel"                                                                // Mac OpenCL kernels directory.
-  #define GMHS_HOME   "../../mesh/"                                                                 // Mac GMSH mesh directory.
+  #define SHADER_HOME "../Mesh/Code/shader"                                                         // Mac OpenGL shaders directory.
+  #define KERNEL_HOME "../Mesh/Code/kernel"                                                         // Mac OpenCL kernels directory.
+  #define GMHS_HOME   "../Mesh/Code/mesh/"                                                          // Mac GMSH mesh directory.
 #endif
 
 #ifdef WIN32
-  #define SHADER_HOME "..\\..\\shader"                                                              // Windows OpenGL shaders directory.
-  #define KERNEL_HOME "..\\..\\kernel"                                                              // Windows OpenCL kernels directory.
-  #define GMHS_HOME   "..\\..\\mesh\\"                                                              // Windows GMSH mesh directory.
+  #define SHADER_HOME "..\\Mesh\\Code\\shader"                                                      // Windows OpenGL shaders directory.
+  #define KERNEL_HOME "..\\Mesh\\Code\\kernel"                                                      // Windows OpenCL kernels directory.
+  #define GMHS_HOME   "..\\Mesh\\Code\\mesh\\"                                                      // Windows GMSH mesh directory.
 #endif
 
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.
