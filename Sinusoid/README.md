@@ -37,10 +37,13 @@ the screen).
 The simulation can be terminated by pressing "ESC" on the keyboard or by pressing the "CROSS" button
 on the gamepad.
 
-**For the compilation of this example please follow the generic instructions written in the
-README.md file in the root of the "Examples" repository.**
+Pressing "3" on the keyboard, the 3D graphics output will switch to a side-by-side 3D stereoscopic projection.
+Pressing "2" on the keyboard will restore the usual 3D monoscopic projection.
 
-Once compiled, the executable can be found in `Code/build/mac` or `Code/build/linux` or
-`Code\build\windows` according to the OS.
+**For the compilation of this example please follow the generic instructions written in the
+README.md file in the "Examples" root directory.**
+
+**Once compiled, the executable can be found in the `Examples/build` directory.
+The `build` directory is not repositored, it will be created locally along the build process.**
 
 © Alessandro LUCANTONIO, Erik ZORZIN - 2018-2020
