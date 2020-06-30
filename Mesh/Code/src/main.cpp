@@ -1,10 +1,10 @@
 /// @file
 
 // OPENGL:
-#define INTEROP    true                                                                             // "true" = use OpenGL-OpenCL interoperability.
-#define GUI_SIZE_X 800                                                                              // Window x-size [px].
-#define GUI_SIZE_Y 600                                                                              // Window y-size [px].
-#define GUI_NAME   "Neutrino - Mesh"                                                                // Window name.
+#define INTEROP       true                                                                          // "true" = use OpenGL-OpenCL interoperability.
+#define GUI_SIZE_X    800                                                                           // Window x-size [px].
+#define GUI_SIZE_Y    600                                                                           // Window y-size [px].
+#define GUI_NAME      "Neutrino - Mesh"                                                             // Window name.
 
 #ifdef __linux__
   #define SHADER_HOME "../Mesh/Code/shader"                                                         // Linux OpenGL shaders directory.
@@ -33,59 +33,61 @@
 #define QUEUE_NUM     1                                                                             // # of OpenCL queues [#].
 #define KERNEL_NUM    2                                                                             // # of OpenCL kernel [#].
 
-#define KERNEL_F1     "thekernel1.cl"                                                               // OpenCL kernel.
-
 // INCLUDES:
 #include "nu.hpp"                                                                                   // Neutrino's header file.
 
 int main ()
 {
+  // KERNEL FILES:
+  std::string              kernel_home;                                                             // Kernel home directory.
+  std::vector<std::string> kernel_file;                                                             // Kernel source file.
+
   // DATA:
-  float     x_min              = -1.0;                                                              // "x_min" spatial boundary [m].
-  float     x_max              = +1.0;                                                              // "x_max" spatial boundary [m].
-  float     y_min              = -1.0;                                                              // "y_min" spatial boundary [m].
-  float     y_max              = +1.0;                                                              // "y_max" spatial boundary [m].
-  size_t    gid;                                                                                    // Global index [#].
+  float                    x_min              = -1.0;                                               // "x_min" spatial boundary [m].
+  float                    x_max              = +1.0;                                               // "x_max" spatial boundary [m].
+  float                    y_min              = -1.0;                                               // "y_min" spatial boundary [m].
+  float                    y_max              = +1.0;                                               // "y_max" spatial boundary [m].
+  size_t                   gid;                                                                     // Global index [#].
 
   // GUI PARAMETERS (orbit):
-  float     orbit_x_init       = 0.0f;                                                              // x-axis orbit initial rotation.
-  float     orbit_y_init       = 0.0f;                                                              // y-axis orbit initial rotation.
+  float                    orbit_x_init       = 0.0f;                                               // x-axis orbit initial rotation.
+  float                    orbit_y_init       = 0.0f;                                               // y-axis orbit initial rotation.
 
   // GUI PARAMETERS (pan):
-  float     pan_x_init         = 0.0f;                                                              // x-axis pan initial translation.
-  float     pan_y_init         = 0.0f;                                                              // y-axis pan initial translation.
-  float     pan_z_init         = -2.0f;                                                             // z-axis pan initial translation.
+  float                    pan_x_init         = 0.0f;                                               // x-axis pan initial translation.
+  float                    pan_y_init         = 0.0f;                                               // y-axis pan initial translation.
+  float                    pan_z_init         = -2.0f;                                              // z-axis pan initial translation.
 
   // GUI PARAMETERS (mouse):
-  float     mouse_orbit_rate   = 1.0;                                                               // Orbit rotation rate [rev/s].
-  float     mouse_pan_rate     = 5.0;                                                               // Pan translation rate [m/s].
-  float     mouse_decaytime    = 1.25;                                                              // Pan LP filter decay time [s].
+  float                    mouse_orbit_rate   = 1.0;                                                // Orbit rotation rate [rev/s].
+  float                    mouse_pan_rate     = 5.0;                                                // Pan translation rate [m/s].
+  float                    mouse_decaytime    = 1.25;                                               // Pan LP filter decay time [s].
 
   // GUI PARAMETERS (gamepad):
-  float     gamepad_orbit_rate = 1.0;                                                               // Orbit angular rate coefficient [rev/s].
-  float     gamepad_pan_rate   = 1.0;                                                               // Pan translation rate [m/s].
-  float     gamepad_decaytime  = 1.25;                                                              // Low pass filter decay time [s].
-  float     gamepad_deadzone   = 0.1;                                                               // Gamepad joystick deadzone [0...1].
+  float                    gamepad_orbit_rate = 1.0;                                                // Orbit angular rate coefficient [rev/s].
+  float                    gamepad_pan_rate   = 1.0;                                                // Pan translation rate [m/s].
+  float                    gamepad_decaytime  = 1.25;                                               // Low pass filter decay time [s].
+  float                    gamepad_deadzone   = 0.1;                                                // Gamepad joystick deadzone [0...1].
 
   // NEUTRINO:
-  neutrino* bas                = new neutrino ();                                                   // Neutrino baseline.
-  opengl*   gui                = new opengl ();                                                     // OpenGL context.
-  opencl*   ctx                = new opencl ();                                                     // OpenCL context.
-  shader*   S                  = new shader ();                                                     // OpenGL shader program.
-  queue*    Q                  = new queue ();                                                      // OpenCL queue.
-  kernel*   K1                 = new kernel ();                                                     // OpenCL kernel array.
+  neutrino*                bas                = new neutrino ();                                    // Neutrino baseline.
+  opengl*                  gui                = new opengl ();                                      // OpenGL context.
+  opencl*                  ctx                = new opencl ();                                      // OpenCL context.
+  shader*                  S                  = new shader ();                                      // OpenGL shader program.
+  queue*                   Q                  = new queue ();                                       // OpenCL queue.
+  kernel*                  K1                 = new kernel ();                                      // OpenCL kernel array.
 
   // MESH:
-  mesh*     cloth              = new mesh ();                                                       // Mesh context.                                                                                // Total # of nodes [#].
+  mesh*                    cloth              = new mesh ();                                        // Mesh context.                                                                                // Total # of nodes [#].
 
   // NODE KINEMATICS:
-  float4G*  position           = new float4G ();                                                    // Position [m].
-  float4G*  color              = new float4G ();                                                    // Depth [m].
+  float4G*                 position           = new float4G ();                                     // Position [m].
+  float4G*                 color              = new float4G ();                                     // Depth [m].
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
-  cloth->init (bas, std::string(GMHS_HOME) + std::string(GMHS_MESH));                               // Initializing cloth mesh...
+  cloth->init (bas, std::string (GMHS_HOME) + std::string (GMHS_MESH));                             // Initializing cloth mesh...
   position->init (cloth->nodes);                                                                    // Initializing position data...
   color->init (cloth->nodes);                                                                       // Initializing depth data...
   cloth->read_msh (position);                                                                       // Reading cloth mesh from file...
@@ -126,7 +128,10 @@ int main ()
   size_t kernel_sx = cloth->nodes;                                                                  // Kernel dimension "x" [#].
   size_t kernel_sy = 0;                                                                             // Kernel dimension "y" [#].
   size_t kernel_sz = 0;                                                                             // Kernel dimension "z" [#].
-  K1->init (bas, KERNEL_HOME, KERNEL_F1, kernel_sx, kernel_sy, kernel_sz);                          // Initializing OpenCL kernel K1...
+
+  kernel_home    = KERNEL_HOME;                                                                     // Setting kernel home directory...
+  kernel_file.push_back ("mesh_kernel.cl");                                                         // Setting 1st source file...
+  K1->init (bas, kernel_home, kernel_file, kernel_sx, kernel_sy, kernel_sz);                        // Initializing OpenCL kernel K1...
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////// SETTING OPENCL KERNEL ARGUMENTS /////////////////////////////////

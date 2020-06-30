@@ -29,119 +29,121 @@
 #define QUEUE_NUM     1                                                                             // # of OpenCL queues [#].
 #define KERNEL_NUM    2                                                                             // # of OpenCL kernel [#].
 
-#define KERNEL_F1     "thekernel1.cl"                                                               // OpenCL kernel.
-#define KERNEL_F2     "thekernel2.cl"                                                               // OpenCL kernel.
-
 // INCLUDES:
 #include "nu.hpp"                                                                                   // Neutrino's header file.
 
 int main ()
 {
+  // KERNEL FILES:
+  std::string              kernel_home;                                                             // Kernel home directory.
+  std::vector<std::string> kernel_1;                                                                // Kernel_1 source files.
+  std::vector<std::string> kernel_2;                                                                // Kernel_2 source files.
+
   // DATA:
-  float     x_min              = -1.0f;                                                             // "x_min" spatial boundary [m].
-  float     x_max              = +1.0f;                                                             // "x_max" spatial boundary [m].
-  float     y_min              = -1.0f;                                                             // "y_min" spatial boundary [m].
-  float     y_max              = +1.0f;                                                             // "y_max" spatial boundary [m].
-  float     z_min              = -1.0f;                                                             // "z_min" spatial boundary [m].
-  float     z_max              = +1.0f;                                                             // "z_max" spatial boundary [m].
-  size_t    nodes_x            = 25;                                                                // Number of nodes in "X" direction [].
-  size_t    nodes_y            = 25;                                                                // Number of nodes in "Y" direction [].
-  size_t    nodes_z            = 25;                                                                // Number of nodes in "Y" direction [].
-  size_t    nodes              = nodes_x*nodes_y*nodes_z;                                           // Total # of nodes [#].
-  float     dx                 = (x_max - x_min)/(nodes_x - 1);                                     // x-axis mesh spatial size [m].
-  float     dy                 = (y_max - y_min)/(nodes_y - 1);                                     // y-axis mesh spatial size [m].
-  float     dz                 = (z_max - z_min)/(nodes_z - 1);                                     // z-axis mesh spatial size [m].
-  size_t    i;                                                                                      // "x" direction index [].
-  size_t    j;                                                                                      // "y" direction index [].
-  size_t    k;                                                                                      // "z" direction index [].
-  size_t    gid;                                                                                    // Global index [].
-  size_t    face_R             = nodes_x - 1;                                                       // Right face index [].
-  size_t    face_U             = nodes_y - 1;                                                       // Up face index [].
-  size_t    face_F             = nodes_z - 1;                                                       // Front face index [].
-  size_t    face_L             = 0;                                                                 // Left face index [].
-  size_t    face_D             = 0;                                                                 // Down face index [].
-  size_t    face_B             = 0;                                                                 // Back face index [].
-  size_t    neighbour_R;                                                                            // Right neighbour index [].
-  size_t    neighbour_U;                                                                            // Up neighbour index [].
-  size_t    neighbour_F;                                                                            // Front neighbour index [].
-  size_t    neighbour_L;                                                                            // Left neighbour index [].
-  size_t    neighbour_D;                                                                            // Down neighbour index [].
-  size_t    neighbour_B;                                                                            // Back neighbour index [].
+  float                    x_min              = -1.0f;                                              // "x_min" spatial boundary [m].
+  float                    x_max              = +1.0f;                                              // "x_max" spatial boundary [m].
+  float                    y_min              = -1.0f;                                              // "y_min" spatial boundary [m].
+  float                    y_max              = +1.0f;                                              // "y_max" spatial boundary [m].
+  float                    z_min              = -1.0f;                                              // "z_min" spatial boundary [m].
+  float                    z_max              = +1.0f;                                              // "z_max" spatial boundary [m].
+  size_t                   nodes_x            = 25;                                                 // Number of nodes in "X" direction [].
+  size_t                   nodes_y            = 25;                                                 // Number of nodes in "Y" direction [].
+  size_t                   nodes_z            = 25;                                                 // Number of nodes in "Y" direction [].
+  size_t                   nodes              = nodes_x*nodes_y*nodes_z;                            // Total # of nodes [#].
+  float                    dx                 = (x_max - x_min)/(nodes_x - 1);                      // x-axis mesh spatial size [m].
+  float                    dy                 = (y_max - y_min)/(nodes_y - 1);                      // y-axis mesh spatial size [m].
+  float                    dz                 = (z_max - z_min)/(nodes_z - 1);                      // z-axis mesh spatial size [m].
+  size_t                   i;                                                                       // "x" direction index [].
+  size_t                   j;                                                                       // "y" direction index [].
+  size_t                   k;                                                                       // "z" direction index [].
+  size_t                   gid;                                                                     // Global index [].
+  size_t                   face_R             = nodes_x - 1;                                        // Right face index [].
+  size_t                   face_U             = nodes_y - 1;                                        // Up face index [].
+  size_t                   face_F             = nodes_z - 1;                                        // Front face index [].
+  size_t                   face_L             = 0;                                                  // Left face index [].
+  size_t                   face_D             = 0;                                                  // Down face index [].
+  size_t                   face_B             = 0;                                                  // Back face index [].
+  size_t                   neighbour_R;                                                             // Right neighbour index [].
+  size_t                   neighbour_U;                                                             // Up neighbour index [].
+  size_t                   neighbour_F;                                                             // Front neighbour index [].
+  size_t                   neighbour_L;                                                             // Left neighbour index [].
+  size_t                   neighbour_D;                                                             // Down neighbour index [].
+  size_t                   neighbour_B;                                                             // Back neighbour index [].
 
   // GUI PARAMETERS (orbit):
-  float     orbit_x_init       = 0.0f;                                                              // x-axis orbit initial rotation.
-  float     orbit_y_init       = 0.0f;                                                              // y-axis orbit initial rotation.
+  float                    orbit_x_init       = 0.0f;                                               // x-axis orbit initial rotation.
+  float                    orbit_y_init       = 0.0f;                                               // y-axis orbit initial rotation.
 
   // GUI PARAMETERS (pan):
-  float     pan_x_init         = 0.0f;                                                              // x-axis pan initial translation.
-  float     pan_y_init         = 0.0f;                                                              // y-axis pan initial translation.
-  float     pan_z_init         = -2.0f;                                                             // z-axis pan initial translation.
+  float                    pan_x_init         = 0.0f;                                               // x-axis pan initial translation.
+  float                    pan_y_init         = 0.0f;                                               // y-axis pan initial translation.
+  float                    pan_z_init         = -2.0f;                                              // z-axis pan initial translation.
 
   // GUI PARAMETERS (mouse):
-  float     mouse_orbit_rate   = 1.0f;                                                              // Orbit rotation rate [rev/s].
-  float     mouse_pan_rate     = 5.0f;                                                              // Pan translation rate [m/s].
-  float     mouse_decaytime    = 1.25f;                                                             // Pan LP filter decay time [s].
+  float                    mouse_orbit_rate   = 1.0f;                                               // Orbit rotation rate [rev/s].
+  float                    mouse_pan_rate     = 5.0f;                                               // Pan translation rate [m/s].
+  float                    mouse_decaytime    = 1.25f;                                              // Pan LP filter decay time [s].
 
   // GUI PARAMETERS (gamepad):
-  float     gamepad_orbit_rate = 1.0f;                                                              // Orbit angular rate coefficient [rev/s].
-  float     gamepad_pan_rate   = 1.0f;                                                              // Pan translation rate [m/s].
-  float     gamepad_decaytime  = 1.25f;                                                             // Low pass filter decay time [s].
-  float     gamepad_deadzone   = 0.1f;                                                              // Gamepad joystick deadzone [0...1].
+  float                    gamepad_orbit_rate = 1.0f;                                               // Orbit angular rate coefficient [rev/s].
+  float                    gamepad_pan_rate   = 1.0f;                                               // Pan translation rate [m/s].
+  float                    gamepad_decaytime  = 1.25f;                                              // Low pass filter decay time [s].
+  float                    gamepad_deadzone   = 0.1f;                                               // Gamepad joystick deadzone [0...1].
 
   // NEUTRINO:
-  neutrino* bas                = new neutrino ();                                                   // Neutrino baseline.
-  opengl*   gui                = new opengl ();                                                     // OpenGL context.
-  opencl*   ctx                = new opencl ();                                                     // OpenCL context.
-  shader*   S                  = new shader ();                                                     // OpenGL shader program.
-  queue*    Q                  = new queue ();                                                      // OpenCL queue.
-  kernel*   K1                 = new kernel ();                                                     // OpenCL kernel array.
-  kernel*   K2                 = new kernel ();                                                     // OpenCL kernel array.
-  size_t    kernel_sx          = nodes;                                                             // Kernel dimension "x" [#].
-  size_t    kernel_sy          = 0;                                                                 // Kernel dimension "y" [#].
-  size_t    kernel_sz          = 0;                                                                 // Kernel dimension "z" [#].
+  neutrino*                bas                = new neutrino ();                                    // Neutrino baseline.
+  opengl*                  gui                = new opengl ();                                      // OpenGL context.
+  opencl*                  ctx                = new opencl ();                                      // OpenCL context.
+  shader*                  S                  = new shader ();                                      // OpenGL shader program.
+  queue*                   Q                  = new queue ();                                       // OpenCL queue.
+  kernel*                  K1                 = new kernel ();                                      // OpenCL kernel array.
+  kernel*                  K2                 = new kernel ();                                      // OpenCL kernel array.
+  size_t                   kernel_sx          = nodes;                                              // Kernel dimension "x" [#].
+  size_t                   kernel_sy          = 0;                                                  // Kernel dimension "y" [#].
+  size_t                   kernel_sz          = 0;                                                  // Kernel dimension "z" [#].
 
   // NODE KINEMATICS:
-  float4G*  position           = new float4G ();                                                    // Position [m].
-  float4*   velocity           = new float4 ();                                                     // Velocity [m/s].
-  float4*   acceleration       = new float4 ();                                                     // Acceleration [m/s^2].
+  float4G*                 position           = new float4G ();                                     // Position [m].
+  float4*                  velocity           = new float4 ();                                      // Velocity [m/s].
+  float4*                  acceleration       = new float4 ();                                      // Acceleration [m/s^2].
 
   // NODE KINEMATICS (INTERMEDIATE):
-  float4*   position_int       = new float4 ();                                                     // Position (intermediate) [m].
-  float4*   velocity_int       = new float4 ();                                                     // Velocity (intermediate) [m/s].
-  float4*   acceleration_int   = new float4 ();                                                     // Acceleration (intermediate) [m/s^2].
+  float4*                  position_int       = new float4 ();                                      // Position (intermediate) [m].
+  float4*                  velocity_int       = new float4 ();                                      // Velocity (intermediate) [m/s].
+  float4*                  acceleration_int   = new float4 ();                                      // Acceleration (intermediate) [m/s^2].
 
   // FABRIC PROPERTIES:
-  float     rho                = 1000.0f;                                                           // Space mass density [kg/m^3].
-  float     E                  = 10000.0f;                                                          // Space Young modulus [kg/(m*s^2)].
-  float     mu                 = 10000.0f;                                                           // Space viscosity [Pa*s].
+  float                    rho                = 1000.0f;                                            // Space mass density [kg/m^3].
+  float                    E                  = 10000.0f;                                           // Space Young modulus [kg/(m*s^2)].
+  float                    mu                 = 10000.0f;                                           // Space viscosity [Pa*s].
 
   // NODE PROPERTIES:
-  float     m                  = rho*dx*dy*dz;                                                      // Space mass [kg].
-  float     R0                 = 0.2f;                                                              // Particle's radius [m].
-  float4G*  color              = new float4G ();                                                    // Color [m].
-  float1*   mass               = new float1 ();                                                     // Mass [kg].
-  float1*   radius             = new float1 ();                                                     // Particle radius [m]...
+  float                    m                  = rho*dx*dy*dz;                                       // Space mass [kg].
+  float                    R0                 = 0.2f;                                               // Particle's radius [m].
+  float4G*                 color              = new float4G ();                                     // Color [m].
+  float1*                  mass               = new float1 ();                                      // Mass [kg].
+  float1*                  radius             = new float1 ();                                      // Particle radius [m]...
 
   // LINK PROPERTIES:
-  float     K                  = E*dz*dx/dy;                                                        // Space elastic constant [kg/s^2].
-  float     C                  = mu*dx*dy*dz;                                                       // Space damping [kg*s*m].
-  float1*   friction           = new float1 ();                                                     // Friction.
-  float4*   resting            = new float4 ();                                                     // Resting distance [m].
-  float1*   stiffness          = new float1 ();                                                     // Stiffness.
+  float                    K                  = E*dz*dx/dy;                                         // Space elastic constant [kg/s^2].
+  float                    C                  = mu*dx*dy*dz;                                        // Space damping [kg*s*m].
+  float1*                  friction           = new float1 ();                                      // Friction.
+  float4*                  resting            = new float4 ();                                      // Resting distance [m].
+  float1*                  stiffness          = new float1 ();                                      // Stiffness.
 
   // SIMULATION PARAMETERS:
-  float     dt_critical        = sqrt (m/K);                                                        // Critical time step [s].
-  float     dt_simulation      = 0.1f*dt_critical;                                                  // Simulation time step [s].
-  float1*   time               = new float1 ();                                                     // Time [s].
+  float                    dt_critical        = sqrt (m/K);                                         // Critical time step [s].
+  float                    dt_simulation      = 0.1f*dt_critical;                                   // Simulation time step [s].
+  float1*                  time               = new float1 ();                                      // Time [s].
 
   // MESH CONNECTIVITY:
-  int1*     index_R            = new int1 ();                                                       // Right neighbour index [].
-  int1*     index_U            = new int1 ();                                                       // Up neighbour index [].
-  int1*     index_F            = new int1 ();                                                       // Front neighbour index [].
-  int1*     index_L            = new int1 ();                                                       // Left neighbour index [].
-  int1*     index_D            = new int1 ();                                                       // Down neighbour index [].
-  int1*     index_B            = new int1 ();                                                       // Back neighbour index [].
-  float1*   freedom            = new float1 ();                                                     // Freedom/constrain flag [].
+  int1*                    index_R            = new int1 ();                                        // Right neighbour index [].
+  int1*                    index_U            = new int1 ();                                        // Up neighbour index [].
+  int1*                    index_F            = new int1 ();                                        // Front neighbour index [].
+  int1*                    index_L            = new int1 ();                                        // Left neighbour index [].
+  int1*                    index_D            = new int1 ();                                        // Down neighbour index [].
+  int1*                    index_B            = new int1 ();                                        // Back neighbour index [].
+  float1*                  freedom            = new float1 ();                                      // Freedom/constrain flag [].
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
@@ -638,8 +640,13 @@ int main ()
   ctx->init (bas, gui, NU_GPU);                                                                     // Initializing OpenCL context...
   S->init (bas, SHADER_HOME, SHADER_VERT, SHADER_GEOM, SHADER_FRAG);                                // Initializing OpenGL shader...
   Q->init (bas);                                                                                    // Initializing OpenCL queue...
-  K1->init (bas, KERNEL_HOME, KERNEL_F1, kernel_sx, kernel_sy, kernel_sz);                          // Initializing OpenCL kernel K1...
-  K2->init (bas, KERNEL_HOME, KERNEL_F2, kernel_sx, kernel_sy, kernel_sz);                          // Initializing OpenCL kernel K2...
+  kernel_home = KERNEL_HOME;                                                                        // Setting kernel home directory...
+  kernel_1.push_back ("utilities.cl");                                                              // Setting 1st source file...
+  kernel_1.push_back ("thekernel1.cl");                                                             // Setting 2nd source file...
+  K1->init (bas, kernel_home, kernel_1, kernel_sx, kernel_sy, kernel_sz);                           // Initializing OpenCL kernel K1...
+  kernel_2.push_back ("utilities.cl");                                                              // Setting 1st source file...
+  kernel_2.push_back ("thekernel2.cl");                                                             // Setting 2nd source file...
+  K2->init (bas, kernel_home, kernel_2, kernel_sx, kernel_sy, kernel_sz);                           // Initializing OpenCL kernel K2...
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////// SETTING OPENCL KERNEL ARGUMENTS /////////////////////////////////

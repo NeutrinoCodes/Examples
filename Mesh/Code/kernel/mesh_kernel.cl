@@ -1,5 +1,4 @@
 /// @file
-#include "utilities.cl"
 
 __kernel void thekernel(__global float4*    position,                                               // Position [m].
                         __global float4*    color                                                   // Depth color [#]
