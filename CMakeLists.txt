@@ -323,6 +323,7 @@ if(WIN32)                                                                       
     ${TARGET_4}                                                                                     # Target name.
     ${CL_PATH}/lib/x64/OpenCL.lib                                                                   # OpenCL library.
     ${GLFW_PATH}/lib-vc2019/glfw3.lib                                                               # GLFW library.
+    ${GMSH_PATH}/lib/gmsh.lib
     ${NEUTRINO_PATH}/lib/nu.lib)                                                                    # "neutrino" library.
 endif(WIN32)
 
