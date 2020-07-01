@@ -17,8 +17,8 @@
 #endif
 
 #ifdef WIN32
-  #define SHADER_HOME "..\\Gravity\\Code\\shader"                                                   // Windows OpenGL shaders directory.
-  #define KERNEL_HOME "..\\Gravity\\Code\\kernel"                                                   // Windows OpenCL kernels directory.
+  #define SHADER_HOME "..\\..\\Gravity\\Code\\shader"                                                   // Windows OpenGL shaders directory.
+  #define KERNEL_HOME "..\\..\\Gravity\\Code\\kernel"                                                   // Windows OpenCL kernels directory.
 #endif
 
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.

@@ -19,9 +19,9 @@
 #endif
 
 #ifdef WIN32
-  #define SHADER_HOME "..\\Mesh\\Code\\shader"                                                      // Windows OpenGL shaders directory.
-  #define KERNEL_HOME "..\\Mesh\\Code\\kernel"                                                      // Windows OpenCL kernels directory.
-  #define GMHS_HOME   "..\\Mesh\\Code\\mesh\\"                                                      // Windows GMSH mesh directory.
+  #define SHADER_HOME "..\\..\\Mesh\\Code\\shader"                                                      // Windows OpenGL shaders directory.
+  #define KERNEL_HOME "..\\..\\Mesh\\Code\\kernel"                                                      // Windows OpenCL kernels directory.
+  #define GMHS_HOME   "..\\..\\Mesh\\Code\\mesh\\"                                                      // Windows GMSH mesh directory.
 #endif
 
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.
