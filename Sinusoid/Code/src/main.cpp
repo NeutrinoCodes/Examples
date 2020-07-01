@@ -24,8 +24,8 @@
 #endif
 
 #ifdef WIN32
-  #define SHADER_HOME "..\\Sinusoid\\Code\\shader"                                                  // Windows OpenGL shaders directory.
-  #define KERNEL_HOME "..\\Sinusoid\\Code\\kernel"                                                  // Windows OpenCL kernels directory.
+  #define SHADER_HOME "..\\..\\Sinusoid\\Code\\shader"                                                  // Windows OpenGL shaders directory.
+  #define KERNEL_HOME "..\\..\\Sinusoid\\Code\\kernel"                                                  // Windows OpenCL kernels directory.
 #endif
 
 #define SHADER_VERT   "voxel.vert"                                                                  // OpenGL vertex shader.
