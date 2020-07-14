@@ -1,33 +1,33 @@
 /// @file
 
 // OPENGL:
-#define INTEROP       true                                                                          // "true" = use OpenGL-OpenCL interoperability.
-#define GUI_SIZE_X    800                                                                           // Window x-size [px].
-#define GUI_SIZE_Y    600                                                                           // Window y-size [px].
-#define GUI_NAME      "Neutrino - Gravity"                                                          // Window name.
+#define INTEROP     true                                                                            // "true" = use OpenGL-OpenCL interoperability.
+#define GUI_SIZE_X  800                                                                             // Window x-size [px].
+#define GUI_SIZE_Y  600                                                                             // Window y-size [px].
+#define GUI_NAME    "Neutrino - Gravity"                                                            // Window name.
 
 #ifdef __linux__
-  #define SHADER_HOME "../Gravity/Code/shader"                                                      // Linux OpenGL shaders directory.
-  #define KERNEL_HOME "../Gravity/Code/kernel"                                                      // Linux OpenCL kernels directory.
+#define SHADER_HOME "../Gravity/Code/shader"                                                        // Linux OpenGL shaders directory.
+#define KERNEL_HOME "../Gravity/Code/kernel"                                                        // Linux OpenCL kernels directory.
 #endif
 
 #ifdef __APPLE__
-  #define SHADER_HOME "../Gravity/Code/shader"                                                      // Mac OpenGL shaders directory.
-  #define KERNEL_HOME "../Gravity/Code/kernel"                                                      // Mac OpenCL kernels directory.
+#define SHADER_HOME "../Gravity/Code/shader"                                                        // Mac OpenGL shaders directory.
+#define KERNEL_HOME "../Gravity/Code/kernel"                                                        // Mac OpenCL kernels directory.
 #endif
 
 #ifdef WIN32
-  #define SHADER_HOME "..\\..\\Gravity\\Code\\shader"                                                   // Windows OpenGL shaders directory.
-  #define KERNEL_HOME "..\\..\\Gravity\\Code\\kernel"                                                   // Windows OpenCL kernels directory.
+#define SHADER_HOME "..\\..\\Gravity\\Code\\shader"                                                 // Windows OpenGL shaders directory.
+#define KERNEL_HOME "..\\..\\Gravity\\Code\\kernel"                                                 // Windows OpenCL kernels directory.
 #endif
 
-#define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.
-#define SHADER_GEOM   "voxel_geometry.geom"                                                         // OpenGL geometry shader.
-#define SHADER_FRAG   "voxel_fragment.frag"                                                         // OpenGL fragment shader.
+#define SHADER_VERT "voxel_vertex.vert"                                                             // OpenGL vertex shader.
+#define SHADER_GEOM "voxel_geometry.geom"                                                           // OpenGL geometry shader.
+#define SHADER_FRAG "voxel_fragment.frag"                                                           // OpenGL fragment shader.
 
 // OPENCL:
-#define QUEUE_NUM     1                                                                             // # of OpenCL queues [#].
-#define KERNEL_NUM    2                                                                             // # of OpenCL kernel [#].
+#define QUEUE_NUM   1                                                                               // # of OpenCL queues [#].
+#define KERNEL_NUM  2                                                                               // # of OpenCL kernel [#].
 
 // INCLUDES:
 #include "nu.hpp"                                                                                   // Neutrino's header file.
@@ -49,10 +49,10 @@ int main ()
   size_t                   nodes_x            = 25;                                                 // Number of nodes in "X" direction [].
   size_t                   nodes_y            = 25;                                                 // Number of nodes in "Y" direction [].
   size_t                   nodes_z            = 25;                                                 // Number of nodes in "Y" direction [].
-  size_t                   nodes              = nodes_x*nodes_y*nodes_z;                            // Total # of nodes [#].
-  float                    dx                 = (x_max - x_min)/(nodes_x - 1);                      // x-axis mesh spatial size [m].
-  float                    dy                 = (y_max - y_min)/(nodes_y - 1);                      // y-axis mesh spatial size [m].
-  float                    dz                 = (z_max - z_min)/(nodes_z - 1);                      // z-axis mesh spatial size [m].
+  size_t                   nodes              = nodes_x * nodes_y * nodes_z;                        // Total # of nodes [#].
+  float                    dx                 = (x_max - x_min) / (nodes_x - 1);                    // x-axis mesh spatial size [m].
+  float                    dy                 = (y_max - y_min) / (nodes_y - 1);                    // y-axis mesh spatial size [m].
+  float                    dz                 = (z_max - z_min) / (nodes_z - 1);                    // z-axis mesh spatial size [m].
   size_t                   i;                                                                       // "x" direction index [].
   size_t                   j;                                                                       // "y" direction index [].
   size_t                   k;                                                                       // "z" direction index [].
@@ -118,22 +118,22 @@ int main ()
   float                    mu                 = 10000.0f;                                           // Space viscosity [Pa*s].
 
   // NODE PROPERTIES:
-  float                    m                  = rho*dx*dy*dz;                                       // Space mass [kg].
+  float                    m                  = rho * dx * dy * dz;                                 // Space mass [kg].
   float                    R0                 = 0.2f;                                               // Particle's radius [m].
   float4G*                 color              = new float4G ();                                     // Color [m].
   float1*                  mass               = new float1 ();                                      // Mass [kg].
   float1*                  radius             = new float1 ();                                      // Particle radius [m]...
 
   // LINK PROPERTIES:
-  float                    K                  = E*dz*dx/dy;                                         // Space elastic constant [kg/s^2].
-  float                    C                  = mu*dx*dy*dz;                                        // Space damping [kg*s*m].
+  float                    K                  = E * dz * dx / dy;                                   // Space elastic constant [kg/s^2].
+  float                    C                  = mu * dx * dy * dz;                                  // Space damping [kg*s*m].
   float1*                  friction           = new float1 ();                                      // Friction.
   float4*                  resting            = new float4 ();                                      // Resting distance [m].
   float1*                  stiffness          = new float1 ();                                      // Stiffness.
 
   // SIMULATION PARAMETERS:
-  float                    dt_critical        = sqrt (m/K);                                         // Critical time step [s].
-  float                    dt_simulation      = 0.1f*dt_critical;                                   // Simulation time step [s].
+  float                    dt_critical        = sqrt (m / K);                                       // Critical time step [s].
+  float                    dt_simulation      = 0.1f * dt_critical;                                 // Simulation time step [s].
   float1*                  time               = new float1 ();                                      // Time [s].
 
   // MESH CONNECTIVITY:
@@ -190,21 +190,21 @@ int main ()
       for(i = 0; i < nodes_x; i++)
       {
         // Computing initial mesh connectivity:
-        gid                       = (i + 0) + nodes_x*(j + 0) + nodes_x*nodes_y*(k + 0);            // Computing global index...
+        gid                       = (i + 0) + nodes_x * (j + 0) + nodes_x * nodes_y * (k + 0);      // Computing global index...
 
-        neighbour_R               = (i + 1) + nodes_x*(j + 0) + nodes_x*nodes_y*(k + 0);            // Computing right neighbour index...
-        neighbour_U               = (i + 0) + nodes_x*(j + 1) + nodes_x*nodes_y*(k + 0);            // Computing up neighbour index...
-        neighbour_F               = (i + 0) + nodes_x*(j + 0) + nodes_x*nodes_y*(k + 1);            // Computing front neighbour index...
-        neighbour_L               = (i - 1) + nodes_x*(j + 0) + nodes_x*nodes_y*(k + 0);            // Computing left neighbour index...
-        neighbour_D               = (i + 0) + nodes_x*(j - 1) + nodes_x*nodes_y*(k + 0);            // Computing down neighbour index...
-        neighbour_B               = (i + 0) + nodes_x*(j + 0) + nodes_x*nodes_y*(k - 1);            // Computing front neighbour index...
+        neighbour_R               = (i + 1) + nodes_x * (j + 0) + nodes_x * nodes_y * (k + 0);      // Computing right neighbour index...
+        neighbour_U               = (i + 0) + nodes_x * (j + 1) + nodes_x * nodes_y * (k + 0);      // Computing up neighbour index...
+        neighbour_F               = (i + 0) + nodes_x * (j + 0) + nodes_x * nodes_y * (k + 1);      // Computing front neighbour index...
+        neighbour_L               = (i - 1) + nodes_x * (j + 0) + nodes_x * nodes_y * (k + 0);      // Computing left neighbour index...
+        neighbour_D               = (i + 0) + nodes_x * (j - 1) + nodes_x * nodes_y * (k + 0);      // Computing down neighbour index...
+        neighbour_B               = (i + 0) + nodes_x * (j + 0) + nodes_x * nodes_y * (k - 1);      // Computing front neighbour index...
 
         freedom->data[gid]        = 1.0f;                                                           // Setting freedom flag...
 
         // Setting initial position:
-        position->data[gid].x     = x_min + i*dx;                                                   // Setting "x" position...
-        position->data[gid].y     = y_min + j*dy;                                                   // Setting "y" position...
-        position->data[gid].z     = z_min + k*dz;                                                   // Setting "z" position...
+        position->data[gid].x     = x_min + i * dx;                                                 // Setting "x" position...
+        position->data[gid].y     = y_min + j * dy;                                                 // Setting "y" position...
+        position->data[gid].z     = z_min + k * dz;                                                 // Setting "z" position...
         position->data[gid].w     = 1.0f;                                                           // Setting "w" position...
 
         // Setting initial velocity:
@@ -262,7 +262,7 @@ int main ()
           index_B->data[gid] = neighbour_B;                                                         // Setting index to back neighbour...
         }
 
-        else                                                                                        // When on all faces:
+        else // When on all faces:
         {
           freedom->data[gid] = 0.0f;                                                                // Setting freedom flag...
         }
@@ -616,7 +616,6 @@ int main ()
           index_D->data[gid] = neighbour_D;                                                         // Setting index to down neighbour...
           index_B->data[gid] = neighbour_B;                                                         // Setting index to back neighbour...
         }
-
       }
     }
   }
@@ -625,18 +624,17 @@ int main ()
   ////////////////////////////////////// NEUTRINO INITIALIZATION /////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   bas->init (QUEUE_NUM, KERNEL_NUM);                                                                // Initializing Neutrino baseline...
-  gui->init
-  (
-   bas,                                                                                             // Neutrino baseline.
-   GUI_SIZE_X,                                                                                      // GUI x-size [px].
-   GUI_SIZE_Y,                                                                                      // GUI y-size [px.]
-   GUI_NAME,                                                                                        // GUI name.
-   orbit_x_init,                                                                                    // Initial x-orbit.
-   orbit_y_init,                                                                                    // Initial y-orbit.
-   pan_x_init,                                                                                      // Initial x-pan.
-   pan_y_init,                                                                                      // Initial y-pan.
-   pan_z_init                                                                                       // Initial z-pan.
-  );
+  gui->init (
+             bas,                                                                                   // Neutrino baseline.
+             GUI_SIZE_X,                                                                            // GUI x-size [px].
+             GUI_SIZE_Y,                                                                            // GUI y-size [px.]
+             GUI_NAME,                                                                              // GUI name.
+             orbit_x_init,                                                                          // Initial x-orbit.
+             orbit_y_init,                                                                          // Initial y-orbit.
+             pan_x_init,                                                                            // Initial x-pan.
+             pan_y_init,                                                                            // Initial y-pan.
+             pan_z_init                                                                             // Initial z-pan.
+            );
   ctx->init (bas, gui, NU_GPU);                                                                     // Initializing OpenCL context...
   S->init (bas, SHADER_HOME, SHADER_VERT, SHADER_GEOM, SHADER_FRAG);                                // Initializing OpenGL shader...
   Q->init (bas);                                                                                    // Initializing OpenCL queue...
@@ -671,7 +669,7 @@ int main ()
   K1->setarg (freedom, 17);                                                                         // Setting freedom flag kernel argument...
   K1->setarg (radius, 18);                                                                          // Setting particle radius kernel argument...
   K1->setarg (time, 19);                                                                            // Setting time step kernel argument...
-  
+
   K2->setarg (position, 0);                                                                         // Setting position kernel argument...
   K2->setarg (color, 1);                                                                            // Setting depth kernel argument...
   K2->setarg (position_int, 2);                                                                     // Setting intermediate position kernel argument...
@@ -692,7 +690,7 @@ int main ()
   K2->setarg (freedom, 17);                                                                         // Setting freedom flag kernel argument...
   K2->setarg (radius, 18);                                                                          // Setting particle radius kernel argument...
   K2->setarg (time, 19);                                                                            // Setting time step kernel argument...
-  
+
   position->name = "voxel_center";                                                                  // Setting variable name for OpenGL shader...
   color->name    = "voxel_color";                                                                   // Setting variable name for OpenGL shader...
 
