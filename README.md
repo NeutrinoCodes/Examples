@@ -17,27 +17,19 @@ The Examples can be successfully installed and used on Linux, Mac or Windows. Th
 # Linux, Mac and Windows 
 
 ## Installation:
-The recommended method is by using the VScode toolchain described in the Neutrino repository. We assume Neutrino is going to be installed in a directory named *NeutrinoCodes* containing the following subdirectories:
-- cl
+The recommended method is by using the VScode toolchain described in the Neutrino repository. We assume Neutrino is going to be installed in a directory named *NeutrinoCodes* containing the following subdirectories according to the already done installation of Neutrino:
 - glad
 - glfw
 - gmsh
 - libnu
-- examples
+- neutrino
 
-where the corresponding software, according to the software requirements in this guide, has been already installed.
-
-1. From the command shell (either VScode's or system's), navigate into *NeutrinoCodes* and create a `libnu` directory using the command:\
-`mkdir libnu`\
+1. From the command shell (either VScode's or system's), navigate into *NeutrinoCodes* and clone the Neutrino project using the command:\
+`git clone https://github.com/NeutrinoCodes/examples.git` \
 \
-This will create the `libnu` directory.
+This will create the `examples` directory.
 
-2. From the command shell (either VScode's or system's), navigate into *NeutrinoCodes* and clone the Neutrino project using the command:\
-`git clone https://github.com/NeutrinoCodes/neutrino.git` \
-\
-This will create the `neutrino` directory.
-
-3. Go to the `neutrino` directory and create a `.vscode` hidden directory:\
+2. Go to the `examples` directory and create a `.vscode` hidden directory:\
 `mkdir .vscode`\
 \
 and create a new file `settings.json` in it, then fill it with the following information:\
