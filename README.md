@@ -1,6 +1,10 @@
 # NEUTRINO EXAMPLES
 
-_A fast and light library for GPU-based computation and interactive data visualization._
+<p align="center">
+<img src="./Logos/neutrino_logo.png" width="200" height="200" />
+</p>
+
+*A fast and light library for GPU-based computation and interactive data visualization.*
 
 [www.neutrino.codes](http://www.neutrino.codes)
 
