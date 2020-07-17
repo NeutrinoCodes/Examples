@@ -10,13 +10,10 @@
 
 © Alessandro LUCANTONIO, Erik ZORZIN - 2018-2020
 
-**PLEASE NOTICE THE FOLLOWING LIST OF HARDWARE AND SOFTWARE REQUIREMENTS ARE IN COMMON WITH THOSE
-ONES FOR THE INSTALLATION AND USAGE OF THE "NEUTRINO" LIBRARY. PLEASE CHECK THE SAME REQUIREMENTS
-HAVE BEEN ALREADY MET DURING THAT INSTALLATION BY READING THE `README.md` FILE IN THE "NEUTRINO"
-REPOSITORY: https://github.com/NeutrinoCodes/Neutrino.**
-
 # Overview
-The Examples can be successfully installed and used on Linux, Mac or Windows. The recommended installation suggests the use of the **VScode** editor, because this exists in all three operating systems and it works in combination of their corresponding native C/C++ environments. This provides a universal toolchain that gives advantages when working from different types of machines. The installation of Neutrino, along this toolchain, is only sligthly different according to the underlying operating system. Please follow the instructions for the installation of Neutrino (as well as the VScode based toolchain thereby described) before continuing with the installation of the Examples.
+**PLEASE NOTICE THIS INSTALLATION PROCEDURE IS BASED ON THE INSTALLATION OF THE NEUTRINO LIBRARY PRIOR TO IT, HENCE IT SHARES THE SAME HARDWARE AND SOFTWARE REQUIREMENTS. PLEASE CHECK THAT INSTALLATION BY READING THE `README.md` FILE IN THE "NEUTRINO" REPOSITORY: https://github.com/NeutrinoCodes/Neutrino.**
+
+The Neutrino examples can be successfully installed and used on Linux, Mac or Windows. The recommended installation suggests the use of the **VScode** editor (as well as for the installation of the Neutrino library), because this exists in all three operating systems and it works in combination of their corresponding native C/C++ environments. This provides a universal toolchain that gives advantages when working from different types of machines. The installation of the Neutrino examples, along this toolchain, is only sligthly different according to the underlying operating system. Please follow the instructions for the installation of Neutrino (as well as the VScode based toolchain thereby described) before continuing with the installation of the Neutrino examples.
 
 # Linux
 
@@ -131,7 +128,7 @@ The recommended method is by using the VScode toolchain described in the Neutrin
 \
 This will create the `examples` directory.
 
-2. Go to the `neutrino` directory and create a `.vscode` hidden directory:\
+2. Go to the `examples` directory and create a `.vscode` hidden directory:\
 `mkdir .vscode`\
 \
 and create a new file `settings.json` in it, then fill it with the following information:\
@@ -173,7 +170,7 @@ Congratulations, you have installed the Neutrino examples on Windows!
 # Post installation (recommended)
 
 ## Uncrustify:
-We all like tidy code! For this, we provide an **Uncrustify** (sources: https://github.com/uncrustify/uncrustify) configuration file specific for Neutrino. In order to use it, please first install Uncrustify according to your operating system (e.g. use the Linux's package manager, or Homebrew under Mac or use these binaries: https://sourceforge.net/projects/uncrustify/ under Windows), then install the VScode's *Uncrustify extension* (https://marketplace.visualstudio.com/items?itemName=LaurentTreguier.uncrustify).
+We all like tidy code! For this, we provide an **Uncrustify** (sources: https://github.com/uncrustify/uncrustify) configuration file specific for the Neutrino examples. In order to use it, please first install Uncrustify according to your operating system (e.g. use the Linux's package manager, or Homebrew under Mac or use these binaries: https://sourceforge.net/projects/uncrustify/ under Windows), then install the VScode's *Uncrustify extension* (https://marketplace.visualstudio.com/items?itemName=LaurentTreguier.uncrustify). At this point, you should already have done the installation of Uncrustify during the post-installation of the Neutrino library. 
 
 According to your operating system, add the following lines to either the *global* or *project* **settings.json** file:
 
@@ -194,6 +191,6 @@ According to your operating system, add the following lines to either the *globa
 
 To edit the *global* settings, on VScode go to the left bar: push the **Extensions** button and select the Uncrustify extension. Then go to **Manage --> Extension Settings** (gear-like icon) and edit the `settings.json` file by clicking one of the links in that section. This will set the Uncrustify code formatter globally in all your VScode projects (but still with per-project custom uncrustify configuration files).
 
-To edit the *project* settings, open `settings.json` file in the `.vscode` you created for Neutrino (the hidden directory inside the `NeutrinoCodes` directory, see *Installation*) and put the same lines in it. This will set Uncrustify as code formatter (together with the configuration file we provide) only for the Neutrino project.
+To edit the *project* settings, open `settings.json` file in the `.vscode` you created for the Neutrino examples (the hidden directory inside the `examples` directory, see *Installation* on the Neutrino library instructions) and put the same lines in it. This will set Uncrustify as code formatter (together with the configuration file we provide) only for the Neutrino project.
 
 © Alessandro LUCANTONIO, Erik ZORZIN - 2018-2020
