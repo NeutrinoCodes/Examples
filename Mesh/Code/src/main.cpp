@@ -19,9 +19,9 @@
 #endif
 
 #ifdef WIN32
-  #define SHADER_HOME "..\\..\\Mesh\\Code\\shader"                                                      // Windows OpenGL shaders directory.
-  #define KERNEL_HOME "..\\..\\Mesh\\Code\\kernel"                                                      // Windows OpenCL kernels directory.
-  #define GMHS_HOME   "..\\..\\Mesh\\Code\\mesh\\"                                                      // Windows GMSH mesh directory.
+  #define SHADER_HOME "..\\..\\Mesh\\Code\\shader"                                                  // Windows OpenGL shaders directory.
+  #define KERNEL_HOME "..\\..\\Mesh\\Code\\kernel"                                                  // Windows OpenCL kernels directory.
+  #define GMHS_HOME   "..\\..\\Mesh\\Code\\mesh\\"                                                  // Windows GMSH mesh directory.
 #endif
 
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.
@@ -31,7 +31,7 @@
 
 // OPENCL:
 #define QUEUE_NUM     1                                                                             // # of OpenCL queues [#].
-#define KERNEL_NUM    2                                                                             // # of OpenCL kernel [#].
+#define KERNEL_NUM    1                                                                             // # of OpenCL kernel [#].
 
 // INCLUDES:
 #include "nu.hpp"                                                                                   // Neutrino's header file.
@@ -76,6 +76,9 @@ int main ()
   shader*                  S                  = new shader ();                                      // OpenGL shader program.
   queue*                   Q                  = new queue ();                                       // OpenCL queue.
   kernel*                  K1                 = new kernel ();                                      // OpenCL kernel array.
+  size_t                   kernel_sx;                                                               // Kernel dimension "x" [#].
+  size_t                   kernel_sy;                                                               // Kernel dimension "y" [#].
+  size_t                   kernel_sz;                                                               // Kernel dimension "z" [#].
 
   // MESH:
   mesh*                    cloth              = new mesh ();                                        // Mesh context.                                                                                // Total # of nodes [#].
@@ -90,6 +93,9 @@ int main ()
   cloth->init (bas, std::string (GMHS_HOME) + std::string (GMHS_MESH));                             // Initializing cloth mesh...
   position->init (cloth->nodes);                                                                    // Initializing position data...
   color->init (cloth->nodes);                                                                       // Initializing depth data...
+
+  position->name = "voxel_center";                                                                  // Setting variable name for OpenGL shader...
+  color->name    = "voxel_color";                                                                   // Setting variable name for OpenGL shader...
   cloth->read_msh (position);                                                                       // Reading cloth mesh from file...
 
   for(gid = 0; gid < cloth->nodes; gid++)
@@ -125,11 +131,11 @@ int main ()
   S->init (bas, SHADER_HOME, SHADER_VERT, SHADER_GEOM, SHADER_FRAG);                                // Initializing OpenGL shader...
   Q->init (bas);                                                                                    // Initializing OpenCL queue...
 
-  size_t kernel_sx = cloth->nodes;                                                                  // Kernel dimension "x" [#].
-  size_t kernel_sy = 0;                                                                             // Kernel dimension "y" [#].
-  size_t kernel_sz = 0;                                                                             // Kernel dimension "z" [#].
+  kernel_sx   = cloth->nodes;                                                                       // Kernel dimension "x" [#].
+  kernel_sy   = 0;                                                                                  // Kernel dimension "y" [#].
+  kernel_sz   = 0;                                                                                  // Kernel dimension "z" [#].
 
-  kernel_home    = KERNEL_HOME;                                                                     // Setting kernel home directory...
+  kernel_home = KERNEL_HOME;                                                                        // Setting kernel home directory...
   kernel_file.push_back ("mesh_kernel.cl");                                                         // Setting 1st source file...
   K1->init (bas, kernel_home, kernel_file, kernel_sx, kernel_sy, kernel_sz);                        // Initializing OpenCL kernel K1...
 
@@ -138,9 +144,6 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   K1->setarg (position, 0);                                                                         // Setting position kernel argument...
   K1->setarg (color, 1);                                                                            // Setting depth kernel argument...
-
-  position->name = "voxel_center";                                                                  // Setting variable name for OpenGL shader...
-  color->name    = "voxel_color";                                                                   // Setting variable name for OpenGL shader...
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////// WRITING DATA ON OPENCL QUEUE //////////////////////////////////
@@ -201,6 +204,7 @@ int main ()
   delete gui;                                                                                       // Deleting OpenGL gui...
   delete ctx;                                                                                       // Deleting OpenCL context...
 
+  delete cloth;                                                                                     // Deleting cloth data...
   delete position;                                                                                  // Deleting position data...
   delete color;                                                                                     // Deleting depth data...
 
