@@ -13,6 +13,8 @@
 # Overview
 **PLEASE NOTICE THIS INSTALLATION PROCEDURE IS BASED ON THE INSTALLATION OF THE NEUTRINO LIBRARY PRIOR TO IT, HENCE IT SHARES THE SAME HARDWARE AND SOFTWARE REQUIREMENTS. PLEASE CHECK THAT INSTALLATION BY READING THE `README.md` FILE IN THE "NEUTRINO" REPOSITORY: https://github.com/NeutrinoCodes/Neutrino.**
 
+Neutrino is a C++ library that facilitates writing parallel code running on GPU hardware combining the power of the OpenCL computational framework with the OpenGL graphics language (see http://www.neutrino.codes).
+
 The Neutrino examples can be successfully installed and used on Linux, Mac or Windows. The recommended installation suggests the use of the **VScode** editor (as well as for the installation of the Neutrino library), because this exists in all three operating systems and it works in combination of their corresponding native C/C++ environments. This provides a universal toolchain that gives advantages when working from different types of machines. The installation of the Neutrino examples, along this toolchain, is only sligthly different according to the underlying operating system. Please follow the instructions for the installation of Neutrino (as well as the VScode based toolchain thereby described) before continuing with the installation of the Neutrino examples.
 
 # Linux
