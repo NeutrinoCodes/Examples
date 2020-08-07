@@ -103,6 +103,7 @@ int main ()
   //complex_stride->init (object->complexes[0]);
 
   std::cout << "nodes = " << object->node[0].size () << std::endl;
+  std::cout << "simplexes = " << object->simplex[0][0].size () << std::endl;
   //std::cout << "strides = " << object->strides[0] << std::endl;
   //std::cout << "simplexes = " << object->simplexes[0] << std::endl;
 
@@ -117,11 +118,6 @@ int main ()
     node->data[gid].y  = object->node[0][gid].y;
     node->data[gid].z  = object->node[0][gid].z;
     node->data[gid].w  = 1.0;
-
-    std::cout << "node.x = " << node->data[gid].x << " "
-              << "node.y = " << node->data[gid].y << " "
-              << "node.z = " << node->data[gid].z << " "
-              << "node.w = " << node->data[gid].w << std::endl;
 
     color->data[gid].x = 0.01f*(rand () % 100);                                                     // Settin "r" color coordinate...
     color->data[gid].y = 0.01f*(rand () % 100);                                                     // Settin "g" color coordinate...
