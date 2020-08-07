@@ -95,16 +95,16 @@ int main ()
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   object->init (bas, std::string (GMHS_HOME) + std::string (GMHS_MESH));                            // Initializing cloth mesh...
-  node->init (object->nodes);                                                                       // Initializing position data...
-  color->init (object->nodes);                                                                      // Initializing depth data...
-  simplex->init (object->simplexes);
-  simplex_stride->init (object->strides);
-  complex->init (object->complexes);
-  complex_stride->init (object->complexes);
+  //node->init (object->nodes[0]);                                                                    // Initializing position data...
+  //color->init (object->nodes[0]);                                                                   // Initializing depth data...
+  //simplex->init (object->simplexes[0]);
+  //simplex_stride->init (object->strides[0]);
+  //complex->init (object->complexes[0]);
+  //complex_stride->init (object->complexes[0]);
 
-  std::cout << "nodes = " << object->nodes << std::endl;
-  std::cout << "strides = " << object->strides << std::endl;
-  std::cout << "simplexes = " << object->simplexes << std::endl;
+  std::cout << "nodes = " << object->nodes[0] << std::endl;
+  //std::cout << "strides = " << object->strides[0] << std::endl;
+  std::cout << "simplexes = " << object->simplexes[0] << std::endl;
 
 
   node->name  = "voxel_center";                                                                     // Setting variable name for OpenGL shader...
@@ -119,7 +119,7 @@ int main ()
                     complex_stride
                    );
 
-  for(gid = 0; gid < object->nodes; gid++)
+  for(gid = 0; gid < object->nodes[0]; gid++)
   {
     std::cout << "p.x = " << node->data[gid].x << " "
               << "p.y = " << node->data[gid].y << " "
@@ -152,7 +152,7 @@ int main ()
   S->init (bas, SHADER_HOME, SHADER_VERT, SHADER_GEOM, SHADER_FRAG);                                // Initializing OpenGL shader...
   Q->init (bas);                                                                                    // Initializing OpenCL queue...
 
-  kernel_sx   = object->nodes;                                                                      // Kernel dimension "x" [#].
+  kernel_sx   = object->nodes[0];                                                                   // Kernel dimension "x" [#].
   kernel_sy   = 0;                                                                                  // Kernel dimension "y" [#].
   kernel_sz   = 0;                                                                                  // Kernel dimension "z" [#].
 
