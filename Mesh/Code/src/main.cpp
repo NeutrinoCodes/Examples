@@ -95,36 +95,33 @@ int main ()
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   object->init (bas, std::string (GMHS_HOME) + std::string (GMHS_MESH));                            // Initializing cloth mesh...
-  //node->init (object->nodes[0]);                                                                    // Initializing position data...
-  //color->init (object->nodes[0]);                                                                   // Initializing depth data...
+  node->init (object->node[0].size ());                                                             // Initializing position data...
+  color->init (object->node[0].size ());                                                            // Initializing depth data...
   //simplex->init (object->simplexes[0]);
   //simplex_stride->init (object->strides[0]);
   //complex->init (object->complexes[0]);
   //complex_stride->init (object->complexes[0]);
 
-  std::cout << "nodes = " << object->nodes[0] << std::endl;
+  std::cout << "nodes = " << object->node[0].size () << std::endl;
   //std::cout << "strides = " << object->strides[0] << std::endl;
-  std::cout << "simplexes = " << object->simplexes[0] << std::endl;
+  //std::cout << "simplexes = " << object->simplexes[0] << std::endl;
 
 
   node->name  = "voxel_center";                                                                     // Setting variable name for OpenGL shader...
   color->name = "voxel_color";                                                                      // Setting variable name for OpenGL shader...
 
-  // Reading object mesh from file:
-  object->read_msh (
-                    node,
-                    simplex,
-                    simplex_stride,
-                    complex,
-                    complex_stride
-                   );
 
-  for(gid = 0; gid < object->nodes[0]; gid++)
+  for(gid = 0; gid < object->node[0].size (); gid++)
   {
-    std::cout << "p.x = " << node->data[gid].x << " "
-              << "p.y = " << node->data[gid].y << " "
-              << "p.z = " << node->data[gid].z << " "
-              << "p.w = " << node->data[gid].w << std::endl;
+    node->data[gid].x  = object->node[0][gid].x;
+    node->data[gid].y  = object->node[0][gid].y;
+    node->data[gid].z  = object->node[0][gid].z;
+    node->data[gid].w  = 1.0;
+
+    std::cout << "node.x = " << node->data[gid].x << " "
+              << "node.y = " << node->data[gid].y << " "
+              << "node.z = " << node->data[gid].z << " "
+              << "node.w = " << node->data[gid].w << std::endl;
 
     color->data[gid].x = 0.01f*(rand () % 100);                                                     // Settin "r" color coordinate...
     color->data[gid].y = 0.01f*(rand () % 100);                                                     // Settin "g" color coordinate...
@@ -152,7 +149,7 @@ int main ()
   S->init (bas, SHADER_HOME, SHADER_VERT, SHADER_GEOM, SHADER_FRAG);                                // Initializing OpenGL shader...
   Q->init (bas);                                                                                    // Initializing OpenCL queue...
 
-  kernel_sx   = object->nodes[0];                                                                   // Kernel dimension "x" [#].
+  kernel_sx   = object->node[0].size ();                                                            // Kernel dimension "x" [#].
   kernel_sy   = 0;                                                                                  // Kernel dimension "y" [#].
   kernel_sz   = 0;                                                                                  // Kernel dimension "z" [#].
 
