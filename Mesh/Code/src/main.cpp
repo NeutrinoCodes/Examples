@@ -97,32 +97,37 @@ int main ()
   object->init (bas, std::string (GMHS_HOME) + std::string (GMHS_MESH));                            // Initializing cloth mesh...
   node->init (object->node[0].size ());                                                             // Initializing position data...
   color->init (object->node[0].size ());                                                            // Initializing depth data...
-  //simplex->init (object->simplexes[0]);
-  //simplex_stride->init (object->strides[0]);
-  //complex->init (object->complexes[0]);
-  //complex_stride->init (object->complexes[0]);
+  simplex->init (object->simplex[0][0].size ());
 
   std::cout << "nodes = " << object->node[0].size () << std::endl;
   std::cout << "simplexes = " << object->simplex[0][0].size () << std::endl;
-  //std::cout << "strides = " << object->strides[0] << std::endl;
-  //std::cout << "simplexes = " << object->simplexes[0] << std::endl;
-
 
   node->name  = "voxel_center";                                                                     // Setting variable name for OpenGL shader...
   color->name = "voxel_color";                                                                      // Setting variable name for OpenGL shader...
 
+  for(gid = 0; gid < object->simplex[0][0].size (); gid++)
+  {
+    std::cout << "simplex = ";
+
+    for(int i = 0; i < object->simplex[0][0][gid].vertex.size (); i++)
+    {
+      std::cout << object->simplex[0][0][gid].vertex[i] << " ";
+    }
+
+    std::cout << std::endl;
+  }
 
   for(gid = 0; gid < object->node[0].size (); gid++)
   {
     node->data[gid].x  = object->node[0][gid].x;
     node->data[gid].y  = object->node[0][gid].y;
     node->data[gid].z  = object->node[0][gid].z;
-    node->data[gid].w  = 1.0;
+    node->data[gid].w  = object->node[0][gid].w;
 
-    color->data[gid].x = 0.01f*(rand () % 100);                                                     // Settin "r" color coordinate...
-    color->data[gid].y = 0.01f*(rand () % 100);                                                     // Settin "g" color coordinate...
-    color->data[gid].z = 0.01f*(rand () % 100);                                                     // Settin "b" color coordinate...
-    color->data[gid].w = 1.0;                                                                       // Settin "a" color coordinate...
+    color->data[gid].x = 0.01f*(rand () % 100);                                                     // Setting "r" color coordinate...
+    color->data[gid].y = 0.01f*(rand () % 100);                                                     // Setting "g" color coordinate...
+    color->data[gid].z = 0.01f*(rand () % 100);                                                     // Setting "b" color coordinate...
+    color->data[gid].w = 1.0f;                                                                      // Setting "a" color coordinate...
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
