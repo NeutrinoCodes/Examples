@@ -99,19 +99,33 @@ int main ()
   color->init (object->node[0].size ());                                                            // Initializing depth data...
   simplex->init (object->simplex[0][0].size ());
 
-  std::cout << "nodes = " << object->node[0].size () << std::endl;
-  std::cout << "simplexes = " << object->simplex[0][0].size () << std::endl;
+  std::cout << "Number of nodes = " << object->node[0].size () << std::endl;
+  std::cout << "Number of simplexes = " << object->simplex[0][0].size () << std::endl;
 
   node->name  = "voxel_center";                                                                     // Setting variable name for OpenGL shader...
   color->name = "voxel_color";                                                                      // Setting variable name for OpenGL shader...
 
   for(gid = 0; gid < object->simplex[0][0].size (); gid++)
   {
-    std::cout << "simplex = ";
+    std::cout << "Simplex " << gid << ": vertexes = ";
 
     for(int i = 0; i < object->simplex[0][0][gid].vertex.size (); i++)
     {
       std::cout << object->simplex[0][0][gid].vertex[i] << " ";
+    }
+
+    std::cout << std::endl;
+  }
+
+  std::cout << std::endl;
+
+  for(gid = 0; gid < object->node[0].size (); gid++)
+  {
+    std::cout << "Complex " << gid << ": simplexes = ";
+
+    for(int i = 0; i < object->complex[0][gid].size (); i++)
+    {
+      std::cout << object->complex[0][gid][i] << " ";
     }
 
     std::cout << std::endl;
