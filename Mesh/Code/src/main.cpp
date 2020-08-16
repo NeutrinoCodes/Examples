@@ -95,6 +95,9 @@ int main ()
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   object->init (bas, std::string (GMHS_HOME) + std::string (GMHS_MESH));                            // Initializing cloth mesh...
+  std::cout << "pippo" << std::endl;
+  std::cout << "nodes = " << object->node[0].size () << std::endl;
+  std::cout << "pippo" << std::endl;
   node->init (object->node[0].size ());                                                             // Initializing position data...
   color->init (object->node[0].size ());                                                            // Initializing depth data...
   simplex->init (object->simplex[0][0].size ());
