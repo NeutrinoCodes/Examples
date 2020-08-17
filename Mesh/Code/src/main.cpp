@@ -81,36 +81,77 @@ int main ()
   size_t                   kernel_sz;                                                               // Kernel dimension "z" [#].
 
   // MESH:
-  mesh*                    object             = new mesh ();                                        // Mesh object.                                                                                // Total # of nodes [#].
+  mesh*                    object             = new mesh ();                                        // Mesh object.
+  size_t                   nodes;                                                                   // Number of nodes.
+  size_t                   simplexes;                                                               // Number of simplexes.
+  size_t                   complexes;                                                               // Number of complexes.
+  size_t                   neighbours;                                                              // Number of neighbours.
 
   // NODE KINEMATICS:
   float4G*                 node               = new float4G ();                                     // Position [m].
   float4G*                 color              = new float4G ();                                     // Depth [m].
-  int1*                    simplex            = new int1 ();                                        // Simplex: node index list.
-  int1*                    simplex_stride     = new int1 ();                                        // Simplex: strides.
-  int1*                    complex            = new int1 ();                                        // Complex: simplex index list.
-  int1*                    complex_stride     = new int1 ();                                        // Complex: strides.
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
-  object->init (bas, std::string (GMSH_HOME) + std::string (GMSH_MESH));                            // Initializing cloth mesh...
-  std::cout << "Number of nodes = " << object->node[0].size () << std::endl;
-  std::cout << "Number of simplexes = " << object->simplex[0][0].size () << std::endl;
-  node->init (object->node[0].size ());                                                             // Initializing position data...
-  color->init (object->node[0].size ());                                                            // Initializing depth data...
-  simplex->init (object->simplex[0][0].size ());
+  object->init (bas, std::string (GMSH_HOME) + std::string (GMSH_MESH));                            // Initializing object mesh...
+  nodes       = object->node.size ();
+  simplexes   = object->simplex.size ();
+  complexes   = object->complex.size ();
+  neighbours  = object->neighbour.size ();
+
+  node->init (nodes);                                                                               // Initializing position data...
+  color->init (nodes);                                                                              // Initializing depth data...
 
   node->name  = "voxel_center";                                                                     // Setting variable name for OpenGL shader...
   color->name = "voxel_color";                                                                      // Setting variable name for OpenGL shader...
 
-  for(gid = 0; gid < object->simplex[0][0].size (); gid++)
-  {
-    std::cout << "Simplex " << gid << ": vertexes = ";
+  std::cout << std::endl;
+  std::cout << "#################################" << std::endl;
+  std::cout << "######## NODE NEIGHBOURS ########" << std::endl;
+  std::cout << "#################################" << std::endl;
 
-    for(int i = 0; i < object->simplex[0][0][gid].vertex.size (); i++)
+  for(gid = 0; gid < neighbours; gid++)
+  {
+    std::cout << "Node " << gid << ": has neighbour nodes: ";
+
+    for(int i = 0; i < object->neighbour[gid].index.size (); i++)
     {
-      std::cout << object->simplex[0][0][gid].vertex[i] << " ";
+      std::cout << object->neighbour[gid].index[i] << " ";
+    }
+
+    std::cout << std::endl;
+  }
+
+  std::cout << std::endl;
+  std::cout << "#################################" << std::endl;
+  std::cout << "########### COMPLEXES ###########" << std::endl;
+  std::cout << "#################################" << std::endl;
+
+  for(gid = 0; gid < complexes; gid++)
+  {
+    std::cout << "Node " << gid << ": is in a complex of simplexes: ";
+
+    for(int i = 0; i < object->complex[gid].simplex.size (); i++)
+    {
+      std::cout << object->complex[gid].simplex[i] << " ";
+    }
+
+    std::cout << std::endl;
+  }
+
+  std::cout << std::endl;
+  std::cout << "#################################" << std::endl;
+  std::cout << "########### SIMPLEXES ###########" << std::endl;
+  std::cout << "#################################" << std::endl;
+
+  for(gid = 0; gid < simplexes; gid++)
+  {
+    std::cout << "Simplex " << gid << ": has vertex nodes = ";
+
+    for(int i = 0; i < object->simplex[gid].vertex.size (); i++)
+    {
+      std::cout << object->simplex[gid].vertex[i] << " ";
     }
 
     std::cout << std::endl;
@@ -118,36 +159,12 @@ int main ()
 
   std::cout << std::endl;
 
-  for(gid = 0; gid < object->node[0].size (); gid++)
+  for(gid = 0; gid < nodes; gid++)
   {
-    std::cout << "Complex " << gid << ": simplexes = ";
-
-    for(int i = 0; i < object->complex[0][gid].size (); i++)
-    {
-      std::cout << object->complex[0][gid][i] << " ";
-    }
-
-    std::cout << std::endl;
-  }
-
-  for(gid = 0; gid < object->node[0].size (); gid++)
-  {
-    std::cout << "Neighbours " << gid << ": nodes = ";
-
-    for(int i = 0; i < object->neighbour[0][gid].size (); i++)
-    {
-      std::cout << object->neighbour[0][gid][i] << " ";
-    }
-
-    std::cout << std::endl;
-  }
-
-  for(gid = 0; gid < object->node[0].size (); gid++)
-  {
-    node->data[gid].x  = object->node[0][gid].x;
-    node->data[gid].y  = object->node[0][gid].y;
-    node->data[gid].z  = object->node[0][gid].z;
-    node->data[gid].w  = object->node[0][gid].w;
+    node->data[gid].x  = object->node[gid].x;
+    node->data[gid].y  = object->node[gid].y;
+    node->data[gid].z  = object->node[gid].z;
+    node->data[gid].w  = object->node[gid].w;
 
     color->data[gid].x = 0.01f*(rand () % 100);                                                     // Setting "r" color coordinate...
     color->data[gid].y = 0.01f*(rand () % 100);                                                     // Setting "g" color coordinate...
@@ -175,7 +192,7 @@ int main ()
   S->init (bas, SHADER_HOME, SHADER_VERT, SHADER_GEOM, SHADER_FRAG);                                // Initializing OpenGL shader...
   Q->init (bas);                                                                                    // Initializing OpenCL queue...
 
-  kernel_sx   = object->node[0].size ();                                                            // Kernel dimension "x" [#].
+  kernel_sx   = nodes;                                                                              // Kernel dimension "x" [#].
   kernel_sy   = 0;                                                                                  // Kernel dimension "y" [#].
   kernel_sz   = 0;                                                                                  // Kernel dimension "z" [#].
 
