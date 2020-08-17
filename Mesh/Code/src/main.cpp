@@ -15,7 +15,7 @@
 #ifdef __APPLE__
   #define SHADER_HOME "../Mesh/Code/shader"                                                         // Mac OpenGL shaders directory.
   #define KERNEL_HOME "../Mesh/Code/kernel"                                                         // Mac OpenCL kernels directory.
-  #define GMHS_HOME   "../Mesh/Code/mesh/"                                                          // Mac GMSH mesh directory.
+  #define GMSH_HOME   "../Mesh/Code/mesh/"                                                          // Mac GMSH mesh directory.
 #endif
 
 #ifdef WIN32
@@ -27,7 +27,7 @@
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.
 #define SHADER_GEOM   "voxel_geometry.geom"                                                         // OpenGL geometry shader.
 #define SHADER_FRAG   "voxel_fragment.frag"                                                         // OpenGL fragment shader.
-#define GMHS_MESH     "Utah_teapot.msh"                                                             // GMSH mesh.
+#define GMSH_MESH     "Cube.msh"                                                                    // GMSH mesh.
 
 // OPENCL:
 #define QUEUE_NUM     1                                                                             // # of OpenCL queues [#].
@@ -94,16 +94,12 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
-  object->init (bas, std::string (GMHS_HOME) + std::string (GMHS_MESH));                            // Initializing cloth mesh...
-  std::cout << "pippo" << std::endl;
-  std::cout << "nodes = " << object->node[0].size () << std::endl;
-  std::cout << "pippo" << std::endl;
+  object->init (bas, std::string (GMSH_HOME) + std::string (GMSH_MESH));                            // Initializing cloth mesh...
+  std::cout << "Number of nodes = " << object->node[0].size () << std::endl;
+  std::cout << "Number of simplexes = " << object->simplex[0][0].size () << std::endl;
   node->init (object->node[0].size ());                                                             // Initializing position data...
   color->init (object->node[0].size ());                                                            // Initializing depth data...
   simplex->init (object->simplex[0][0].size ());
-
-  std::cout << "Number of nodes = " << object->node[0].size () << std::endl;
-  std::cout << "Number of simplexes = " << object->simplex[0][0].size () << std::endl;
 
   node->name  = "voxel_center";                                                                     // Setting variable name for OpenGL shader...
   color->name = "voxel_color";                                                                      // Setting variable name for OpenGL shader...
@@ -129,6 +125,18 @@ int main ()
     for(int i = 0; i < object->complex[0][gid].size (); i++)
     {
       std::cout << object->complex[0][gid][i] << " ";
+    }
+
+    std::cout << std::endl;
+  }
+
+  for(gid = 0; gid < object->node[0].size (); gid++)
+  {
+    std::cout << "Neighbours " << gid << ": nodes = ";
+
+    for(int i = 0; i < object->neighbour[0][gid].size (); i++)
+    {
+      std::cout << object->neighbour[0][gid][i] << " ";
     }
 
     std::cout << std::endl;
