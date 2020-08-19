@@ -27,7 +27,7 @@
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.
 #define SHADER_GEOM   "voxel_geometry.geom"                                                         // OpenGL geometry shader.
 #define SHADER_FRAG   "voxel_fragment.frag"                                                         // OpenGL fragment shader.
-#define GMSH_MESH     "Cube.msh"                                                                    // GMSH mesh.
+#define GMSH_MESH     "Utah_teapot.msh"                                                             // GMSH mesh.
 
 // OPENCL:
 #define QUEUE_NUM     1                                                                             // # of OpenCL queues [#].
@@ -96,8 +96,8 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   object->init (bas, std::string (GMSH_HOME) + std::string (GMSH_MESH));                            // Initializing object mesh...
   nodes       = object->node.size ();
-  simplexes   = object->simplex.size ();
-  complexes   = object->complex.size ();
+  simplexes   = object->element.size ();
+  complexes   = object->group.size ();
   neighbours  = object->neighbour.size ();
 
   node->init (nodes);                                                                               // Initializing position data...
@@ -132,9 +132,9 @@ int main ()
   {
     std::cout << "Node " << gid << ": is in a complex of simplexes: ";
 
-    for(int i = 0; i < object->complex[gid].simplex.size (); i++)
+    for(int i = 0; i < object->group[gid].element.size (); i++)
     {
-      std::cout << object->complex[gid].simplex[i] << " ";
+      std::cout << object->group[gid].element[i] << " ";
     }
 
     std::cout << std::endl;
@@ -149,9 +149,9 @@ int main ()
   {
     std::cout << "Simplex " << gid << ": has vertex nodes = ";
 
-    for(int i = 0; i < object->simplex[gid].vertex.size (); i++)
+    for(int i = 0; i < object->element[gid].node.size (); i++)
     {
-      std::cout << object->simplex[gid].vertex[i] << " ";
+      std::cout << object->element[gid].node[i] << " ";
     }
 
     std::cout << std::endl;
