@@ -83,9 +83,9 @@ int main ()
   // MESH:
   mesh*                    object             = new mesh ();                                        // Mesh object.
   size_t                   nodes;                                                                   // Number of nodes.
-  size_t                   simplexes;                                                               // Number of simplexes.
-  size_t                   complexes;                                                               // Number of complexes.
+  size_t                   elements;                                                                // Number of elements.
   size_t                   neighbours;                                                              // Number of neighbours.
+  std::vector<size_t>      neighbour_unit;                                                          // Neighbours.
 
   // NODE KINEMATICS:
   float4G*                 node               = new float4G ();                                     // Position [m].
@@ -96,9 +96,7 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   object->init (bas, std::string (GMSH_HOME) + std::string (GMSH_MESH));                            // Initializing object mesh...
   nodes       = object->node.size ();
-  simplexes   = object->element.size ();
-  complexes   = object->group.size ();
-  neighbours  = object->neighbour.size ();
+  elements    = object->element.size ();
 
   node->init (nodes);                                                                               // Initializing position data...
   color->init (nodes);                                                                              // Initializing depth data...
@@ -111,13 +109,15 @@ int main ()
   std::cout << "######## NODE NEIGHBOURS ########" << std::endl;
   std::cout << "#################################" << std::endl;
 
-  for(gid = 0; gid < neighbours; gid++)
+  for(gid = 0; gid < nodes; gid++)
   {
+    neighbour_unit = object->neighbours (gid);
+    neighbours     = neighbour_unit.size ();
     std::cout << "Node " << gid << ": has neighbour nodes: ";
 
-    for(int i = 0; i < object->neighbour[gid].index.size (); i++)
+    for(int i = 0; i < neighbours; i++)
     {
-      std::cout << object->neighbour[gid].index[i] << " ";
+      std::cout << neighbour_unit[i] << " ";
     }
 
     std::cout << std::endl;
@@ -125,10 +125,10 @@ int main ()
 
   std::cout << std::endl;
   std::cout << "#################################" << std::endl;
-  std::cout << "########### COMPLEXES ###########" << std::endl;
+  std::cout << "############# GROUPS ############" << std::endl;
   std::cout << "#################################" << std::endl;
 
-  for(gid = 0; gid < complexes; gid++)
+  for(gid = 0; gid < nodes; gid++)
   {
     std::cout << "Node " << gid << ": is in a complex of simplexes: ";
 
@@ -142,10 +142,10 @@ int main ()
 
   std::cout << std::endl;
   std::cout << "#################################" << std::endl;
-  std::cout << "########### SIMPLEXES ###########" << std::endl;
+  std::cout << "############ ELEMENTS ###########" << std::endl;
   std::cout << "#################################" << std::endl;
 
-  for(gid = 0; gid < simplexes; gid++)
+  for(gid = 0; gid < elements; gid++)
   {
     std::cout << "Simplex " << gid << ": has vertex nodes = ";
 
