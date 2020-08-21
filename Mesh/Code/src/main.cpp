@@ -27,7 +27,7 @@
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.
 #define SHADER_GEOM   "voxel_geometry.geom"                                                         // OpenGL geometry shader.
 #define SHADER_FRAG   "voxel_fragment.frag"                                                         // OpenGL fragment shader.
-#define GMSH_MESH     "Utah_teapot.msh"                                                             // GMSH mesh.
+#define GMSH_MESH     "Square.msh"                                                                  // GMSH mesh.
 
 // OPENCL:
 #define QUEUE_NUM     1                                                                             // # of OpenCL queues [#].
@@ -106,6 +106,19 @@ int main ()
 
   std::cout << std::endl;
   std::cout << "#################################" << std::endl;
+  std::cout << "############## NODES ############" << std::endl;
+  std::cout << "#################################" << std::endl;
+
+  for(gid = 0; gid < nodes; gid++)
+  {
+    std::cout << "Node " << gid << ": has coordinates: ";
+    std::cout << "x = " << object->node[gid].x << " ";
+    std::cout << "y = " << object->node[gid].y << " ";
+    std::cout << "z = " << object->node[gid].z << std::endl;
+  }
+
+  std::cout << std::endl;
+  std::cout << "#################################" << std::endl;
   std::cout << "######## NODE NEIGHBOURS ########" << std::endl;
   std::cout << "#################################" << std::endl;
 
@@ -130,7 +143,7 @@ int main ()
 
   for(gid = 0; gid < nodes; gid++)
   {
-    std::cout << "Node " << gid << ": is in a complex of simplexes: ";
+    std::cout << "Node " << gid << ": is in a group of elements: ";
 
     for(int i = 0; i < object->group[gid].element.size (); i++)
     {
@@ -147,7 +160,7 @@ int main ()
 
   for(gid = 0; gid < elements; gid++)
   {
-    std::cout << "Simplex " << gid << ": has vertex nodes = ";
+    std::cout << "Element " << gid << ": has nodes = ";
 
     for(int i = 0; i < object->element[gid].node.size (); i++)
     {
