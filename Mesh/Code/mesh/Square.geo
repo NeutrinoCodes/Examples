@@ -14,9 +14,7 @@ Curve Loop(1) = {1, 2, 3, 4};
 
 Plane Surface(1) = {1};
 
-Physical Point(1) = {1};
-Physical Curve(1) = {2};
-Physical Curve(2) = {4};
+Physical Curve(1) = {1, 2, 3, 4};
 
 Mesh 2;
 
