@@ -166,7 +166,7 @@ int main ()
   for(i = 0; i < nodes; i++)
   {
     neighbour_cell = object->neighbours (gid);
-    neighbours     = neighbour_unit.size ();
+    neighbours     = neighbour_cell.size ();
 
 
 
