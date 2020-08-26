@@ -9,7 +9,7 @@
 #ifdef __linux__
   #define SHADER_HOME "../Mesh/Code/shader"                                                         // Linux OpenGL shaders directory.
   #define KERNEL_HOME "../Mesh/Code/kernel"                                                         // Linux OpenCL kernels directory.
-  #define GMHS_HOME   "../Mesh/Code/mesh/"                                                          // Linux GMSH mesh directory.
+  #define GMSH_HOME   "../Mesh/Code/mesh/"                                                          // Linux GMSH mesh directory.
 #endif
 
 #ifdef __APPLE__
@@ -21,7 +21,7 @@
 #ifdef WIN32
   #define SHADER_HOME "..\\..\\Mesh\\Code\\shader"                                                  // Windows OpenGL shaders directory.
   #define KERNEL_HOME "..\\..\\Mesh\\Code\\kernel"                                                  // Windows OpenCL kernels directory.
-  #define GMHS_HOME   "..\\..\\Mesh\\Code\\mesh\\"                                                  // Windows GMSH mesh directory.
+  #define GMSH_HOME   "..\\..\\Mesh\\Code\\mesh\\"                                                  // Windows GMSH mesh directory.
 #endif
 
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.
@@ -85,11 +85,14 @@ int main ()
   size_t                   nodes;                                                                   // Number of nodes.
   size_t                   elements;                                                                // Number of elements.
   size_t                   neighbours;                                                              // Number of neighbours.
+  size_t                   border_nodes;                                                            // Number of border nodes.
   std::vector<size_t>      neighbour_unit;                                                          // Neighbours.
+  std::vector<size_t>      border;                                                                  // Border nodes.
 
   // NODE KINEMATICS:
   float4G*                 node               = new float4G ();                                     // Position [m].
   float4G*                 color              = new float4G ();                                     // Depth [m].
+  int1*                    stride             = new int1 ();                                        // Stride [#].
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
@@ -100,6 +103,7 @@ int main ()
 
   node->init (nodes);                                                                               // Initializing position data...
   color->init (nodes);                                                                              // Initializing depth data...
+  stride->init (2*nodes);                                                                           // Initializing stride data...
 
   node->name  = "voxel_center";                                                                     // Setting variable name for OpenGL shader...
   color->name = "voxel_color";                                                                      // Setting variable name for OpenGL shader...
@@ -135,6 +139,22 @@ int main ()
 
     std::cout << std::endl;
   }
+
+  std::cout << std::endl;
+  std::cout << "#################################" << std::endl;
+  std::cout << "######## PHYSICAL GROUPS ########" << std::endl;
+  std::cout << "#################################" << std::endl;
+
+  border       = object->physical (1, 1);
+  border_nodes = border.size ();
+  std::cout << "Physical group dim = 1, tag = 1 has nodes: ";
+
+  for(int i = 0; i < border_nodes; i++)
+  {
+    std::cout << border[i] << " ";
+  }
+
+  std::cout << std::endl;
 
   std::cout << std::endl;
   std::cout << "#################################" << std::endl;
@@ -185,6 +205,11 @@ int main ()
     color->data[gid].w = 1.0f;                                                                      // Setting "a" color coordinate...
   }
 
+  for(gid = 0; gid < 2*nodes; gid++)
+  {
+    stride->data[gid] = gid;
+  }
+
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////// NEUTRINO INITIALIZATION /////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -218,12 +243,14 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   K1->setarg (node, 0);                                                                             // Setting position kernel argument...
   K1->setarg (color, 1);                                                                            // Setting depth kernel argument...
+  K1->setarg (stride, 2);                                                                           // Setting stride kernel argument...
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////// WRITING DATA ON OPENCL QUEUE //////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   Q->write (node, 0);                                                                               // Writing position data on queue...
   Q->write (color, 1);                                                                              // Writing depth data on queue...
+  Q->write (stride, 2);                                                                             // Writing stride data on queue...
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////// SETTING OPENGL SHADER ARGUMENTS ////////////////////////////////
@@ -281,6 +308,7 @@ int main ()
   delete object;                                                                                    // Deleting object data...
   delete node;                                                                                      // Deleting position data...
   delete color;                                                                                     // Deleting depth data...
+  delete stride;                                                                                    // Deleting stride data..
 
   delete Q;                                                                                         // Deleting OpenCL queue...
   delete K1;                                                                                        // Deleting OpenCL kernel...
