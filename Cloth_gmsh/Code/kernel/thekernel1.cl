@@ -1,7 +1,7 @@
 /// @file
 
-__kernel void thekernel(__global float4*    position,                           // Position [m].
-                        __global float4*    depth,                              // Depth color [#]
+__kernel void thekernel(__global float4*    color,                              // Color [#]
+                        __global float4*    position,                           // Position [m].
                         __global float4*    position_int,                       // Position (intermediate) [m].
                         __global float4*    velocity,                           // Velocity [m/s].
                         __global float4*    velocity_int,                       // Velocity (intermediate) [m/s].
@@ -19,7 +19,6 @@ __kernel void thekernel(__global float4*    position,                           
                         __global float4*    freedom,                            // Freedom flag [#].
                         __global float*     dt_simulation)                      // Simulation time step [s].
 {
-
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////// GLOBAL INDEX /////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
