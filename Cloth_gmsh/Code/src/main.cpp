@@ -43,16 +43,7 @@ int main ()
   std::vector<std::string> kernel_1;                                                                // Kernel_1 source files.
   std::vector<std::string> kernel_2;                                                                // Kernel_2 source files.
 
-  // DATA:
-  float                    x_min              = -1.0;                                               // "x_min" spatial boundary [m].
-  float                    x_max              = +1.0;                                               // "x_max" spatial boundary [m].
-  float                    y_min              = -1.0;                                               // "y_min" spatial boundary [m].
-  float                    y_max              = +1.0;                                               // "y_max" spatial boundary [m].
-  size_t                   nodes_x;                                                                 // # of nodes in "X" direction [#].
-  size_t                   nodes_y;                                                                 // # of nodes in "Y" direction [#].
-  float                    dx                 = (x_max - x_min)/(nodes_x - 1);                      // x-axis mesh spatial size [m].
-  float                    dy                 = (y_max - y_min)/(nodes_y - 1);                      // y-axis mesh spatial size [m].
-  float                    dz                 = dx;                                                 // z-axis mesh spatial size [m].
+  // INDEXES:
   size_t                   i;                                                                       // Index [#].
   size_t                   j;                                                                       // Index [#].
   size_t                   k;                                                                       // Index [#].
@@ -77,18 +68,6 @@ int main ()
   float                    gamepad_decaytime  = 1.25;                                               // Low pass filter decay time [s].
   float                    gamepad_deadzone   = 0.1;                                                // Gamepad joystick deadzone [0...1].
 
-  // SIMULATION PARAMETERS:
-  float                    h                  = 0.01;                                               // Cloth's thickness [m].
-  float                    rho                = 1000.0;                                             // Cloth's mass density [kg/m^3].
-  float                    E                  = 100000.0;                                           // Cloth's Young modulus [kg/(m*s^2)].
-  float                    mu                 = 700.0;                                              // Cloth's viscosity [Pa*s].
-  float                    m                  = rho*h*dx*dy;                                        // Cloth's mass [kg].
-  float                    g                  = 9.81;                                               // External gravity field [m/s^2].
-  float                    K                  = E*h*dy/dx;                                          // Cloth's elastic constant [kg/s^2].
-  float                    C                  = mu*h*dx*dy;                                         // Cloth's damping [kg*s*m].
-  float                    dt_critical        = sqrt (m/K);                                         // Critical time step [s].
-  float                    dt_simulation      = 0.8* dt_critical;                                   // Simulation time step [s].
-
   // NEUTRINO:
   neutrino*                bas                = new neutrino ();                                    // Neutrino baseline.
   opengl*                  gui                = new opengl ();                                      // OpenGL context.
@@ -97,9 +76,9 @@ int main ()
   queue*                   Q                  = new queue ();                                       // OpenCL queue.
   kernel*                  K1                 = new kernel ();                                      // OpenCL kernel array.
   kernel*                  K2                 = new kernel ();                                      // OpenCL kernel array.
-  size_t                   kernel_sx          = nodes;                                              // Kernel dimension "x" [#].
-  size_t                   kernel_sy          = 0;                                                  // Kernel dimension "y" [#].
-  size_t                   kernel_sz          = 0;                                                  // Kernel dimension "z" [#].
+  size_t                   kernel_sx;                                                               // Kernel dimension "x" [#].
+  size_t                   kernel_sy;                                                               // Kernel dimension "y" [#].
+  size_t                   kernel_sz;                                                               // Kernel dimension "z" [#].
 
   // NODE COLOR:
   float4G*                 color              = new float4G ();                                     // Color [].
@@ -125,18 +104,37 @@ int main ()
   mesh*                    object             = new mesh ();                                        // Mesh object.
   size_t                   nodes;                                                                   // Number of nodes.
   size_t                   elements;                                                                // Number of elements.
-
   size_t                   neighbour_nodes;                                                         // Number of neighbour nodes.
   std::vector<size_t>      neighbour_cell;                                                          // Neighbour cell.
   std::vector<size_t>      neighbour_tuple;                                                         // Neighbour tuple.
-
   size_t                   border_nodes;                                                            // Number of border nodes.
-  std::vector<size_t>      border;                                                                  // Border nodes.
+  std::vector<size_t>      border;                                                                  // Nodes on border.
+  std::vector<size_t>      side_x;                                                                  // Nodes on "x" side.
+  std::vector<size_t>      side_y;                                                                  // Nodes on "y" side.
+  float                    x_min              = -1.0;                                               // "x_min" spatial boundary [m].
+  float                    x_max              = +1.0;                                               // "x_max" spatial boundary [m].
+  float                    y_min              = -1.0;                                               // "y_min" spatial boundary [m].
+  float                    y_max              = +1.0;                                               // "y_max" spatial boundary [m].
+  size_t                   nodes_x;                                                                 // Number of nodes in "x" direction [#].
+  size_t                   nodes_y;                                                                 // Number of nodes in "x" direction [#].
+  float                    dx                 = (x_max - x_min)/(nodes_x - 1);                      // x-axis mesh spatial size [m].
+  float                    dy                 = (y_max - y_min)/(nodes_y - 1);                      // y-axis mesh spatial size [m].
+  float                    dz                 = dx;                                                 // z-axis mesh spatial size [m].
   float4*                  freedom            = new float4 ();                                      // Freedom.
-  float4*                  neighbour          = new float4 ();                                      // Neighbour.
+  int1*                    neighbour          = new int1 ();                                        // Neighbour.
   int1*                    offset             = new int1 ();                                        // Offset.
 
-  // SIMULATION TIME:
+  // SIMULATION PARAMETERS:
+  float                    h                  = 0.01;                                               // Cloth's thickness [m].
+  float                    rho                = 1000.0;                                             // Cloth's mass density [kg/m^3].
+  float                    E                  = 100000.0;                                           // Cloth's Young modulus [kg/(m*s^2)].
+  float                    mu                 = 700.0;                                              // Cloth's viscosity [Pa*s].
+  float                    m                  = rho*h*dx*dy;                                        // Cloth's mass [kg].
+  float                    g                  = 9.81;                                               // External gravity field [m/s^2].
+  float                    K                  = E*h*dy/dx;                                          // Cloth's elastic constant [kg/s^2].
+  float                    C                  = mu*h*dx*dy;                                         // Cloth's damping [kg*s*m].
+  float                    dt_critical        = sqrt (m/K);                                         // Critical time step [s].
+  float                    dt_simulation      = 0.8* dt_critical;                                   // Simulation time step [s].
   float1*                  dt                 = new float1 ();                                      // Time step [s].
   float                    simulation_time;                                                         // Simulation time [s].
   int                      time_step_index;                                                         // Time step index [#].
@@ -145,29 +143,25 @@ int main ()
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   object->init (bas, std::string (GMSH_HOME) + std::string (GMSH_MESH));                            // Initializing object mesh...
-  nodes    = object->node.size ();                                                                  // Getting number of nodes...
-  elements = object->element.size ();                                                               // Getting number of elements...
-
+  nodes     = object->node.size ();                                                                 // Getting number of nodes...
+  elements  = object->element.size ();                                                              // Getting number of elements...
+  kernel_sx = nodes;                                                                                // Setting OpenCL kernel "x" dimension...
+  kernel_sy = 0;                                                                                    // Setting OpenCL kernel "y" dimension...
+  kernel_sz = 0;                                                                                    // Setting OpenCL kernel "z" dimension...
   color->init (nodes);                                                                              // Initializing color data...
-
   position->init (nodes);                                                                           // Initializing position data...
   velocity->init (nodes);                                                                           // Initializing velocity data...
   acceleration->init (nodes);                                                                       // Initializing acceleration data...
-
   position_int->init (nodes);                                                                       // Initializing intermediate position data...
   velocity_int->init (nodes);                                                                       // Initializing intermediate position data...
   acceleration_int->init (nodes);                                                                   // Initializing intermediate position data...
-
   gravity->init (nodes);                                                                            // Initializing gravity data...
   stiffness->init (nodes);                                                                          // Initializing stiffness data...
   resting->init (nodes);                                                                            // Initializing resiting position data...
   friction->init (nodes);                                                                           // Initializing friction data...
   mass->init (nodes);                                                                               // Initializing mass data...
-
   dt->init (nodes);                                                                                 // Initializing time step data [s]...
-
   offset->init (nodes);                                                                             // Initializing node offset...
-
   simulation_time = 0.0;                                                                            // Initializing simulation time [s]...
   time_step_index = 0;                                                                              // Initializing time step index [#]...
 
