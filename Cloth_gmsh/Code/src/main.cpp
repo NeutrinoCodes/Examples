@@ -115,11 +115,11 @@ int main ()
   float                    x_max              = +1.0;                                               // "x_max" spatial boundary [m].
   float                    y_min              = -1.0;                                               // "y_min" spatial boundary [m].
   float                    y_max              = +1.0;                                               // "y_max" spatial boundary [m].
-  size_t                   nodes_x;                                                                 // Number of nodes in "x" direction [#].
-  size_t                   nodes_y;                                                                 // Number of nodes in "x" direction [#].
-  float                    dx                 = (x_max - x_min)/(nodes_x - 1);                      // x-axis mesh spatial size [m].
-  float                    dy                 = (y_max - y_min)/(nodes_y - 1);                      // y-axis mesh spatial size [m].
-  float                    dz                 = dx;                                                 // z-axis mesh spatial size [m].
+  size_t                   side_x_nodes;                                                            // Number of nodes in "x" direction [#].
+  size_t                   side_y_nodes;                                                            // Number of nodes in "x" direction [#].
+  float                    dx;                                                                      // x-axis mesh spatial size [m].
+  float                    dy;                                                                      // y-axis mesh spatial size [m].
+  float                    dz;                                                                      // z-axis mesh spatial size [m].
   float4*                  freedom            = new float4 ();                                      // Freedom.
   int1*                    neighbour          = new int1 ();                                        // Neighbour.
   int1*                    offset             = new int1 ();                                        // Offset.
@@ -129,15 +129,14 @@ int main ()
   float                    rho                = 1000.0;                                             // Cloth's mass density [kg/m^3].
   float                    E                  = 100000.0;                                           // Cloth's Young modulus [kg/(m*s^2)].
   float                    mu                 = 700.0;                                              // Cloth's viscosity [Pa*s].
-  float                    m                  = rho*h*dx*dy;                                        // Cloth's mass [kg].
+  float                    m;                                                                       // Cloth's mass [kg].
   float                    g                  = 9.81;                                               // External gravity field [m/s^2].
-  float                    K                  = E*h*dy/dx;                                          // Cloth's elastic constant [kg/s^2].
-  float                    C                  = mu*h*dx*dy;                                         // Cloth's damping [kg*s*m].
-  float                    dt_critical        = sqrt (m/K);                                         // Critical time step [s].
-  float                    dt_simulation      = 0.8* dt_critical;                                   // Simulation time step [s].
+  float                    K;                                                                       // Cloth's elastic constant [kg/s^2].
+  float                    C;                                                                       // Cloth's damping [kg*s*m].
+  float                    dt_critical;                                                             // Critical time step [s].
+  float                    dt_simulation;                                                           // Simulation time step [s].
   float1*                  dt                 = new float1 ();                                      // Time step [s].
   float                    simulation_time;                                                         // Simulation time [s].
-  int                      time_step_index;                                                         // Time step index [#].
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
@@ -163,24 +162,51 @@ int main ()
   dt->init (nodes);                                                                                 // Initializing time step data [s]...
   offset->init (nodes);                                                                             // Initializing node offset...
   simulation_time = 0.0;                                                                            // Initializing simulation time [s]...
-  time_step_index = 0;                                                                              // Initializing time step index [#]...
-
-  std::cout << "Critical time step = " << dt_critical << "[s]" << std::endl;                        // Printing message...
-  std::cout << "Simulation time step = " << dt_simulation << "[s]" << std::endl;                    // Printing message...
-
-  neighbour_nodes = 0;                                                                              // Resetting number of neighbour nodes...
+  neighbour_nodes = 0;                                                                              // Initializing number of neighbour nodes...
 
   for(i = 0; i < nodes; i++)
   {
-    neighbour_cell          = object->neighbours (i);                                               // Getting neighbour cell...
-    offset->data[i]         = neighbour_nodes;                                                      // Setting neighbour offset...
-    neighbour_nodes        += neighbour_cell.size ();                                               // Accumulating number of neighbour nodes...
+    neighbour_cell   = object->neighbours (i);                                                      // Getting neighbour cell...
+    offset->data[i]  = neighbour_nodes;                                                             // Setting neighbour offset...
+    neighbour_nodes += neighbour_cell.size ();                                                      // Accumulating number of neighbour nodes...
 
     for(j = 0; j < neighbour_nodes; j++)
     {
       neighbour_tuple.push_back (neighbour_cell[j]);                                                // Assembling neighbour tuple...
     }
+  }
 
+  neighbour->init (neighbour_nodes);                                                                // Initializing neighbour...
+
+  for(i = 0; i < nodes; i++)
+  {
+    for(j = 0; j < offset->data[i]; j++)
+    {
+      k                  = i*offset->data[i] + j;                                                   // Setting neighbour tuple index...
+      neighbour->data[k] = neighbour_tuple[k];                                                      // Setting neighbour tuple data...
+    }
+  }
+
+  border        = object->physical (1, 1);                                                          // Getting nodes on border...
+  border_nodes  = border.size ();                                                                   // Getting number of nodes on border...
+
+  side_x        = object->physical (1, 2);                                                          // Getting nodes on side_x...
+  side_x_nodes  = side_x.size ();                                                                   // Getting number of nodes on side_x...
+
+  side_y        = object->physical (1, 3);                                                          // Getting nodes on side_y...
+  side_y_nodes  = side_y.size ();                                                                   // Getting number of nodes on side_y...
+
+  dx            = (x_max - x_min)/(side_x_nodes - 1);                                               // x-axis mesh spatial size [m].
+  dy            = (y_max - y_min)/(side_y_nodes - 1);                                               // y-axis mesh spatial size [m].
+  dz            = dx;                                                                               // z-axis mesh spatial size [m].
+  m             = rho*h*dx*dy;                                                                      // Cloth's mass [kg].
+  K             = E*h*dy/dx;                                                                        // Cloth's elastic constant [kg/s^2].
+  C             = mu*h*dx*dy;                                                                       // Cloth's damping [kg*s*m].
+  dt_critical   = sqrt (m/K);                                                                       // Critical time step [s].
+  dt_simulation = 0.8* dt_critical;                                                                 // Simulation time step [s].
+
+  for(i = 0; i < nodes; i++)
+  {
     color->data[i].x        = 0.01f*(rand () % 100);                                                // Setting "r" color coordinate...
     color->data[i].y        = 0.01f*(rand () % 100);                                                // Setting "g" color coordinate...
     color->data[i].z        = 0.01f*(rand () % 100);                                                // Setting "b" color coordinate...
@@ -206,9 +232,9 @@ int main ()
     gravity->data[i].z      = -g;                                                                   // Setting "z" gravity...
     gravity->data[i].w      = 1.0f;                                                                 // Setting "w" gravity...
 
-    stiffness->data[i].x    = k;                                                                    // Setting "x" stiffness...
-    stiffness->data[i].y    = k;                                                                    // Setting "y" stiffness...
-    stiffness->data[i].z    = k;                                                                    // Setting "z" stiffness...
+    stiffness->data[i].x    = K;                                                                    // Setting "x" stiffness...
+    stiffness->data[i].y    = K;                                                                    // Setting "y" stiffness...
+    stiffness->data[i].z    = K;                                                                    // Setting "z" stiffness...
     stiffness->data[i].w    = 1.0f;                                                                 // Setting "w" stiffness...
 
     resting->data[i].x      = dx;                                                                   // Setting "x" resting position...
@@ -234,20 +260,6 @@ int main ()
     dt->data[i]             = dt_simulation;                                                        // Setting time step...
   }
 
-  neighbour->init (neighbour_nodes);                                                                // Initializing neighbour...
-
-  for(i = 0; i < nodes; i++)
-  {
-    for(j = 0; j < offset->data[i]; j++)
-    {
-      k                  = i*offset->data[i] + j;
-      neighbour->data[k] = neighbour_tuple[k];
-    }
-  }
-
-  border       = object->physical (1, 1);
-  border_nodes = border.size ();
-
   // Anchoring nodes on the border:
   for(int i = 0; i < border_nodes; i++)
   {
@@ -256,8 +268,6 @@ int main ()
     freedom->data[i].z = 0.0f;                                                                      // Setting "z" freedom...
     freedom->data[i].w = 0.0f;                                                                      // Setting "w" freedom...
   }
-
-  std::cout << std::endl;
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////// NEUTRINO INITIALIZATION /////////////////////////////////////
@@ -387,7 +397,6 @@ int main ()
     gui->refresh ();                                                                                // Refreshing gui...
 
     simulation_time += dt_simulation;                                                               // Updating simulation time [s]...
-    time_step_index++;                                                                              // Updating time step index [#]...
 
     bas->get_toc ();                                                                                // Getting "toc" [us]...
   }
