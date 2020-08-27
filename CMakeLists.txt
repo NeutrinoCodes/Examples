@@ -472,6 +472,7 @@ if(APPLE)                                                                       
     "-framework OpenGL"                                                                             # OpenGL library.
     "-framework OpenCL"                                                                             # OpenCL library.
     ${GLFW_PATH}/lib-macos/libglfw.3.dylib                                                          # GLFW library.
+    ${GMSH_PATH}/lib/libgmsh.dylib                                                                  # GMSH library.
     "-lm"                                                                                           # "math" library.
     ${NEUTRINO_PATH}/lib/libnu.a)                                                                   # Neutrino library.
 endif(APPLE)
@@ -504,6 +505,7 @@ if(UNIX AND NOT APPLE)                                                          
     "-ldl"                                                                                          # "libdl" library.
     "-lglfw"                                                                                        # GLFW library.
     "-lm"                                                                                           # "math" library.
+    "-lgmsh"                                                                                        # GMSH library.
     ${NEUTRINO_PATH}/lib/libnu.a)                                                                   # "neutrino" library.
 endif(UNIX AND NOT APPLE)
 
@@ -537,6 +539,7 @@ if(WIN32)                                                                       
     ${TARGET_5}                                                                                     # Target name.
     ${CL_PATH}/lib/x64/OpenCL.lib                                                                   # OpenCL library.
     ${GLFW_PATH}/lib-vc2019/glfw3.lib                                                               # GLFW library.
+    ${GMSH_PATH}/lib/gmsh.lib
     ${NEUTRINO_PATH}/lib/nu.lib)                                                                    # "neutrino" library.
 endif(WIN32)
 

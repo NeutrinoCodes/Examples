@@ -1,21 +1,42 @@
-dx = 0.05;
+//////////////////////////////////////////////////////////////////
+//
+//      D---------C
+//      |         |
+//      |         |
+//      |         |
+//      A---------B
+//
+//
+//      y
+//      |
+//      |
+//      o -----x
+//     /
+//    /
+//   z
+//
+//////////////////////////////////////////////////////////////////
 
-Point(1) = {0.0, 0.0, 0.0, dx};
-Point(2) = {1.0, 0.0, 0.0, dx};
-Point(3) = {1.0, 1.0, 0.0, dx};
-Point(4) = {0.0, 1.0, 0.0, dx};
 
-Line(1) = {1, 2};
-Line(2) = {2, 3};
-Line(3) = {3, 4};
-Line(4) = {4, 1};
+ds = 0.05;                                                      // Setting side partitioning length...
 
-Curve Loop(1) = {1, 2, 3, 4};
+Point(1) = {0.0, 0.0, 0.0, ds};                                 // Setting point "A"...
+Point(2) = {1.0, 0.0, 0.0, ds};                                 // Setting point "B"...
+Point(3) = {1.0, 1.0, 0.0, ds};                                 // Setting point "C"...
+Point(4) = {0.0, 1.0, 0.0, ds};                                 // Setting point "D"...
 
-Plane Surface(1) = {1};
+Line(1) = {1, 2};                                               // Setting side "AB"...
+Line(2) = {2, 3};                                               // Setting side "BC"...
+Line(3) = {3, 4};                                               // Setting side "CD"...
+Line(4) = {4, 1};                                               // Setting side "AD"...
 
-Physical Curve(1) = {1, 2, 3, 4};
+Curve Loop(1) = {1, 2, 3, 4};                                   // Setting perimeter "ABCD"...
 
-Mesh 2;
+Plane Surface(1) = {1};                                         // Setting surface "ABCD"...
 
-Mesh.SaveAll = 1;
+Physical Curve(1) = {1, 2, 3, 4};                               // Setting group: perimeter "ABCD"...
+Physical Curve(2) = {1};                                        // Setting group: side "AB"...
+Physical Curve(3) = {4};                                        // Setting group: side "AD"...
+
+Mesh 2;                                                         // Setting mesh type: triangles...
+Mesh.SaveAll = 1;                                               // Saving all mesh nodes...
