@@ -8,14 +8,12 @@ __kernel void thekernel(__global float4*    color,                              
                         __global float4*    acceleration,                       // Acceleration [m/s^2].
                         __global float4*    acceleration_int,                   // Acceleration (intermediate) [m/s^2].
                         __global float4*    gravity,                            // Gravity [m/s^2].
-                        __global float4*    stiffness,                          // Stiffness
+                        __global float4*    stiffness,                          // Stiffness.
                         __global float4*    resting,                            // Resting distance [m].
                         __global float4*    friction,                           // Friction
                         __global float4*    mass,                               // Mass [kg].
-                        __global long*      neighbour_R,                        // Right neighbour [#].
-                        __global long*      neighbour_U,                        // Up neighbour [#].
-                        __global long*      neighbour_L,                        // Left neighbour [#].
-                        __global long*      neighbour_D,                        // Down neighbour [#].
+                        __global long*      neighbour,                          // Neighbour.
+                        __global long*      offset,                             // Offset.
                         __global float4*    freedom,                            // Freedom flag [#].
                         __global float*     dt_simulation)                      // Simulation time step [s].
 {
