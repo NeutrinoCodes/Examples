@@ -1,28 +1,28 @@
 /// @file
 
-__kernel void thekernel(__global float4*    color,                              // Color [#]
-                        __global float4*    position,                           // Position [m].
-                        __global float4*    position_int,                       // Position (intermediate) [m].
-                        __global float4*    velocity,                           // Velocity [m/s].
-                        __global float4*    velocity_int,                       // Velocity (intermediate) [m/s].
-                        __global float4*    acceleration,                       // Acceleration [m/s^2].
-                        __global float4*    acceleration_int,                   // Acceleration (intermediate) [m/s^2].
-                        __global float4*    gravity,                            // Gravity [m/s^2].
+__kernel void thekernel(__global float4*    color,                              // Color.
+                        __global float4*    position,                           // Position.
+                        __global float4*    position_int,                       // Position (intermediate).
+                        __global float4*    velocity,                           // Velocity.
+                        __global float4*    velocity_int,                       // Velocity (intermediate).
+                        __global float4*    acceleration,                       // Acceleration.
+                        __global float4*    acceleration_int,                   // Acceleration (intermediate).
+                        __global float4*    gravity,                            // Gravity.
                         __global float4*    stiffness,                          // Stiffness.
-                        __global float4*    resting,                            // Resting distance [m].
-                        __global float4*    friction,                           // Friction
-                        __global float4*    mass,                               // Mass [kg].
+                        __global float4*    resting,                            // Resting distance.
+                        __global float4*    friction,                           // Friction.
+                        __global float4*    mass,                               // Mass.
                         __global long*      neighbour,                          // Neighbour.
                         __global long*      offset,                             // Offset.
-                        __global float4*    freedom,                            // Freedom flag [#].
-                        __global float*     dt_simulation)                      // Simulation time step [s].
+                        __global float4*    freedom,                            // Freedom flag.
+                        __global float*     dt_simulation)                      // Simulation time step.
 {
   ////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////// INDEXES ///////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   unsigned long i = get_global_id(0);                                           // Global index [#].
-  unsigned long j;
-  unsigned long k;
+  unsigned long j = 0;                                                          // Neighbour stride index.
+  unsigned long k = 0;                                                          // Neighbour tuple index.
   unsigned long n = offset[i];                                                  // Neighbour node index offset.
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -32,19 +32,19 @@ __kernel void thekernel(__global float4*    color,                              
   float4        p = position[i];                                                // Central node position.
   float4        v = velocity[i];                                                // Central node velocity.
   float4        a = acceleration[i];                                            // Central node acceleration.
-  float4        p_n;                                                            // Neighbour node position.
+  float4        p_n = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                         // Neighbour node position.
   
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////////// CELL: DYNAMIC VARIABLES /////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   float4        m   = node_mass[i];                                             // Node mass.
-  float4        g   = gravity[i];                                               // Node gravity field.
+  float4        g   = gravity[0];                                               // Node gravity field.
   float4        B   = friction[0];                                              // Node friction.
   float4        fr  = freedom[i];                                               // Node freedom flag.
-  float4        Fe  = (0.0f, 0.0f, 0.0f, 1.0f);                                 // Node elastic force.  
-  float4        Fv  = (0.0f, 0.0f, 0.0f, 1.0f);                                 // Node viscous force.
-  float4        Fg  = (0.0f, 0.0f, -g, 1.0f);                                   // Node gravitational force. 
-  float4        F   = (0.0f, 0.0f, 0.0f, 1.0f);                                 // Node total force.
+  float4        Fe  = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                         // Node elastic force.  
+  float4        Fv  = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                         // Node viscous force.
+  float4        Fg  = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                         // Node gravitational force. 
+  float4        F   = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                         // Node total force.
   float         dt  = dt_simulation[0];                                         // Simulation time step [s].
 
   for (j = 0; j < offset; j++)
@@ -66,20 +66,21 @@ __kernel void thekernel(__global float4*    color,                              
       disp_n = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                // Calculating neighbour link displacement...
     }
 
-    Fe += neighbour_stiffness*neighbour_displacement;                           // Accumulating elastic force on central node for each neighbour...
+    Fe += stiff_n*disp_n;                                                       // Building up elastic force on central node...
   }
 
   Fv = -B*v;                                                                    // Calculating node viscous force...
+  Fg = m*g
 
   if((m > 0.0f) && (length(p) > R0))
   {
-    F  = fr*(Fe + Fv + Fg);                                                     // Total force applied to the particle [N]...
-    node_acceleration  = F/m;                                                   // Computing acceleration [m/s^2]...
+    F  = fr*(Fe + Fv + Fg);                                                     // Total force applied to the particle...
+    node_acceleration  = F/m;                                                   // Computing acceleration...
   }
   else
   {
-    a = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                       // Nullifying force [m/s^2]...
-    v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                       // Nullifying momentum [N]...
+    a = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                       // Nullifying force...
+    v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                       // Nullifying momentum...
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -94,7 +95,7 @@ __kernel void thekernel(__global float4*    color,                              
   a.w = 1.0f;                                                                   // Adjusting projective space...
 
   // UPDATING INTERMEDIATE KINEMATICS:
-  p_int[gid] = p;                                                               // Updating position (intermediate) [m]...
-  v_int[gid] = v;                                                               // Updating position (intermediate) [m/s]...
-  a_int[gid] = a;                                                               // Updating position (intermediate) [m/s^2]...
+  p_int[i] = p;                                                                 // Updating position (intermediate)...
+  v_int[i] = v;                                                                 // Updating position (intermediate)...
+  a_int[i] = a;                                                                 // Updating position (intermediate)...
 }
