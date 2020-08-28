@@ -8,123 +8,93 @@ __kernel void thekernel(__global float4*    color,                              
                         __global float4*    acceleration,                       // Acceleration [m/s^2].
                         __global float4*    acceleration_int,                   // Acceleration (intermediate) [m/s^2].
                         __global float4*    gravity,                            // Gravity [m/s^2].
-                        __global float4*    stiffness,                          // Stiffness
+                        __global float4*    stiffness,                          // Stiffness.
                         __global float4*    resting,                            // Resting distance [m].
                         __global float4*    friction,                           // Friction
                         __global float4*    mass,                               // Mass [kg].
-                        __global float4*    anchor,                             // Anchor flag [#].
+                        __global long*      neighbour,                          // Neighbour.
+                        __global long*      offset,                             // Offset.
+                        __global float4*    freedom,                            // Freedom flag [#].
                         __global float*     dt_simulation)                      // Simulation time step [s].
 {
   ////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////// GLOBAL INDEX /////////////////////////////////
+  //////////////////////////////////// INDEXES ///////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  unsigned long gid = get_global_id(0);                                         // Global index [#].
+  unsigned long i = get_global_id(0);                                           // Global index [#].
+  unsigned long j;
+  unsigned long k;
+  unsigned long n = offset[i];                                                  // Neighbour node index offset.
 
   ////////////////////////////////////////////////////////////////////////////////
-  /////////////////// SYNERGIC MOLECULE: KINEMATIC VARIABLES /////////////////////
+  ////////////////////////// CELL: KINEMATIC VARIABLES ///////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4      P = position[gid];                                                // Getting point coordinates [m]...
-  float4      D = depth[gid];                                                   // Getting color coordinates [#]...
-  float4      V = velocity[gid];                                                // Getting velocity [m/s]...
-  float4      A = acceleration[gid];                                            // Getting acceleration [m/s^2]...
+  float4        c = color[i];                                                   // Central node color.
+  float4        p = position[i];                                                // Central node position.
+  float4        v = velocity[i];                                                // Central node velocity.
+  float4        a = acceleration[i];                                            // Central node acceleration.
+  float4        p_n;                                                            // Neighbour node position.
+  
+  ////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////// CELL: DYNAMIC VARIABLES /////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
+  float4        m   = node_mass[i];                                             // Node mass.
+  float4        g   = gravity[i];                                               // Node gravity field.
+  float4        B   = friction[0];                                              // Node friction.
+  float4        fr  = freedom[i];                                               // Node freedom flag.
+  float4        Fe  = (0.0f, 0.0f, 0.0f, 1.0f);                                 // Node elastic force.  
+  float4        Fv  = (0.0f, 0.0f, 0.0f, 1.0f);                                 // Node viscous force.
+  float4        Fg  = (0.0f, 0.0f, -g, 1.0f);                                   // Node gravitational force. 
+  float4        F   = (0.0f, 0.0f, 0.0f, 1.0f);                                 // Node total force.
+  float         dt  = dt_simulation[0];                                         // Simulation time step [s].
 
-  ////////////////////////////////////////////////////////////////////////////////
-  /////////////////// SYNERGIC MOLECULE: DYNAMIC VARIABLES ///////////////////////
-  ////////////////////////////////////////////////////////////////////////////////
-  float4      m   = mass[gid];                                                  // Current node mass.
-  float4      g   = gravity[gid];                                               // Current node gravity field.
-  float4      C   = friction[gid];                                              // Current node friction.
-  float4      fr  = freedom[gid];                                               // Current freedom flag.
+  for (j = 0; j < offset; j++)
+  {
+    k = neighbour[n + j];                                                       // Calculating neighbour index...
+    p_n = position[k];                                                          // Getting neighbour position...
+    link_n = p_n - p;                                                           // Getting neighbour link vector...
+    R_n = resting[k];                                                           // Getting neighbour link resting length...
+    stiff_n = stiffness[k];                                                     // Getting neighbour link stiffness...
+    L_n = length(link_n);                                                       // Calculating neighbour link length...
+    strain_n = L_n - R_n;                                                       // Calculating neighbour link strain...
 
-  ////////////////////////////////////////////////////////////////////////////////
-  ////////////////////// SYNERGIC MOLECULE: LINK INDEXES /////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////
-  // NOTE: 1. the index of a non-existing node neighbour must be set to the index of the node.
-  long        index_R = neighbour_R[gid];                                       // Setting right neighbour index [#]...
-  long        index_U = neighbour_U[gid];                                       // Setting up neighbour index [#]...
-  long        index_L = neighbour_L[gid];                                       // Setting left neighbour index [#]...
-  long        index_D = neighbour_D[gid];                                       // Setting down neighbour index [#]...
+    if(L_n > 0.0f)
+    {
+      disp_n = strain_n*normalize(link_n);                                      // Calculating neighbour link displacement...
+    }
+    else
+    {
+      disp_n = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                // Calculating neighbour link displacement...
+    }
 
-  ////////////////////////////////////////////////////////////////////////////////
-  ///////////////// SYNERGIC MOLECULE: LINKED PARTICLE POSITIONS /////////////////
-  ////////////////////////////////////////////////////////////////////////////////
-  float4      position_R = position[index_R];                                   // Setting right neighbour position coordinates [m]...
-  float4      position_U = position[index_U];                                   // Setting up neighbour position coordinates [m]...
-  float4      position_L = position[index_L];                                   // Setting left neighbour position coordinates [m]...
-  float4      position_D = position[index_D];                                   // Setting down neighbour position coordinates [m]...
+    Fe += neighbour_stiffness*neighbour_displacement;                           // Accumulating elastic force on central node for each neighbour...
+  }
 
-  ////////////////////////////////////////////////////////////////////////////////
-  //////////////// SYNERGIC MOLECULE: LINK RESTING DISTANCES /////////////////////
-  ////////////////////////////////////////////////////////////////////////////////
-  float4      resting_R = resting[index_R];                                     // Setting right neighbour resting position [m]...
-  float4      resting_U = resting[index_U];                                     // Setting up neighbour resting position [m]...
-  float4      resting_L = resting[index_L];                                     // Setting left neighbour resting position [m]...
-  float4      resting_D = resting[index_D];                                     // Setting down neighbour resting position [m]...
+  Fv = -B*v;                                                                    // Calculating node viscous force...
 
-  ////////////////////////////////////////////////////////////////////////////////
-  ////////////////////// SYNERGIC MOLECULE: LINK STIFFNESS ///////////////////////
-  ////////////////////////////////////////////////////////////////////////////////
-  // NOTE: the stiffness of a non-existing link must reset to 0.
-  float4      stiffness_R = stiffness[index_R];                                 // Setting right neighbour stiffness...
-  float4      stiffness_U = stiffness[index_U];                                 // Setting up neighbour stiffness...
-  float4      stiffness_L = stiffness[index_L];                                 // Setting left neighbour stiffness...
-  float4      stiffness_D = stiffness[index_D];                                 // Setting down neighbour stiffness...
+  if((m > 0.0f) && (length(p) > R0))
+  {
+    F  = fr*(Fe + Fv + Fg);                                                     // Total force applied to the particle [N]...
+    node_acceleration  = F/m;                                                   // Computing acceleration [m/s^2]...
+  }
+  else
+  {
+    a = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                       // Nullifying force [m/s^2]...
+    v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                       // Nullifying momentum [N]...
+  }
 
   ////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////// VERLET INTEGRATION /////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float       dt = dt_simulation[gid];                                          // Setting simulation time step [s]...
-
-  float4      displacement_R;                                                   // Right neighbour displacement [m]...
-  float4      displacement_U;                                                   // Up neighbour displacement [m]...
-  float4      displacement_L;                                                   // Left neighbour displacement [m]...
-  float4      displacement_D;                                                   // Down neighbour displacement [m]...
-
-  float4      F;                                                                // Force [N].
-
-  // COMPUTING LINK DISPLACEMENTS:
-  link_displacements(
-                      position_R,                                               // Right neighbour position [m].
-                      position_U,                                               // Up neighbour position [m].
-                      position_L,                                               // Left neighbour position [m].
-                      position_D,                                               // Down neighbour position [m].
-                      P,                                                        // Position [m].
-                      resting_R,                                                // Right neighbour resting position [m].
-                      resting_U,                                                // Up neighbour resting position [m].
-                      resting_L,                                                // Left neighbour resting position [m].
-                      resting_D,                                                // Down neighbour resting position [m].
-                      fr,                                                       // Freedom flag [#].
-                      &displacement_R,                                          // Right neighbour displacement [m].
-                      &displacement_U,                                          // Up neighbour displacement [m].
-                      &displacement_L,                                          // Left neighbour displacement [m].
-                      &displacement_D                                           // Down neighbour displacement [m].
-                    );
-
-  // COMPUTING NODE FORCE:
-  F = node_force (
-                      stiffness_R,                                              // Right neighbour stiffness.
-                      stiffness_U,                                              // Right neighbour stiffness.
-                      stiffness_L,                                              // Right neighbour stiffness.
-                      stiffness_D,                                              // Right neighbour stiffness.
-                      displacement_R,                                           // Right neighbour displacement [m].
-                      displacement_U,                                           // Up neighbour displacement [m].
-                      displacement_L,                                           // Left neighbour displacement [m].
-                      displacement_D,                                           // Down neighbour displacement [m].
-                      C,                                                        // Friction coefficient.
-                      V,                                                        // Velocity [m/s].
-                      m,                                                        // Mass [kg].
-                      g,                                                        // Gravity [m/s^2].
-                      fr                                                        // Freedom flag [#].
-                  );
-
-  // COMPUTING ACCELERATION:
-  A = F/m;                                                                      // Computing acceleration [m/s^2]...
-
   // UPDATING POSITION:
-  P += V*dt + A*dt*dt/2.0f;                                                     // Updating position [m]...
+  p += v*dt + a*dt*dt/2.0f;                                                     // Updating position [m]...
+
+  // FIXING PROJECTIVE SPACE:
+  p.w = 1.0f;                                                                   // Adjusting projective space...
+  v.w = 1.0f;                                                                   // Adjusting projective space...
+  a.w = 1.0f;                                                                   // Adjusting projective space...
 
   // UPDATING INTERMEDIATE KINEMATICS:
-  position_int[gid] = P;                                                        // Updating position (intermediate) [m]...
-  velocity_int[gid] = V;                                                        // Updating position (intermediate) [m/s]...
-  acceleration_int[gid] = A;                                                    // Updating position (intermediate) [m/s^2]...
+  p_int[gid] = p;                                                               // Updating position (intermediate) [m]...
+  v_int[gid] = v;                                                               // Updating position (intermediate) [m/s]...
+  a_int[gid] = a;                                                               // Updating position (intermediate) [m/s^2]...
 }
