@@ -47,8 +47,8 @@
 #define s 0.008                                                                 // Voxel side.
 #define l vec3(0.0, -1.0, 0.0)                                                  // Light direction.
 
-layout (location = 0) in vec4 voxel_center;                                     // Voxel center.
-layout (location = 1) in vec4 voxel_color;                                      // Voxel color.
+layout (location = 0) in vec4 voxel_color;                                      // Voxel center.
+layout (location = 1) in vec4 voxel_center;                                     // Voxel color.
 
 out VS_OUT
 {
