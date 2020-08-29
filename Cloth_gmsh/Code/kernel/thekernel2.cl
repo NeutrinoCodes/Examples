@@ -30,10 +30,10 @@ __kernel void thekernel(__global float4*    color,                              
   ////////////////////////////////// CELL VARIABLES //////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   float4        c = color[i];                                                   // Central node color.
-  float4        p = position[i];                                                // Central node position.
-  float4        v = velocity[i];                                                // Central node velocity.
+  float4        p = position_int[i];                                            // Central node position.
+  float4        v = velocity_int[i];                                            // Central node velocity.
   float4        v_backup = v;                                                   // Central node velocity backup.
-  float4        a = acceleration[i];                                            // Central node acceleration.
+  float4        a = acceleration_int[i];                                        // Central node acceleration.
   float4        a_new = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                       // Central node new acceleration.
   float         m   = mass[i];                                                  // Central node mass.
   float4        g   = gravity[0];                                               // Central node gravity field.
