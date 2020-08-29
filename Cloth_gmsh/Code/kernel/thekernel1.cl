@@ -22,36 +22,46 @@ __kernel void thekernel(__global float4*    color,                              
   ////////////////////////////////////////////////////////////////////////////////
   unsigned long i = get_global_id(0);                                           // Global index [#].
   unsigned long j = 0;                                                          // Neighbour stride index.
+  unsigned long j_min = 0;                                                      // Neighbour stride minimun index.
+  unsigned long j_max = offset[i];                                              // Neighbour stride maximum index.
   unsigned long k = 0;                                                          // Neighbour tuple index.
-  unsigned long n = offset[i];                                                  // Neighbour node index offset.
 
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////// CELL VARIABLES //////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4        c = color[i];                                                   // Central node color.
-  float4        p = position[i];                                                // Central node position.
-  float4        v = velocity[i];                                                // Central node velocity.
-  float4        a = acceleration[i];                                            // Central node acceleration.
-  float         m   = node_mass[i];                                             // Central node mass.
-  float4        g   = gravity[0];                                               // Central node gravity field.
-  float         B   = friction[0];                                              // Central node friction.
-  float         fr  = freedom[i];                                               // Central node freedom flag.
-  float4        Fe  = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                         // Central node elastic force.  
-  float4        Fv  = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                         // Central node viscous force.
-  float4        Fg  = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                         // Central node gravitational force. 
-  float4        F   = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                         // Central node total force.
-  float4        p_n = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                         // Neighbour node position.
-  float4        link_n = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                      // Neighbour link.
-  float         R_n = 0.0f;                                                     // Neighbour link resting length.
-  float         stiff_n = 0.0f;                                                 // Neighbour link stiffness.
+  float4        c        = color[i];                                            // Central node color.
+  float4        p        = position[i];                                         // Central node position.
+  float4        v        = velocity[i];                                         // Central node velocity.
+  float4        a        = acceleration[i];                                     // Central node acceleration.
+  float         m        = mass[i];                                             // Central node mass.
+  float4        g        = gravity[0];                                          // Central node gravity field.
+  float         B        = friction[0];                                         // Central node friction.
+  float         fr       = freedom[i];                                          // Central node freedom flag.
+  float4        Fe       = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                    // Central node elastic force.  
+  float4        Fv       = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                    // Central node viscous force.
+  float4        Fg       = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                    // Central node gravitational force. 
+  float4        F        = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                    // Central node total force.
+  float4        p_n      = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                    // Neighbour node position.
+  float4        link_n   = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                    // Neighbour link.
+  float         R_n      = 0.0f;                                                // Neighbour link resting length.
+  float         stiff_n  = 0.0f;                                                // Neighbour link stiffness.
   float         strain_n = 0.0f;                                                // Neighbour link strain.
-  float         L_n = 0.0f;                                                     // Neighbour link length.
-  float         dt  = dt_simulation[0];                                         // Simulation time step [s].
+  float         L_n      = 0.0f;                                                // Neighbour link length.
+  float         dt       = dt_simulation[0];                                    // Simulation time step [s].
 
   // COMPUTING ACCELERATION:
-  for (j = 0; j < offset; j++)
+  if (i == 0)
   {
-    k = neighbour[n + j];                                                       // Computing neighbour index...
+    j_min = 0;
+  }
+  else
+  {
+    j_min = offset[i - 1];
+  }
+
+  for (j = j_min; j < j_max; j++)
+  {
+    k = neighbour[j];                                                           // Computing neighbour index...
     p_n = position[k];                                                          // Getting neighbour position...
     link_n = p_n - p;                                                           // Getting neighbour link vector...
     R_n = resting[k];                                                           // Getting neighbour link resting length...

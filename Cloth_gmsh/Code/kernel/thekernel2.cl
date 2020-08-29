@@ -22,8 +22,9 @@ __kernel void thekernel(__global float4*    color,                              
   ////////////////////////////////////////////////////////////////////////////////
   unsigned long i = get_global_id(0);                                           // Global index [#].
   unsigned long j = 0;                                                          // Neighbour stride index.
+  unsigned long j_min = 0;                                                      // Neighbour stride minimun index.
+  unsigned long j_max = offset[i];                                              // Neighbour stride maximum index.
   unsigned long k = 0;                                                          // Neighbour tuple index.
-  unsigned long n = offset[i];                                                  // Neighbour node index offset.
 
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////// CELL VARIABLES //////////////////////////////
@@ -54,9 +55,18 @@ __kernel void thekernel(__global float4*    color,                              
   v += a*dt;
 
   // COMPUTING ACCELERATION:
-  for (j = 0; j < offset; j++)
+  if (i == 0)
   {
-    k = neighbour[n + j];                                                       // Computing neighbour index...
+    j_min = 0;
+  }
+  else
+  {
+    j_min = offset[i - 1];
+  }
+
+  for (j = j_min; j < j_max; j++)
+  {
+    k = neighbour[j];                                                           // Computing neighbour index...
     p_n = position[k];                                                          // Getting neighbour position...
     link_n = p_n - p;                                                           // Getting neighbour link vector...
     R_n = resting[k];                                                           // Getting neighbour link resting length...
