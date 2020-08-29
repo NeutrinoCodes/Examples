@@ -35,7 +35,7 @@ __kernel void thekernel(__global float4*    color,                              
   float4        v_backup = v;                                                   // Central node velocity backup.
   float4        a = acceleration[i];                                            // Central node acceleration.
   float4        a_new = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                       // Central node new acceleration.
-  float         m   = node_mass[i];                                             // Central node mass.
+  float         m   = mass[i];                                                  // Central node mass.
   float4        g   = gravity[0];                                               // Central node gravity field.
   float         B   = friction[0];                                              // Central node friction.
   float         fr  = freedom[i];                                               // Central node freedom flag.
@@ -45,6 +45,7 @@ __kernel void thekernel(__global float4*    color,                              
   float4        F_new   = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                     // Central node new total force.
   float4        p_n = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                         // Neighbour node position.
   float4        link_n = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                      // Neighbour link.
+  float4        disp_n   = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                    // Neighbour displacement.
   float         R_n = 0.0f;                                                     // Neighbour link resting length.
   float         stiff_n = 0.0f;                                                 // Neighbour link stiffness.
   float         strain_n = 0.0f;                                                // Neighbour link strain.
@@ -86,7 +87,7 @@ __kernel void thekernel(__global float4*    color,                              
     Fe += stiff_n*disp_n;                                                       // Building up elastic force on central node...
   }
 
-  Fg = m*g                                                                      // Computing node gravitational force...
+  Fg = m*g;                                                                     // Computing node gravitational force...
   Fv = -B*v;                                                                    // Computing node viscous force...
   F_new  = fr*(Fe + Fv + Fg);                                                   // Computing fotal node force...
   a_new  = F_new/m;                                                             // Computing acceleration...
