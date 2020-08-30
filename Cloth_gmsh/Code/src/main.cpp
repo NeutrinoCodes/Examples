@@ -202,7 +202,7 @@ int main ()
   K                 = E*h*dy/dx;                                                                    // Cloth's elastic constant [kg/s^2].
   B                 = mu*h*dx*dy;                                                                   // Cloth's damping [kg*s*m].
   dt_critical       = sqrt (m/K);                                                                   // Critical time step [s].
-  dt_simulation     = 0.008* dt_critical;                                                           // Simulation time step [s].
+  dt_simulation     = 0.8* dt_critical;                                                             // Simulation time step [s].
   friction->data[0] = B;                                                                            // Setting friction...
   dt->data[0]       = dt_simulation;                                                                // Setting time step...
 
@@ -231,8 +231,11 @@ int main ()
     mass->data[i]           = m;                                                                    // Setting "x" mass...
 
     freedom->data[i]        = 1.0f;                                                                 // Setting freedom...
+  }
 
-    j_max                   = offset->data[i];
+  for(i = 0; i < nodes; i++)
+  {
+    j_max = offset->data[i];
 
     if(i == 0)
     {
@@ -261,12 +264,6 @@ int main ()
   {
     freedom->data[i] = 0.0f;                                                                        // Setting freedom...
   }
-
-  std::cout << "strain = " << (float)sqrt (
-                                           pow (position->data[11805].x - position->data[0].x, 2) +
-                                           pow (position->data[11805].y - position->data[0].y, 2) +
-                                           pow (position->data[11805].z - position->data[0].z, 2)
-                                          ) - resting->data[11805] << std::endl;
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////// NEUTRINO INITIALIZATION /////////////////////////////////////
