@@ -12,7 +12,7 @@ __kernel void thekernel(__global float4*    color,                              
                         __global float*     resting,                            // Resting distance.
                         __global float*     friction,                           // Friction.
                         __global float*     mass,                               // Mass.
-                        __global long*      neighbour,                          // Neighbour.
+                        __global long*      nearest,                            // Neighbour.
                         __global long*      offset,                             // Offset.
                         __global float*     freedom,                            // Freedom flag.
                         __global float*     dt_simulation)                      // Simulation time step.
@@ -67,7 +67,7 @@ __kernel void thekernel(__global float4*    color,                              
 
   for (j = j_min; j < j_max; j++)
   {
-    k = neighbour[j];                                                           // Computing neighbour index...
+    k = nearest[j];                                                             // Computing neighbour index...
     p_n = position[k];                                                          // Getting neighbour position...
     link_n = p_n - p;                                                           // Getting neighbour link vector...
     R_n = resting[k];                                                           // Getting neighbour link resting length...
