@@ -202,7 +202,7 @@ int main ()
   K                 = E*h*dy/dx;                                                                    // Cloth's elastic constant [kg/s^2].
   B                 = mu*h*dx*dy;                                                                   // Cloth's damping [kg*s*m].
   dt_critical       = sqrt (m/K);                                                                   // Critical time step [s].
-  dt_simulation     = 0.8* dt_critical;                                                             // Simulation time step [s].
+  dt_simulation     = 0.008* dt_critical;                                                           // Simulation time step [s].
   friction->data[0] = B;                                                                            // Setting friction...
   dt->data[0]       = dt_simulation;                                                                // Setting time step...
 
@@ -247,11 +247,11 @@ int main ()
     {
       nearest->data[j]   = neighbour[j];                                                            // Setting neighbour tuple data...
       k                  = nearest->data[j];
-      resting->data[j]   = sqrt (
-                                 pow (position->data[k].x - position->data[i].x, 2) +
-                                 pow (position->data[k].y - position->data[i].y, 2) +
-                                 pow (position->data[k].z - position->data[i].z, 2)
-                                );
+      resting->data[j]   = (float)sqrt (
+                                        pow (position->data[k].x - position->data[i].x, 2) +
+                                        pow (position->data[k].y - position->data[i].y, 2) +
+                                        pow (position->data[k].z - position->data[i].z, 2)
+                                       );
       stiffness->data[j] = K;
     }
   }
@@ -261,6 +261,12 @@ int main ()
   {
     freedom->data[i] = 0.0f;                                                                        // Setting freedom...
   }
+
+  std::cout << "strain = " << (float)sqrt (
+                                           pow (position->data[11805].x - position->data[0].x, 2) +
+                                           pow (position->data[11805].y - position->data[0].y, 2) +
+                                           pow (position->data[11805].z - position->data[0].z, 2)
+                                          ) - resting->data[11805] << std::endl;
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////// NEUTRINO INITIALIZATION /////////////////////////////////////
@@ -367,7 +373,7 @@ int main ()
     Q->acquire (color, 0);                                                                          // Acquiring OpenGL/CL shared argument...
     Q->acquire (position, 1);                                                                       // Acquiring OpenGL/CL shared argument...
     ctx->execute (K1, Q, NU_WAIT);                                                                  // Executing OpenCL kernel...
-    ctx->execute (K2, Q, NU_WAIT);                                                                  // Executing OpenCL kernel...
+    //ctx->execute (K2, Q, NU_WAIT);                                                                  // Executing OpenCL kernel...
     Q->release (color, 0);                                                                          // Releasing OpenGL/CL shared argument...
     Q->release (position, 1);                                                                       // Releasing OpenGL/CL shared argument...
 
