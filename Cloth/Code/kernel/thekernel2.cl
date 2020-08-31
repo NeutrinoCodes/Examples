@@ -94,7 +94,7 @@ __kernel void thekernel(__global float4*    position,                           
   float4      Fnew;                                                             // Node force [N].
 
   // NODE ACCELERATION:
-  float4      Anew;                                                             // NOde acceleration [m/s^2].
+  float4      Anew;                                                             // Node acceleration [m/s^2].
 
   // COMPUTING VELOCITY (for acceleration computation @ t_(n+1)):
   V += A*dt;
