@@ -60,15 +60,15 @@ int main ()
   float                    pan_z_init         = -2.0f;                                              // z-axis pan initial translation.
 
   // GUI PARAMETERS (mouse):
-  float                    mouse_orbit_rate   = 1.0;                                                // Orbit rotation rate [rev/s].
-  float                    mouse_pan_rate     = 5.0;                                                // Pan translation rate [m/s].
-  float                    mouse_decaytime    = 1.25;                                               // Pan LP filter decay time [s].
+  float                    mouse_orbit_rate   = 1.0f;                                               // Orbit rotation rate [rev/s].
+  float                    mouse_pan_rate     = 5.0f;                                               // Pan translation rate [m/s].
+  float                    mouse_decaytime    = 1.25f;                                              // Pan LP filter decay time [s].
 
   // GUI PARAMETERS (gamepad):
-  float                    gamepad_orbit_rate = 1.0;                                                // Orbit angular rate coefficient [rev/s].
-  float                    gamepad_pan_rate   = 1.0;                                                // Pan translation rate [m/s].
-  float                    gamepad_decaytime  = 1.25;                                               // Low pass filter decay time [s].
-  float                    gamepad_deadzone   = 0.1;                                                // Gamepad joystick deadzone [0...1].
+  float                    gamepad_orbit_rate = 1.0f;                                               // Orbit angular rate coefficient [rev/s].
+  float                    gamepad_pan_rate   = 1.0f;                                               // Pan translation rate [m/s].
+  float                    gamepad_decaytime  = 1.25f;                                              // Low pass filter decay time [s].
+  float                    gamepad_deadzone   = 0.1f;                                               // Gamepad joystick deadzone [0...1].
 
   // NEUTRINO:
   neutrino*                bas                = new neutrino ();                                    // Neutrino baseline.
@@ -113,10 +113,10 @@ int main ()
   std::vector<size_t>      border;                                                                  // Nodes on border.
   std::vector<size_t>      side_x;                                                                  // Nodes on "x" side.
   std::vector<size_t>      side_y;                                                                  // Nodes on "y" side.
-  float                    x_min              = -1.0;                                               // "x_min" spatial boundary [m].
-  float                    x_max              = +1.0;                                               // "x_max" spatial boundary [m].
-  float                    y_min              = -1.0;                                               // "y_min" spatial boundary [m].
-  float                    y_max              = +1.0;                                               // "y_max" spatial boundary [m].
+  float                    x_min              = -1.0f;                                              // "x_min" spatial boundary [m].
+  float                    x_max              = +1.0f;                                              // "x_max" spatial boundary [m].
+  float                    y_min              = -1.0f;                                              // "y_min" spatial boundary [m].
+  float                    y_max              = +1.0f;                                              // "y_max" spatial boundary [m].
   size_t                   side_x_nodes;                                                            // Number of nodes in "x" direction [#].
   size_t                   side_y_nodes;                                                            // Number of nodes in "x" direction [#].
   float                    dx;                                                                      // x-axis mesh spatial size [m].
@@ -127,12 +127,12 @@ int main ()
   int1*                    offset             = new int1 ();                                        // Offset.
 
   // SIMULATION PARAMETERS:
-  float                    h                  = 0.01;                                               // Cloth's thickness [m].
-  float                    rho                = 1000.0;                                             // Cloth's mass density [kg/m^3].
-  float                    E                  = 100000.0;                                           // Cloth's Young modulus [kg/(m*s^2)].
-  float                    mu                 = 700.0;                                              // Cloth's viscosity [Pa*s].
+  float                    h                  = 0.01f;                                              // Cloth's thickness [m].
+  float                    rho                = 1000.0f;                                            // Cloth's mass density [kg/m^3].
+  float                    E                  = 100000.0f;                                          // Cloth's Young modulus [kg/(m*s^2)].
+  float                    mu                 = 700.0f;                                             // Cloth's viscosity [Pa*s].
   float                    m;                                                                       // Cloth's mass [kg].
-  float                    g                  = 9.81;                                               // External gravity field [m/s^2].
+  float                    g                  = 0.0f;                                               // External gravity field [m/s^2].
   float                    K;                                                                       // Cloth's elastic constant [kg/s^2].
   float                    B;                                                                       // Cloth's damping [kg*s*m].
   float                    dt_critical;                                                             // Critical time step [s].
@@ -181,8 +181,6 @@ int main ()
     {
       neighbour.push_back (neighbourhood[j]);                                                       // Assembling neighbour tuple...
     }
-
-    neighbourhood.clear ();
   }
 
   nearest->init (neighbours);                                                                       // Initializing neighbour...
@@ -250,11 +248,11 @@ int main ()
     {
       nearest->data[j]   = neighbour[j];                                                            // Setting neighbour tuple data...
       k                  = nearest->data[j];
-      resting->data[j]   = (float)sqrt (
-                                        pow (position->data[k].x - position->data[i].x, 2) +
-                                        pow (position->data[k].y - position->data[i].y, 2) +
-                                        pow (position->data[k].z - position->data[i].z, 2)
-                                       );
+      resting->data[j]   = sqrt (
+                                 pow (position->data[k].x - position->data[i].x, 2) +
+                                 pow (position->data[k].y - position->data[i].y, 2) +
+                                 pow (position->data[k].z - position->data[i].z, 2)
+                                );
       stiffness->data[j] = K;
     }
   }
