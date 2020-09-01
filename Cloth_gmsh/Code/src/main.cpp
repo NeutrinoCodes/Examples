@@ -189,18 +189,29 @@ int main ()
 
   border            = object->physical (0, 1);                                                      // Getting nodes on border...
   border_nodes      = border.size ();                                                               // Getting number of nodes on border...
-  side_x            = object->physical (1, 2);                                                      // Getting nodes on side_x...
-  side_x_nodes      = side_x.size ();                                                               // Getting number of nodes on side_x...
-  side_y            = object->physical (1, 3);                                                      // Getting nodes on side_y...
-  side_y_nodes      = side_y.size ();                                                               // Getting number of nodes on side_y...
-  dx                = (x_max - x_min)/(side_x_nodes - 1);                                           // x-axis mesh spatial size [m].
-  dy                = (y_max - y_min)/(side_y_nodes - 1);                                           // y-axis mesh spatial size [m].
-  dz                = dx;                                                                           // z-axis mesh spatial size [m].
-  m                 = rho*h*dx*dy;                                                                  // Cloth's mass [kg].
-  K                 = E*h*dy/dx;                                                                    // Cloth's elastic constant [kg/s^2].
-  B                 = mu*h*dx*dy;                                                                   // Cloth's damping [kg*s*m].
+
+  /*
+     side_x            = object->physical (1, 2);                                                      // Getting nodes on side_x...
+     side_x_nodes      = side_x.size ();                                                               // Getting number of nodes on side_x...
+     side_y            = object->physical (1, 3);                                                      // Getting nodes on side_y...
+     side_y_nodes      = side_y.size ();                                                               // Getting number of nodes on side_y...
+     dx                = (x_max - x_min)/(side_x_nodes - 1);                                           // x-axis mesh spatial size [m].
+     dy                = (y_max - y_min)/(side_y_nodes - 1);                                           // y-axis mesh spatial size [m].
+     dz                = dx;                                                                           // z-axis mesh spatial size [m].
+     m                 = rho*h*dx*dy;                                                                  // Cloth's mass [kg].
+     K                 = E*h*dy/dx;                                                                    // Cloth's elastic constant [kg/s^2].
+     B                 = mu*h*dx*dy;                                                                   // Cloth's damping [kg*s*m].
+   */
+
+  side_x            = object->physical (1, 1);
+  side_x_nodes      = side_x.size ();
+  dx                = (x_max - x_min)/(side_x_nodes - 1);
+  m                 = 0.1;
+  K                 = 10000;
+  B                 = 0.1;
+
   dt_critical       = sqrt (m/K);                                                                   // Critical time step [s].
-  dt_simulation     = 0.8* dt_critical;                                                             // Simulation time step [s].
+  dt_simulation     = 0.1* dt_critical;                                                             // Simulation time step [s].
   friction->data[0] = B;                                                                            // Setting friction...
   dt->data[0]       = dt_simulation;                                                                // Setting time step...
 
