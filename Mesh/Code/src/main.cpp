@@ -27,7 +27,7 @@
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.
 #define SHADER_GEOM   "voxel_geometry.geom"                                                         // OpenGL geometry shader.
 #define SHADER_FRAG   "voxel_fragment.frag"                                                         // OpenGL fragment shader.
-#define GMSH_MESH     "Square.msh"                                                                  // GMSH mesh.
+#define GMSH_MESH     "Chain.msh"                                                                   // GMSH mesh.
 
 // OPENCL:
 #define QUEUE_NUM     1                                                                             // # of OpenCL queues [#].
@@ -143,7 +143,7 @@ int main ()
   std::cout << "######## PHYSICAL GROUPS ########" << std::endl;
   std::cout << "#################################" << std::endl;
 
-  border       = object->physical (1, 1);
+  border       = object->physical (0, 1);
   border_nodes = border.size ();
   std::cout << "Physical group dim = 1, tag = 1 has nodes: ";
 

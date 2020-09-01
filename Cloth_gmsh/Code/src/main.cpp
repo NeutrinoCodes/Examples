@@ -27,7 +27,7 @@
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.
 #define SHADER_GEOM   "voxel_geometry.geom"                                                         // OpenGL geometry shader.
 #define SHADER_FRAG   "voxel_fragment.frag"                                                         // OpenGL fragment shader.
-#define GMSH_MESH     "Square.msh"                                                                  // GMSH mesh.
+#define GMSH_MESH     "Chain.msh"                                                                   // GMSH mesh.
 
 // OPENCL:
 #define QUEUE_NUM     1                                                                             // # of OpenCL queues [#].
@@ -122,7 +122,7 @@ int main ()
   float                    dx;                                                                      // x-axis mesh spatial size [m].
   float                    dy;                                                                      // y-axis mesh spatial size [m].
   float                    dz;                                                                      // z-axis mesh spatial size [m].
-  float1*                  freedom            = new float1 ();                                      // Freedom.
+  int1*                    freedom            = new int1 ();                                        // Freedom.
   int1*                    nearest            = new int1 ();                                        // Neighbour.
   int1*                    offset             = new int1 ();                                        // Offset.
 
@@ -132,7 +132,7 @@ int main ()
   float                    E                  = 100000.0f;                                          // Cloth's Young modulus [kg/(m*s^2)].
   float                    mu                 = 700.0f;                                             // Cloth's viscosity [Pa*s].
   float                    m;                                                                       // Cloth's mass [kg].
-  float                    g                  = 0.0f;                                               // External gravity field [m/s^2].
+  float                    g                  = 9.81f;                                              // External gravity field [m/s^2].
   float                    K;                                                                       // Cloth's elastic constant [kg/s^2].
   float                    B;                                                                       // Cloth's damping [kg*s*m].
   float                    dt_critical;                                                             // Critical time step [s].
@@ -187,7 +187,7 @@ int main ()
   resting->init (neighbours);                                                                       // Initializing resiting position data...
   stiffness->init (neighbours);                                                                     // Initializing stiffness data...
 
-  border            = object->physical (1, 1);                                                      // Getting nodes on border...
+  border            = object->physical (0, 1);                                                      // Getting nodes on border...
   border_nodes      = border.size ();                                                               // Getting number of nodes on border...
   side_x            = object->physical (1, 2);                                                      // Getting nodes on side_x...
   side_x_nodes      = side_x.size ();                                                               // Getting number of nodes on side_x...
@@ -200,7 +200,7 @@ int main ()
   K                 = E*h*dy/dx;                                                                    // Cloth's elastic constant [kg/s^2].
   B                 = mu*h*dx*dy;                                                                   // Cloth's damping [kg*s*m].
   dt_critical       = sqrt (m/K);                                                                   // Critical time step [s].
-  dt_simulation     = 0.1* dt_critical;                                                             // Simulation time step [s].
+  dt_simulation     = 0.8* dt_critical;                                                             // Simulation time step [s].
   friction->data[0] = B;                                                                            // Setting friction...
   dt->data[0]       = dt_simulation;                                                                // Setting time step...
 
@@ -228,7 +228,7 @@ int main ()
 
     mass->data[i]           = m;                                                                    // Setting "x" mass...
 
-    freedom->data[i]        = 1.0f;                                                                 // Setting freedom...
+    freedom->data[i]        = 1;                                                                    // Setting freedom...
   }
 
   for(i = 0; i < nodes; i++)
@@ -248,11 +248,14 @@ int main ()
     {
       nearest->data[j]   = neighbour[j];                                                            // Setting neighbour tuple data...
       k                  = nearest->data[j];
-      resting->data[j]   = sqrt (
-                                 pow (position->data[k].x - position->data[i].x, 2) +
-                                 pow (position->data[k].y - position->data[i].y, 2) +
-                                 pow (position->data[k].z - position->data[i].z, 2)
-                                );
+      resting->data[j]   = (float)sqrt (
+                                        (float)(position->data[k].x - position->data[i].x)*
+                                        (float)(position->data[k].x - position->data[i].x) +
+                                        (float)(position->data[k].y - position->data[i].y)*
+                                        (float)(position->data[k].y - position->data[i].y) +
+                                        (float)(position->data[k].z - position->data[i].z)*
+                                        (float)(position->data[k].z - position->data[i].z)
+                                       );
       stiffness->data[j] = K;
     }
   }
@@ -260,7 +263,7 @@ int main ()
   // Anchoring nodes on the border:
   for(int i = 0; i < border_nodes; i++)
   {
-    freedom->data[i] = 0.0f;                                                                        // Setting freedom...
+    freedom->data[i] = 0;                                                                           // Setting freedom...
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
