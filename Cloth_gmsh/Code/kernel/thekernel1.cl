@@ -14,7 +14,7 @@ __kernel void thekernel(__global float4*    color,                              
                         __global float*     mass,                               // Mass.
                         __global long*      nearest,                            // Neighbour.
                         __global long*      offset,                             // Offset.
-                        __global float*     freedom,                            // Freedom flag.
+                        __global long*      freedom,                            // Freedom flag.
                         __global float*     dt_simulation)                      // Simulation time step.
 {
   ////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,14 @@ __kernel void thekernel(__global float4*    color,                              
 
   Fg = m*g;                                                                     // Computing node gravitational force...
   Fv = -B*v;                                                                    // Computing node viscous force...
-  F  = fr*(Fg + Fe + Fv);                                                       // Computing fotal node force...
+  
+  F = Fg + Fe + Fv;                                                             // Computing fotal node force...
+  
+  if (fr == 0)
+  {
+    F = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                       // Computing fotal node force...
+  }
+  
   a  = F/m;                                                                     // Computing acceleration...
   
   // UPDATING POSITION:
