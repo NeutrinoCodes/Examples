@@ -132,7 +132,7 @@ int main ()
   float                    E                  = 100000.0f;                                          // Cloth's Young modulus [kg/(m*s^2)].
   float                    mu                 = 700.0f;                                             // Cloth's viscosity [Pa*s].
   float                    m;                                                                       // Cloth's mass [kg].
-  float                    g                  = 9.81f;                                              // External gravity field [m/s^2].
+  float                    g                  = 0.0f;                                               // External gravity field [m/s^2].
   float                    K;                                                                       // Cloth's elastic constant [kg/s^2].
   float                    B;                                                                       // Cloth's damping [kg*s*m].
   float                    dt_critical;                                                             // Critical time step [s].
@@ -206,9 +206,9 @@ int main ()
   side_x            = object->physical (1, 1);
   side_x_nodes      = side_x.size ();
   dx                = (x_max - x_min)/(side_x_nodes - 1);
-  m                 = 0.1;
-  K                 = 10000;
-  B                 = 0.1;
+  m                 = 0.0001;
+  K                 = 100;
+  B                 = 0.001;
 
   dt_critical       = sqrt (m/K);                                                                   // Critical time step [s].
   dt_simulation     = 0.1* dt_critical;                                                             // Simulation time step [s].
@@ -242,8 +242,12 @@ int main ()
     freedom->data[i]        = 1;                                                                    // Setting freedom...
   }
 
+  position->data[6].x = 0.0f;
+
   for(i = 0; i < nodes; i++)
   {
+    printf ("nodi i = %.9g\n", position->data[i].x);
+
     j_max = offset->data[i];
 
     if(i == 0)
@@ -259,7 +263,8 @@ int main ()
     {
       nearest->data[j]   = neighbour[j];                                                            // Setting neighbour tuple data...
       k                  = nearest->data[j];
-      resting->data[j]   = (float)sqrt (
+      /*
+         resting->data[j]   = (float)sqrt (
                                         (float)(position->data[k].x - position->data[i].x)*
                                         (float)(position->data[k].x - position->data[i].x) +
                                         (float)(position->data[k].y - position->data[i].y)*
@@ -267,6 +272,9 @@ int main ()
                                         (float)(position->data[k].z - position->data[i].z)*
                                         (float)(position->data[k].z - position->data[i].z)
                                        );
+       */
+      resting->data[j]   = 0.02f;
+      printf ("resting = %.9g\n", resting->data[j]);
       stiffness->data[j] = K;
     }
   }
