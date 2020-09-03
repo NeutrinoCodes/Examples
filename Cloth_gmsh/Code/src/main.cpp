@@ -132,7 +132,7 @@ int main ()
   float                    E                  = 100000.0f;                                          // Cloth's Young modulus [kg/(m*s^2)].
   float                    mu                 = 700.0f;                                             // Cloth's viscosity [Pa*s].
   float                    m;                                                                       // Cloth's mass [kg].
-  float                    g                  = 0.0f;                                               // External gravity field [m/s^2].
+  float                    g                  = 9.81f;                                              // External gravity field [m/s^2].
   float                    K;                                                                       // Cloth's elastic constant [kg/s^2].
   float                    B;                                                                       // Cloth's damping [kg*s*m].
   float                    dt_critical;                                                             // Critical time step [s].
@@ -206,12 +206,12 @@ int main ()
   side_x            = object->physical (1, 1);
   side_x_nodes      = side_x.size ();
   dx                = (x_max - x_min)/(side_x_nodes - 1);
-  m                 = 0.0001;
+  m                 = 0.1;
   K                 = 100;
   B                 = 0.001;
 
   dt_critical       = sqrt (m/K);                                                                   // Critical time step [s].
-  dt_simulation     = 0.1* dt_critical;                                                             // Simulation time step [s].
+  dt_simulation     = 0.8* dt_critical;                                                             // Simulation time step [s].
   friction->data[0] = B;                                                                            // Setting friction...
   dt->data[0]       = dt_simulation;                                                                // Setting time step...
 
@@ -390,7 +390,7 @@ int main ()
     Q->acquire (color, 0);                                                                          // Acquiring OpenGL/CL shared argument...
     Q->acquire (position, 1);                                                                       // Acquiring OpenGL/CL shared argument...
     ctx->execute (K1, Q, NU_WAIT);                                                                  // Executing OpenCL kernel...
-    ctx->execute (K2, Q, NU_WAIT);                                                                  // Executing OpenCL kernel...
+    //ctx->execute (K2, Q, NU_WAIT);                                                                  // Executing OpenCL kernel...
     Q->release (color, 0);                                                                          // Releasing OpenGL/CL shared argument...
     Q->release (position, 1);                                                                       // Releasing OpenGL/CL shared argument...
 
