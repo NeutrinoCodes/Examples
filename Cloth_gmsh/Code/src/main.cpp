@@ -207,11 +207,11 @@ int main ()
   side_x_nodes      = side_x.size ();
   dx                = (x_max - x_min)/(side_x_nodes - 1);
   m                 = 0.1;
-  K                 = 100;
+  K                 = 10000;
   B                 = 0.001;
 
   dt_critical       = sqrt (m/K);                                                                   // Critical time step [s].
-  dt_simulation     = 0.8* dt_critical;                                                             // Simulation time step [s].
+  dt_simulation     = 0.1* dt_critical;                                                             // Simulation time step [s].
   friction->data[0] = B;                                                                            // Setting friction...
   dt->data[0]       = dt_simulation;                                                                // Setting time step...
 
@@ -232,22 +232,18 @@ int main ()
     velocity->data[i].z     = 0.0f;                                                                 // Setting "z" velocity...
     velocity->data[i].w     = 1.0f;                                                                 // Setting "w" velocity...
 
+    mass->data[i]           = m;                                                                    // Setting "x" mass...
+
     acceleration->data[i].x = 0.0f;                                                                 // Setting "x" acceleration...
     acceleration->data[i].y = 0.0f;                                                                 // Setting "y" acceleration...
-    acceleration->data[i].z = 0.0f;                                                                 // Setting "z" acceleration...
+    acceleration->data[i].z = -mass->data[i]*g;                                                     // Setting "z" acceleration...
     acceleration->data[i].w = 1.0f;                                                                 // Setting "w" acceleration...
-
-    mass->data[i]           = m;                                                                    // Setting "x" mass...
 
     freedom->data[i]        = 1;                                                                    // Setting freedom...
   }
 
-  position->data[6].x = 0.0f;
-
   for(i = 0; i < nodes; i++)
   {
-    printf ("nodi i = %.9g\n", position->data[i].x);
-
     j_max = offset->data[i];
 
     if(i == 0)
@@ -263,8 +259,7 @@ int main ()
     {
       nearest->data[j]   = neighbour[j];                                                            // Setting neighbour tuple data...
       k                  = nearest->data[j];
-      /*
-         resting->data[j]   = (float)sqrt (
+      resting->data[j]   = (float)sqrt (
                                         (float)(position->data[k].x - position->data[i].x)*
                                         (float)(position->data[k].x - position->data[i].x) +
                                         (float)(position->data[k].y - position->data[i].y)*
@@ -272,9 +267,6 @@ int main ()
                                         (float)(position->data[k].z - position->data[i].z)*
                                         (float)(position->data[k].z - position->data[i].z)
                                        );
-       */
-      resting->data[j]   = 0.02f;
-      printf ("resting = %.9g\n", resting->data[j]);
       stiffness->data[j] = K;
     }
   }
@@ -390,7 +382,7 @@ int main ()
     Q->acquire (color, 0);                                                                          // Acquiring OpenGL/CL shared argument...
     Q->acquire (position, 1);                                                                       // Acquiring OpenGL/CL shared argument...
     ctx->execute (K1, Q, NU_WAIT);                                                                  // Executing OpenCL kernel...
-    //ctx->execute (K2, Q, NU_WAIT);                                                                  // Executing OpenCL kernel...
+    ctx->execute (K2, Q, NU_WAIT);                                                                  // Executing OpenCL kernel...
     Q->release (color, 0);                                                                          // Releasing OpenGL/CL shared argument...
     Q->release (position, 1);                                                                       // Releasing OpenGL/CL shared argument...
 
