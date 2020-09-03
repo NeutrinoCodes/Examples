@@ -246,11 +246,11 @@ int main ()
 
     if(i == 0)
     {
-      j_min = 0;                                                                                    // Setting stride minimun (first stride)...
+      j_min = 0;                                                                                    // Setting stride minimum (first stride)...
     }
     else
     {
-      j_min = offset->data[i - 1];                                                                  // Setting stride minimun (all others)...
+      j_min = offset->data[i - 1];                                                                  // Setting stride minimum (all others)...
     }
 
     for(j = j_min; j < j_max; j++)
