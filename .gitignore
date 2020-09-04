@@ -1,7 +1,4 @@
-/Cloth/Docs/Doxygen
-/Gmsh/Docs/Doxygen
-/Sinusoid/Docs/Doxygen
-/Gravity/Docs/Doxygen
+/*/Docs/Doxygen
 /build
 .vs
 .vscode
