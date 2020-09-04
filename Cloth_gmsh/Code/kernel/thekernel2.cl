@@ -6,7 +6,6 @@ __kernel void thekernel(__global float4*    color,                              
                         __global float4*    velocity,                           // Velocity.
                         __global float4*    velocity_int,                       // Velocity (intermediate).
                         __global float4*    acceleration,                       // Acceleration.
-                        __global float4*    acceleration_int,                   // Acceleration (intermediate).
                         __global float4*    gravity,                            // Gravity.
                         __global float*     stiffness,                          // Stiffness.
                         __global float*     resting,                            // Resting distance.
@@ -29,15 +28,13 @@ __kernel void thekernel(__global float4*    color,                              
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////// CELL VARIABLES //////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4        p                 = position[i];                                // Central node position.
   float4        v                 = velocity[i];                                // Central node velocity.
   float4        a                 = acceleration[i];                            // Central node acceleration.
-  float4        p_int             = position_int[i];                            // Central node position.
-  float4        v_int             = velocity_int[i];                            // Central node velocity.
-  float4        a_int             = acceleration_int[i];                        // Central node acceleration.
-  float4        p_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node position.
-  float4        v_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node velocity.
-  float4        a_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node acceleration.
+  float4        p_int             = position_int[i];                            // Central node position (intermediate).
+  float4        v_int             = velocity_int[i];                            // Central node velocity (intermediate).
+  float4        p_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node position (new).
+  float4        v_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node velocity (new).
+  float4        a_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node acceleration (new).
   float4        v_est             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node velocity (estimation).
   float4        a_est             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node acceleration (estimation).
   float         m                 = mass[i];                                    // Central node mass.
@@ -49,7 +46,7 @@ __kernel void thekernel(__global float4*    color,                              
   float4        Fv_est            = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node viscous force (estimation).
   float4        Fg                = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node gravitational force. 
   float4        F                 = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node total force.
-  float4        F_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node total force.
+  float4        F_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node total force (new).
   float4        neighbour         = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Neighbour node position.
   float4        link              = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Neighbour link.
   float4        D                 = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Neighbour displacement.
@@ -91,20 +88,8 @@ __kernel void thekernel(__global float4*    color,                              
   // COMPUTING NEW ACCELERATION ESTIMATION:
   a_est  = F/m;                                                                 // Computing acceleration...
 
-  // APPLYING FREEDOM CONSTRAINTS:
-  if (fr == 0)
-  {
-    a_est = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                   // Constraining acceleration...
-  }
-
   // COMPUTING NEW VELOCITY ESTIMATION:
-  v_est = v + 0.5f*(a_int + a_est)*dt;                                          // Computing velocity...
-
-  // APPLYING FREEDOM CONSTRAINTS:
-  if (fr == 0)
-  {
-    v_est = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                   // Constraining velocity...
-  }
+  v_est = v + 0.5f*(a + a_est)*dt;                                              // Computing velocity...
 
   // COMPUTING NEW VISCOUS FORCE ESTIMATION:
   Fv_est = -B*v_est;                                                            // Computing node viscous force...
