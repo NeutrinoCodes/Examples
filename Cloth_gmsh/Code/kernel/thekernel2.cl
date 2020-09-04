@@ -29,20 +29,27 @@ __kernel void thekernel(__global float4*    color,                              
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////// CELL VARIABLES //////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
+  float4        p                 = position[i];                                // Central node position.
+  float4        v                 = velocity[i];                                // Central node velocity.
+  float4        a                 = acceleration[i];                            // Central node acceleration.
   float4        p_int             = position_int[i];                            // Central node position.
   float4        v_int             = velocity_int[i];                            // Central node velocity.
   float4        a_int             = acceleration_int[i];                        // Central node acceleration.
   float4        p_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node position.
   float4        v_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node velocity.
   float4        a_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node acceleration.
+  float4        v_est             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node velocity (estimation).
+  float4        a_est             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node acceleration (estimation).
   float         m                 = mass[i];                                    // Central node mass.
   float4        g                 = gravity[0];                                 // Central node gravity field.
   float         B                 = friction[0];                                // Central node friction.
   float         fr                = freedom[i];                                 // Central node freedom flag.
   float4        Fe                = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node elastic force.  
   float4        Fv                = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node viscous force.
+  float4        Fv_est            = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node viscous force (estimation).
   float4        Fg                = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node gravitational force. 
   float4        F                 = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node total force.
+  float4        F_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node total force.
   float4        neighbour         = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Neighbour node position.
   float4        link              = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Neighbour link.
   float4        D                 = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Neighbour displacement.
@@ -79,10 +86,34 @@ __kernel void thekernel(__global float4*    color,                              
   // COMPUTING TOTAL FORCE:
   Fg = m*g;                                                                     // Computing node gravitational force...
   Fv = -B*v_int;                                                                // Computing node viscous force...
-  F = Fg + Fe;                                                                  // Computing total node force...
+  F = Fg + Fe + Fv;                                                             // Computing total node force...
   
+  // COMPUTING NEW ACCELERATION ESTIMATION:
+  a_est  = F/m;                                                                 // Computing acceleration...
+
+  // APPLYING FREEDOM CONSTRAINTS:
+  if (fr == 0)
+  {
+    a_est = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                   // Constraining acceleration...
+  }
+
+  // COMPUTING NEW VELOCITY ESTIMATION:
+  v_est = v + 0.5f*(a_int + a_est)*dt;                                          // Computing velocity...
+
+  // APPLYING FREEDOM CONSTRAINTS:
+  if (fr == 0)
+  {
+    v_est = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                   // Constraining velocity...
+  }
+
+  // COMPUTING NEW VISCOUS FORCE ESTIMATION:
+  Fv_est = -B*v_est;                                                            // Computing node viscous force...
+
+  // COMPUTING NEW TOTAL FORCE:
+  F_new = Fg + Fe + Fv_est;                                                     // Computing total node force...
+
   // COMPUTING NEW ACCELERATION:
-  a_new  = F/m;                                                                 // Computing acceleration...
+  a_new = F_new/m;                                                              // Computing acceleration...
 
   // APPLYING FREEDOM CONSTRAINTS:
   if (fr == 0)
@@ -91,7 +122,7 @@ __kernel void thekernel(__global float4*    color,                              
   }
 
   // COMPUTING NEW VELOCITY:
-  v_new = v_int + 0.5f*(a_int + a_new)*dt;                                      // Computing velocity...
+  v_new = v + 0.5f*(a + a_new)*dt;                                              // Computing velocity...
 
   // APPLYING FREEDOM CONSTRAINTS:
   if (fr == 0)
