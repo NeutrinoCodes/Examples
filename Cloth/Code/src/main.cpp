@@ -40,10 +40,10 @@ int main ()
   std::vector<std::string> kernel_2;                                                                // Kernel_2 source files.
 
   // DATA:
-  float                    x_min              = -1.0;                                               // "x_min" spatial boundary [m].
-  float                    x_max              = +1.0;                                               // "x_max" spatial boundary [m].
-  float                    y_min              = -1.0;                                               // "y_min" spatial boundary [m].
-  float                    y_max              = +1.0;                                               // "y_max" spatial boundary [m].
+  float                    x_min              = -1.0f;                                              // "x_min" spatial boundary [m].
+  float                    x_max              = +1.0f;                                              // "x_max" spatial boundary [m].
+  float                    y_min              = -1.0f;                                              // "y_min" spatial boundary [m].
+  float                    y_max              = +1.0f;                                              // "y_max" spatial boundary [m].
   size_t                   nodes_x            = 100;                                                // # of nodes in "X" direction [#].
   size_t                   nodes_y            = 100;                                                // # of nodes in "Y" direction [#].
   size_t                   nodes              = nodes_x*nodes_y;                                    // Total # of nodes [#].
@@ -72,27 +72,27 @@ int main ()
   float                    pan_z_init         = -2.0f;                                              // z-axis pan initial translation.
 
   // GUI PARAMETERS (mouse):
-  float                    mouse_orbit_rate   = 1.0;                                                // Orbit rotation rate [rev/s].
-  float                    mouse_pan_rate     = 5.0;                                                // Pan translation rate [m/s].
-  float                    mouse_decaytime    = 1.25;                                               // Pan LP filter decay time [s].
+  float                    mouse_orbit_rate   = 1.0f;                                               // Orbit rotation rate [rev/s].
+  float                    mouse_pan_rate     = 5.0f;                                               // Pan translation rate [m/s].
+  float                    mouse_decaytime    = 1.25f;                                              // Pan LP filter decay time [s].
 
   // GUI PARAMETERS (gamepad):
-  float                    gamepad_orbit_rate = 1.0;                                                // Orbit angular rate coefficient [rev/s].
-  float                    gamepad_pan_rate   = 1.0;                                                // Pan translation rate [m/s].
-  float                    gamepad_decaytime  = 1.25;                                               // Low pass filter decay time [s].
-  float                    gamepad_deadzone   = 0.1;                                                // Gamepad joystick deadzone [0...1].
+  float                    gamepad_orbit_rate = 1.0f;                                               // Orbit angular rate coefficient [rev/s].
+  float                    gamepad_pan_rate   = 1.0f;                                               // Pan translation rate [m/s].
+  float                    gamepad_decaytime  = 1.25f;                                              // Low pass filter decay time [s].
+  float                    gamepad_deadzone   = 0.1f;                                               // Gamepad joystick deadzone [0...1].
 
   // SIMULATION PARAMETERS:
-  float                    h                  = 0.01;                                               // Cloth's thickness [m].
-  float                    rho                = 1000.0;                                             // Cloth's mass density [kg/m^3].
-  float                    E                  = 100000.0;                                           // Cloth's Young modulus [kg/(m*s^2)].
-  float                    mu                 = 700.0;                                              // Cloth's viscosity [Pa*s].
+  float                    h                  = 0.01f;                                              // Cloth's thickness [m].
+  float                    rho                = 1000.0f;                                            // Cloth's mass density [kg/m^3].
+  float                    E                  = 100000.0f;                                          // Cloth's Young modulus [kg/(m*s^2)].
+  float                    mu                 = 700.0f;                                             // Cloth's viscosity [Pa*s].
   float                    m                  = rho*h*dx*dy;                                        // Cloth's mass [kg].
-  float                    g                  = 9.81;                                               // External gravity field [m/s^2].
+  float                    g                  = 9.81f;                                              // External gravity field [m/s^2].
   float                    k                  = E*h*dy/dx;                                          // Cloth's elastic constant [kg/s^2].
   float                    C                  = mu*h*dx*dy;                                         // Cloth's damping [kg*s*m].
   float                    dt_critical        = sqrt (m/k);                                         // Critical time step [s].
-  float                    dt_simulation      = 0.8* dt_critical;                                   // Simulation time step [s].
+  float                    dt_simulation      = 0.8f* dt_critical;                                  // Simulation time step [s].
 
   // NEUTRINO:
   neutrino*                bas                = new neutrino ();                                    // Neutrino baseline.
