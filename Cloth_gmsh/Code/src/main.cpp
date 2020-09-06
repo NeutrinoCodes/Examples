@@ -131,7 +131,7 @@ int main ()
   float                    h                  = 0.01f;                                              // Cloth's thickness [m].
   float                    rho                = 1000.0f;                                            // Cloth's mass density [kg/m^3].
   float                    E                  = 100000.0f;                                          // Cloth's Young modulus [kg/(m*s^2)].
-  float                    mu                 = 7000.0f;                                            // Cloth's viscosity [Pa*s].
+  float                    mu                 = 700.0f;                                             // Cloth's viscosity [Pa*s].
   float                    g                  = 9.81f;                                              // External gravity field [m/s^2].
 
   // SIMULATION VARIABLES:
