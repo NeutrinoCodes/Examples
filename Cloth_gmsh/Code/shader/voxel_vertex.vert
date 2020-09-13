@@ -49,6 +49,7 @@
 
 layout (location = 0) in vec4 voxel_color;                                      // Voxel center.
 layout (location = 1) in vec4 voxel_center;                                     // Voxel color.
+layout (location = 2) in vec4 voxel_stiffness;
 
 out VS_OUT
 {
