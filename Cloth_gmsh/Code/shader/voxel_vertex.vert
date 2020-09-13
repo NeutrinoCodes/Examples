@@ -1,6 +1,6 @@
 /// @file
 
-#version 410 core
+#version 460 core
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////// VOXEL: 3D binary hypercube //////////////////////////
@@ -49,7 +49,12 @@
 
 layout (location = 0) in vec4 voxel_color;                                      // Voxel center.
 layout (location = 1) in vec4 voxel_center;                                     // Voxel color.
-layout (location = 2) in vec4 voxel_stiffness;
+//layout (location = 2) in vec4 voxel_stiffness;
+
+layout(std430, binding = 2) buffer voxel_stiffness
+{
+    int data_SSBO[];
+};
 
 out VS_OUT
 {
@@ -95,6 +100,9 @@ void main(void)
   gl_Position = P_mat*V_mat*voxel_center;                                       // Setting voxel position...
   light = -normalize(l);                                                        // Normalizing and inverting light direction...
 
+  vec4 pippo = voxel_center;
+  pippo.z = data_SSBO[435];
+
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////// VOXEL'S FACE BARICENTRIC NORMALS /////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
@@ -118,12 +126,12 @@ void main(void)
   ////////////////////////////////////////////////////////////////////////////////
   /////////////////// VOXEL'S VERTEX BARICENTRIC COORDINATES /////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  vs_out.vertex_A = P_mat*V_mat*(voxel_center + vec4(s*A, 1.0));                // Computing vertex "A".
-  vs_out.vertex_B = P_mat*V_mat*(voxel_center + vec4(s*B, 1.0));                // Computing vertex "B".
+  vs_out.vertex_A = P_mat*V_mat*(pippo + vec4(s*A, 1.0));                // Computing vertex "A".
+  vs_out.vertex_B = P_mat*V_mat*(pippo + vec4(s*B, 1.0));                // Computing vertex "B".
   vs_out.vertex_C = P_mat*V_mat*(voxel_center + vec4(s*C, 1.0));                // Computing vertex "C".
   vs_out.vertex_D = P_mat*V_mat*(voxel_center + vec4(s*D, 1.0));                // Computing vertex "D".
-  vs_out.vertex_E = P_mat*V_mat*(voxel_center + vec4(s*E, 1.0));                // Computing vertex "E".
-  vs_out.vertex_F = P_mat*V_mat*(voxel_center + vec4(s*F, 1.0));                // Computing vertex "F".
+  vs_out.vertex_E = P_mat*V_mat*(pippo + vec4(s*E, 1.0));                // Computing vertex "E".
+  vs_out.vertex_F = P_mat*V_mat*(pippo + vec4(s*F, 1.0));                // Computing vertex "F".
   vs_out.vertex_G = P_mat*V_mat*(voxel_center + vec4(s*G, 1.0));                // Computing vertex "G".
   vs_out.vertex_H = P_mat*V_mat*(voxel_center + vec4(s*H, 1.0));                // Computing vertex "H".
 

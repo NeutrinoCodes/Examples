@@ -1,6 +1,6 @@
 /// @file
 
-#version 410 core
+#version 460 core
 
 in  vec4 voxel_color;                                                           // Voxel color.
 out vec4 fragment_color;                                                        // Fragment color.
