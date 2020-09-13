@@ -96,7 +96,7 @@ int main ()
 
   // NODE DYNAMICS:
   float4*                  gravity            = new float4 ();                                      // Gravity [m/s^2].
-  float1*                  stiffness          = new float1 ();                                      // Stiffness.
+  float1G*                 stiffness          = new float1G ();                                     // Stiffness.
   float1*                  resting            = new float1 ();                                      // Resting.
   float1*                  friction           = new float1 ();                                      // Friction.
   float1*                  mass               = new float1 ();                                      // Mass [kg].
