@@ -261,6 +261,8 @@ int main ()
     }
   }
 
+  stiffness->data[42] = 2*K;
+
   // ANCHORING BORDER NODES:
   for(int i = 0; i < border_nodes; i++)
   {
