@@ -57,16 +57,6 @@ layout(std430, binding = 1) buffer voxel_center
   vec4 center_SSBO[];
 };
 
-layout(std430, binding = 11) buffer voxel_nearest
-{
-  int nearest_SSBO[];
-};
-
-layout(std430, binding = 12) buffer voxel_offset
-{
-  int offset_SSBO[];
-};
-
 out VS_OUT
 {
   vec4 vertex_A;                                                                // Vertex "A".
@@ -109,22 +99,8 @@ void main(void)
   float diffusion_F;                                                            // FRONT: face "BFHD" diffusion coefficient.
 
   uint i = gl_VertexID;
-  uint j = 0;
-  uint j_min = 0;
-  uint j_max = offset_SSBO[i];
-  uint k = 0;
   vec4 center = center_SSBO[i];
   vec4 color = color_SSBO[i];
-
-  // COMPUTING STRIDE MINIMUM INDEX:
-  if (i == 0)
-  {
-    j_min = 0;                                                                  // Setting stride minimum (first stride)...
-  }
-  else
-  {
-    j_min = offset_SSBO[i - 1];                                                 // Setting stride minimum (all others)...
-  }
 
   gl_Position = P_mat*V_mat*center;                                             // Setting voxel position...
   light = -normalize(l);                                                        // Normalizing and inverting light direction...
