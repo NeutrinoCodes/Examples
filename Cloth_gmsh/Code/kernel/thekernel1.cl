@@ -11,19 +11,19 @@ __kernel void thekernel(__global float4*    color,                              
                         __global float*     resting,                            // Resting distance.
                         __global float*     friction,                           // Friction.
                         __global float*     mass,                               // Mass.
-                        __global long*      nearest,                            // Neighbour.
-                        __global long*      offset,                             // Offset.
-                        __global long*      freedom,                            // Freedom flag.
+                        __global int*       nearest,                            // Neighbour.
+                        __global int*       offset,                             // Offset.
+                        __global int*       freedom,                            // Freedom flag.
                         __global float*     dt_simulation)                      // Simulation time step.
 {
   ////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////// INDEXES ///////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  unsigned long i = get_global_id(0);                                           // Global index [#].
-  unsigned long j = 0;                                                          // Neighbour stride index.
-  unsigned long j_min = 0;                                                      // Neighbour stride minimun index.
-  unsigned long j_max = offset[i];                                              // Neighbour stride maximum index.
-  unsigned long k = 0;                                                          // Neighbour tuple index.
+  unsigned int i = get_global_id(0);                                            // Global index [#].
+  unsigned int j = 0;                                                           // Neighbour stride index.
+  unsigned int j_min = 0;                                                       // Neighbour stride minimun index.
+  unsigned int j_max = offset[i];                                               // Neighbour stride maximum index.
+  unsigned int k = 0;                                                           // Neighbour tuple index.
 
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////// CELL VARIABLES //////////////////////////////
