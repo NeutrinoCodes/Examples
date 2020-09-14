@@ -116,6 +116,16 @@ void main(void)
   vec4 center = center_SSBO[i];
   vec4 color = color_SSBO[i];
 
+  // COMPUTING STRIDE MINIMUM INDEX:
+  if (i == 0)
+  {
+    j_min = 0;                                                                  // Setting stride minimum (first stride)...
+  }
+  else
+  {
+    j_min = offset_SSBO[i - 1];                                                 // Setting stride minimum (all others)...
+  }
+
   gl_Position = P_mat*V_mat*center;                                             // Setting voxel position...
   light = -normalize(l);                                                        // Normalizing and inverting light direction...
 
