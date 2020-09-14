@@ -45,6 +45,11 @@ layout(std430, binding = 11) buffer voxel_nearest
   int nearest_SSBO[];
 };
 
+layout(std430, binding = 12) buffer voxel_offset
+{
+  int offset_SSBO[];
+};
+
 in VS_OUT
 {
   vec4 vertex_A;                                                                // Vertex "A".
@@ -67,6 +72,27 @@ out vec4 voxel_color;                                                           
 
 void main()
 {
+  uint i = gl_PrimitiveIDIn;
+  uint j = 0;
+  uint j_min = 0;
+  uint j_max = offset_SSBO[i];
+  uint k = 0;
+
+  // COMPUTING STRIDE MINIMUM INDEX:
+  if (i == 0)
+  {
+    j_min = 0;                                                                  // Setting stride minimum (first stride)...
+  }
+  else
+  {
+    j_min = offset_SSBO[i - 1];                                                 // Setting stride minimum (all others)...
+  }
+
+  for (j = j_min; j < j_max; j++)
+  {
+    k = nearest_SSBO[j];                                                        // Computing neighbour index...
+  }
+
   //////////////////////////////// CDG + (DG)H ///////////////////////////////////
   voxel_color = gs_in[0].color_U;                                               // Setting voxel color...
   gl_Position = gs_in[0].vertex_C;                                              // Setting voxel position...
