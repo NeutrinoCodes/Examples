@@ -2,12 +2,12 @@
 
 __kernel void thekernel(__global float4*    color,                              // Color.
                         __global float4*    position,                           // Position.
-                        __global float*     stiffness,                          // Stiffness.
                         __global float4*    position_int,                       // Position (intermediate).
                         __global float4*    velocity,                           // Velocity.
                         __global float4*    velocity_int,                       // Velocity (intermediate).
                         __global float4*    acceleration,                       // Acceleration.
                         __global float4*    gravity,                            // Gravity.
+                        __global float*     stiffness,                          // Stiffness.
                         __global float*     resting,                            // Resting distance.
                         __global float*     friction,                           // Friction.
                         __global float*     mass,                               // Mass.
