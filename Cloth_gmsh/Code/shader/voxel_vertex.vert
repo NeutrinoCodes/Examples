@@ -57,9 +57,14 @@ layout(std430, binding = 1) buffer voxel_center
   vec4 center_SSBO[];
 };
 
-layout(std430, binding = 7) buffer voxel_stiffness
+layout(std430, binding = 11) buffer voxel_nearest
 {
-  float data_SSBO[];
+  int nearest_SSBO[];
+};
+
+layout(std430, binding = 12) buffer voxel_offset
+{
+  int offset_SSBO[];
 };
 
 out VS_OUT
@@ -104,27 +109,25 @@ void main(void)
   float diffusion_F;                                                            // FRONT: face "BFHD" diffusion coefficient.
 
   uint i = gl_VertexID;
+  uint j = 0;
+  uint j_min = 0;
+  uint j_max = offset_SSBO[i];
+  uint k = 0;
+  vec4 center = center_SSBO[i];
+  vec4 color = color_SSBO[i];
 
-  gl_Position = P_mat*V_mat*center_SSBO[i];                                     // Setting voxel position...
+  gl_Position = P_mat*V_mat*center;                                             // Setting voxel position...
   light = -normalize(l);                                                        // Normalizing and inverting light direction...
-
-  vec4 pippo = center_SSBO[i];
-  pippo.z = data_SSBO[435]/2000.0f;
-
-  if(i == 42)
-  {
-    pippo.z = data_SSBO[42]/2000.0f;
-  }
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////// VOXEL'S FACE BARICENTRIC NORMALS /////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  normal_L = vec3(P_mat*V_mat*(center_SSBO[i] + vec4(nL, +1.0)));               // LEFT:  computing face "ABDC" normal.
-  normal_R = vec3(P_mat*V_mat*(center_SSBO[i] + vec4(nR, +1.0)));               // RIGHT: fcomputing face "EFHG" normal.
-  normal_D = vec3(P_mat*V_mat*(center_SSBO[i] + vec4(nD, +1.0)));               // DOWN:  computing face "ABFE" normal.
-  normal_U = vec3(P_mat*V_mat*(center_SSBO[i] + vec4(nU, +1.0)));               // UP:    computing face "CDHG" normal.
-  normal_B = vec3(P_mat*V_mat*(center_SSBO[i] + vec4(nB, +1.0)));               // BACK:  computing face "AEGC" normal.
-  normal_F = vec3(P_mat*V_mat*(center_SSBO[i] + vec4(nF, +1.0)));               // FRONT: computing face "BFHD" normal.
+  normal_L = vec3(P_mat*V_mat*(center + vec4(nL, +1.0)));                       // LEFT:  computing face "ABDC" normal.
+  normal_R = vec3(P_mat*V_mat*(center + vec4(nR, +1.0)));                       // RIGHT: fcomputing face "EFHG" normal.
+  normal_D = vec3(P_mat*V_mat*(center + vec4(nD, +1.0)));                       // DOWN:  computing face "ABFE" normal.
+  normal_U = vec3(P_mat*V_mat*(center + vec4(nU, +1.0)));                       // UP:    computing face "CDHG" normal.
+  normal_B = vec3(P_mat*V_mat*(center + vec4(nB, +1.0)));                       // BACK:  computing face "AEGC" normal.
+  normal_F = vec3(P_mat*V_mat*(center + vec4(nF, +1.0)));                       // FRONT: computing face "BFHD" normal.
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////// VOXEL'S FACE DIFFUSION COEFFICIENTS //////////////////////
@@ -139,22 +142,22 @@ void main(void)
   ////////////////////////////////////////////////////////////////////////////////
   /////////////////// VOXEL'S VERTEX BARICENTRIC COORDINATES /////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  vs_out.vertex_A = P_mat*V_mat*(center_SSBO[i] + vec4(s*A, 1.0));              // Computing vertex "A".
-  vs_out.vertex_B = P_mat*V_mat*(pippo + vec4(s*B, 1.0));                       // Computing vertex "B".
-  vs_out.vertex_C = P_mat*V_mat*(center_SSBO[i] + vec4(s*C, 1.0));              // Computing vertex "C".
-  vs_out.vertex_D = P_mat*V_mat*(pippo + vec4(s*D, 1.0));                       // Computing vertex "D".
-  vs_out.vertex_E = P_mat*V_mat*(center_SSBO[i] + vec4(s*E, 1.0));              // Computing vertex "E".
-  vs_out.vertex_F = P_mat*V_mat*(pippo + vec4(s*F, 1.0));                       // Computing vertex "F".
-  vs_out.vertex_G = P_mat*V_mat*(center_SSBO[i] + vec4(s*G, 1.0));              // Computing vertex "G".
-  vs_out.vertex_H = P_mat*V_mat*(pippo + vec4(s*H, 1.0));                       // Computing vertex "H".
+  vs_out.vertex_A = P_mat*V_mat*(center + vec4(s*A, 1.0));                      // Computing vertex "A".
+  vs_out.vertex_B = P_mat*V_mat*(center + vec4(s*B, 1.0));                      // Computing vertex "B".
+  vs_out.vertex_C = P_mat*V_mat*(center + vec4(s*C, 1.0));                      // Computing vertex "C".
+  vs_out.vertex_D = P_mat*V_mat*(center + vec4(s*D, 1.0));                      // Computing vertex "D".
+  vs_out.vertex_E = P_mat*V_mat*(center + vec4(s*E, 1.0));                      // Computing vertex "E".
+  vs_out.vertex_F = P_mat*V_mat*(center + vec4(s*F, 1.0));                      // Computing vertex "F".
+  vs_out.vertex_G = P_mat*V_mat*(center + vec4(s*G, 1.0));                      // Computing vertex "G".
+  vs_out.vertex_H = P_mat*V_mat*(center + vec4(s*H, 1.0));                      // Computing vertex "H".
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////// VOXEL'S FACE COLORS //////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  vs_out.color_L = vec4(diffusion_L*vec3(color_SSBO[i]), 1.0);                  // LEFT:  computing face "ABDC" color.
-  vs_out.color_R = vec4(diffusion_R*vec3(color_SSBO[i]), 1.0);                  // RIGHT: computing face "EFHG" color.
-  vs_out.color_D = vec4(diffusion_D*vec3(color_SSBO[i]), 1.0);                  // DOWN:  computing face "ABFE" color.
-  vs_out.color_U = vec4(diffusion_U*vec3(color_SSBO[i]), 1.0);                  // UP:    computing face "CDHG" color.
-  vs_out.color_B = vec4(diffusion_B*vec3(color_SSBO[i]), 1.0);                  // BACK:  computing face "AEGC" color.
-  vs_out.color_F = vec4(diffusion_F*vec3(color_SSBO[i]), 1.0);                  // FRONT: computing face "BFHD" color.
+  vs_out.color_L = vec4(diffusion_L*vec3(color), 1.0);                          // LEFT:  computing face "ABDC" color.
+  vs_out.color_R = vec4(diffusion_R*vec3(color), 1.0);                          // RIGHT: computing face "EFHG" color.
+  vs_out.color_D = vec4(diffusion_D*vec3(color), 1.0);                          // DOWN:  computing face "ABFE" color.
+  vs_out.color_U = vec4(diffusion_U*vec3(color), 1.0);                          // UP:    computing face "CDHG" color.
+  vs_out.color_B = vec4(diffusion_B*vec3(color), 1.0);                          // BACK:  computing face "AEGC" color.
+  vs_out.color_F = vec4(diffusion_F*vec3(color), 1.0);                          // FRONT: computing face "BFHD" color.
 }
