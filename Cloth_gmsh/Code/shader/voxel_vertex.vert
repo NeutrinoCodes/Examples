@@ -57,7 +57,7 @@ layout(std430, binding = 1) buffer voxel_center
   vec4 center_SSBO[];
 };
 
-layout(std430, binding = 2) buffer voxel_stiffness
+layout(std430, binding = 7) buffer voxel_stiffness
 {
   float data_SSBO[];
 };
