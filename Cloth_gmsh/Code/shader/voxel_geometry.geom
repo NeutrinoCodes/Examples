@@ -40,6 +40,11 @@
 layout (points) in;                                                             // Input points.
 layout (triangle_strip, max_vertices = 26) out;                                 // Output points.
 
+layout(std430, binding = 11) buffer voxel_nearest
+{
+  int nearest_SSBO[];
+};
+
 in VS_OUT
 {
   vec4 vertex_A;                                                                // Vertex "A".
