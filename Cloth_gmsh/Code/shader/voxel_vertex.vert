@@ -73,6 +73,8 @@ out VS_OUT
   vec4 color_U;                                                                 // UP:    face "CDHG" color.
   vec4 color_B;                                                                 // BACK:  face "AEGC" color.
   vec4 color_F;                                                                 // FRONT: face "BFHD" color.
+  mat4 V_mat;
+  mat4 P_mat;
 } vs_out;
 
 uniform mat4 V_mat;                                                             // View matrix.
@@ -146,4 +148,7 @@ void main(void)
   vs_out.color_U = vec4(diffusion_U*vec3(color), 1.0);                          // UP:    computing face "CDHG" color.
   vs_out.color_B = vec4(diffusion_B*vec3(color), 1.0);                          // BACK:  computing face "AEGC" color.
   vs_out.color_F = vec4(diffusion_F*vec3(color), 1.0);                          // FRONT: computing face "BFHD" color.
+
+  vs_out.V_mat = V_mat;
+  vs_out.P_mat = P_mat;
 }
