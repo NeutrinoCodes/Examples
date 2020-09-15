@@ -38,7 +38,23 @@
 //             BFD +
 //                 | FRONT SIDE
 //           (FD)H +
+//
+//                               y (points up)
+//                               |
+//                               o -- x (points right)
+//                              /
+//                             z (points out of the screen)
+//
+//                               UP
+//                               |  / BACK
+//                               | /
+//                     LEFT -----+----- RIGHT
+//                              /|
+//                       FRONT / |
+//                              DOWN
+//
 //////////////////////////////////////////////////////////////////////////////////
+#define s 0.008                                                                 // Voxel side.
 
 layout (points) in;                                                             // Input points.
 layout (triangle_strip, max_vertices = 26) out;                                 // Output points.
@@ -100,18 +116,6 @@ void main()
   {
     j_min = offset_SSBO[i - 1];                                                 // Setting stride minimum (all others)...
   }
-
-  voxel_color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-  gl_Position = P_mat*V_mat*center;
-
-  for (j = j_min; j < j_max; j++)
-  {
-    k = nearest_SSBO[j];                                                        // Computing neighbour index...
-    gl_Position = P_mat*V_mat*(center_SSBO[k]);
-    EmitVertex();
-  }
-
-  EndPrimitive();
 
   /////////////////////////// LEFT SIDE: ABC + (BC)D /////////////////////////////
   voxel_color = gs_in[0].color_L;                                               // Setting voxel color...
@@ -226,4 +230,28 @@ void main()
   EmitVertex();                                                                 // "H" vertex.
 
   EndPrimitive();                                                               // Ending primitive...
+
+
+
+
+  voxel_color = vec4(1.0, 0.0, 0.0, 1.0);
+  gl_Position = gs_in[0].vertex_B + P_mat*V_mat*vec4(0.0, 0.0, 0.2, 1.0);
+  //gl_Position = P_mat*V_mat*center;
+  EmitVertex();
+
+  voxel_color = vec4(1.0, 0.0, 0.0, 1.0);
+  gl_Position = gs_in[0].vertex_F + P_mat*V_mat*vec4(0.0, 0.0, 0.2, 1.0);
+  EmitVertex();
+
+  //k = nearest_SSBO[j_min];                                                        // Computing neighbour index...
+  voxel_color = vec4(1.0, 0.0, 0.0, 1.0);
+  //gl_Position = P_mat*V_mat*(center_SSBO[k]);
+  gl_Position = gs_in[0].vertex_D + P_mat*V_mat*vec4(0.0, 0.0, 0.2, 1.0);
+  EmitVertex();
+
+  voxel_color = vec4(1.0, 0.0, 0.0, 1.0);
+  gl_Position = gs_in[0].vertex_H + P_mat*V_mat*vec4(0.0, 0.0, 0.2, 1.0);
+  EmitVertex();
+
+  EndPrimitive();
 }
