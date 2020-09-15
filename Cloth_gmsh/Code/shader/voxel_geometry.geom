@@ -43,6 +43,11 @@
 layout (points) in;                                                             // Input points.
 layout (triangle_strip, max_vertices = 26) out;                                 // Output points.
 
+layout(std430, binding = 1) buffer voxel_center
+{
+  vec4 center_SSBO[];
+};
+
 layout(std430, binding = 11) buffer voxel_nearest
 {
   int nearest_SSBO[];
@@ -69,6 +74,8 @@ in VS_OUT
   vec4 color_U;                                                                 // UP:    face "CDHG" color.
   vec4 color_B;                                                                 // BACK:  face "AEGC" color.
   vec4 color_F;                                                                 // FRONT: face "BFHD" color.
+  mat4 V_mat;
+  mat4 P_mat;
 } gs_in[];
 
 out vec4 voxel_color;                                                           // Voxel color (for fragment shader).
@@ -79,7 +86,10 @@ void main()
   uint j = 0;
   uint j_min = 0;
   uint j_max = offset_SSBO[i];
+  vec4 center = center_SSBO[i];
   uint k = 0;
+  mat4 V_mat = gs_in[0].V_mat;
+  mat4 P_mat = gs_in[0].P_mat;
 
   // COMPUTING STRIDE MINIMUM INDEX:
   if (i == 0)
@@ -91,10 +101,17 @@ void main()
     j_min = offset_SSBO[i - 1];                                                 // Setting stride minimum (all others)...
   }
 
+  voxel_color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+  gl_Position = P_mat*V_mat*center;
+
   for (j = j_min; j < j_max; j++)
   {
     k = nearest_SSBO[j];                                                        // Computing neighbour index...
+    gl_Position = P_mat*V_mat*(center_SSBO[k]);
+    EmitVertex();
   }
+
+  EndPrimitive();
 
   /////////////////////////// LEFT SIDE: ABC + (BC)D /////////////////////////////
   voxel_color = gs_in[0].color_L;                                               // Setting voxel color...
