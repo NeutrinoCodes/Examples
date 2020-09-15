@@ -111,6 +111,7 @@ void main()
   uint j_max = offset_SSBO[i];
   vec4 center = center_SSBO[i];
   vec4 color = color_SSBO[i];
+  vec4 middle;
   uint k = 0;
   mat4 V_mat = gs_in[0].V_mat;
   mat4 P_mat = gs_in[0].P_mat;
@@ -172,14 +173,14 @@ void main()
   ////////////////////////////////////////////////////////////////////////////////
   /////////////////// VOXEL'S VERTEX BARICENTRIC COORDINATES /////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  vertex_A = P_mat*V_mat*(center + vec4(s*A, 1.0));                             // Computing vertex "A".
-  vertex_B = P_mat*V_mat*(center + vec4(s*B, 1.0));                             // Computing vertex "B".
-  vertex_C = P_mat*V_mat*(center + vec4(s*C, 1.0));                             // Computing vertex "C".
-  vertex_D = P_mat*V_mat*(center + vec4(s*D, 1.0));                             // Computing vertex "D".
-  vertex_E = P_mat*V_mat*(center + vec4(s*E, 1.0));                             // Computing vertex "E".
-  vertex_F = P_mat*V_mat*(center + vec4(s*F, 1.0));                             // Computing vertex "F".
-  vertex_G = P_mat*V_mat*(center + vec4(s*G, 1.0));                             // Computing vertex "G".
-  vertex_H = P_mat*V_mat*(center + vec4(s*H, 1.0));                             // Computing vertex "H".
+  vertex_A = P_mat*V_mat*(center + vec4(s*A, 0.0));                             // Computing vertex "A".
+  vertex_B = P_mat*V_mat*(center + vec4(s*B, 0.0));                             // Computing vertex "B".
+  vertex_C = P_mat*V_mat*(center + vec4(s*C, 0.0));                             // Computing vertex "C".
+  vertex_D = P_mat*V_mat*(center + vec4(s*D, 0.0));                             // Computing vertex "D".
+  vertex_E = P_mat*V_mat*(center + vec4(s*E, 0.0));                             // Computing vertex "E".
+  vertex_F = P_mat*V_mat*(center + vec4(s*F, 0.0));                             // Computing vertex "F".
+  vertex_G = P_mat*V_mat*(center + vec4(s*G, 0.0));                             // Computing vertex "G".
+  vertex_H = P_mat*V_mat*(center + vec4(s*H, 0.0));                             // Computing vertex "H".
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////// VOXEL'S FACE COLORS //////////////////////////////
@@ -201,26 +202,28 @@ void main()
     j_min = offset_SSBO[i - 1];                                                 // Setting stride minimum (all others)...
   }
 
-  out_color = vec4(1.0, 0.0, 0.0, 1.0);
-  gl_Position = P_mat*V_mat*(center + vec4(s*B, 1.0) + vec4(0.0, 0.0, 0.5, 0.0));
-  //gl_Position = P_mat*V_mat*center;
-  EmitVertex();
+  for (j = j_min; j < j_max; j++)
+  {
+    k = nearest_SSBO[j_min];                                                        // Computing neighbour index...
+    
+    out_color = vec4(1.0, 0.0, 0.0, 1.0);
+    gl_Position = P_mat*V_mat*center;
+    EmitVertex();
 
-  out_color = vec4(1.0, 0.0, 0.0, 1.0);
-  gl_Position = P_mat*V_mat*(center + vec4(s*F, 1.0) + vec4(0.0, 0.0, 0.5, 0.0));
-  EmitVertex();
+    out_color = vec4(1.0, 0.0, 0.0, 1.0);
+    gl_Position = P_mat*V_mat*center_SSBO[k];
+    EmitVertex();
 
-  //k = nearest_SSBO[j_min];                                                        // Computing neighbour index...
-  out_color = vec4(1.0, 0.0, 0.0, 1.0);
-  //gl_Position = P_mat*V_mat*(center_SSBO[k]);
-  gl_Position = P_mat*V_mat*(center + vec4(s*D, 1.0) + vec4(0.0, 0.0, 0.5, 0.0));
-  EmitVertex();
+    middle = 0.5*(center + center_SSBO[k]);
+    middle.w = 1.0;
+    middle.z += 0.004;
 
-  out_color = vec4(1.0, 0.0, 0.0, 1.0);
-  gl_Position = P_mat*V_mat*(center + vec4(s*H, 1.0) + vec4(0.0, 0.0, 0.5, 0.0));
-  EmitVertex();
+    out_color = vec4(1.0, 0.0, 0.0, 1.0);
+    gl_Position = P_mat*V_mat*(middle);
+    EmitVertex();
 
-  EndPrimitive();
+    EndPrimitive();
+  }
 
   /////////////////////////// LEFT SIDE: ABC + (BC)D /////////////////////////////
   out_color = color_L;                                                          // Setting voxel color...
