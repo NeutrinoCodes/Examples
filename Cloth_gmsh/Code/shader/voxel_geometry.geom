@@ -204,7 +204,7 @@ void main()
 
   for (j = j_min; j < j_max; j++)
   {
-    k = nearest_SSBO[j_min];                                                        // Computing neighbour index...
+    k = nearest_SSBO[j];                                                        // Computing neighbour index...
     
     out_color = vec4(1.0, 0.0, 0.0, 1.0);
     gl_Position = P_mat*V_mat*center;
