@@ -202,22 +202,22 @@ void main()
   }
 
   out_color = vec4(1.0, 0.0, 0.0, 1.0);
-  gl_Position = P_mat*V_mat*(center + vec4(s*B, 1.0) + vec4(0.0, 0.0, 0.5, 1.0));
+  gl_Position = P_mat*V_mat*(center + vec4(s*B, 1.0) + vec4(0.0, 0.0, 0.5, 0.0));
   //gl_Position = P_mat*V_mat*center;
   EmitVertex();
 
   out_color = vec4(1.0, 0.0, 0.0, 1.0);
-  gl_Position = P_mat*V_mat*(center + vec4(s*F, 1.0) + vec4(0.0, 0.0, 0.5, 1.0));
+  gl_Position = P_mat*V_mat*(center + vec4(s*F, 1.0) + vec4(0.0, 0.0, 0.5, 0.0));
   EmitVertex();
 
   //k = nearest_SSBO[j_min];                                                        // Computing neighbour index...
   out_color = vec4(1.0, 0.0, 0.0, 1.0);
   //gl_Position = P_mat*V_mat*(center_SSBO[k]);
-  gl_Position = P_mat*V_mat*(center + vec4(s*D, 1.0) + vec4(0.0, 0.0, 0.5, 1.0));
+  gl_Position = P_mat*V_mat*(center + vec4(s*D, 1.0) + vec4(0.0, 0.0, 0.5, 0.0));
   EmitVertex();
 
   out_color = vec4(1.0, 0.0, 0.0, 1.0);
-  gl_Position = P_mat*V_mat*(center + vec4(s*H, 1.0) + vec4(0.0, 0.0, 0.5, 1.0));
+  gl_Position = P_mat*V_mat*(center + vec4(s*H, 1.0) + vec4(0.0, 0.0, 0.5, 0.0));
   EmitVertex();
 
   EndPrimitive();
