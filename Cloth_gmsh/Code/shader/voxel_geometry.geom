@@ -201,28 +201,26 @@ void main()
     j_min = offset_SSBO[i - 1];                                                 // Setting stride minimum (all others)...
   }
 
-  /*
-  voxel_color = vec4(1.0, 0.0, 0.0, 1.0);
-  gl_Position = vertex_B;
+  out_color = vec4(1.0, 0.0, 0.0, 1.0);
+  gl_Position = P_mat*V_mat*(center + vec4(s*B, 1.0) + vec4(0.0, 0.0, 0.5, 1.0));
   //gl_Position = P_mat*V_mat*center;
   EmitVertex();
 
-  voxel_color = vec4(1.0, 0.0, 0.0, 1.0);
-  gl_Position = vertex_F;
+  out_color = vec4(1.0, 0.0, 0.0, 1.0);
+  gl_Position = P_mat*V_mat*(center + vec4(s*F, 1.0) + vec4(0.0, 0.0, 0.5, 1.0));
   EmitVertex();
 
   //k = nearest_SSBO[j_min];                                                        // Computing neighbour index...
-  voxel_color = vec4(1.0, 0.0, 0.0, 1.0);
+  out_color = vec4(1.0, 0.0, 0.0, 1.0);
   //gl_Position = P_mat*V_mat*(center_SSBO[k]);
-  gl_Position = vertex_D;
+  gl_Position = P_mat*V_mat*(center + vec4(s*D, 1.0) + vec4(0.0, 0.0, 0.5, 1.0));
   EmitVertex();
 
-  voxel_color = vec4(1.0, 0.0, 0.0, 1.0);
-  gl_Position = vertex_H;
+  out_color = vec4(1.0, 0.0, 0.0, 1.0);
+  gl_Position = P_mat*V_mat*(center + vec4(s*H, 1.0) + vec4(0.0, 0.0, 0.5, 1.0));
   EmitVertex();
 
   EndPrimitive();
-  */
 
   /////////////////////////// LEFT SIDE: ABC + (BC)D /////////////////////////////
   out_color = color_L;                                                          // Setting voxel color...
