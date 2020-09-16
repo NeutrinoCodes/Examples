@@ -69,11 +69,11 @@
 #define nB vec3(+0.0, +0.0, -1.0)                                               // Normal "BACK".
 #define nF vec3(+0.0, +0.0, +1.0)                                               // Normal "FRONT".
 
-#define s 0.008                                                                 // Voxel side.
+#define s 0.004                                                                 // Voxel side.
 #define l vec3(0.0, -1.0, 0.0)                                                  // Light direction.
 
 layout (points) in;                                                             // Input points.
-layout (triangle_strip, max_vertices = 26) out;                                 // Output points.
+layout (triangle_strip, max_vertices = 64) out;                                 // Output points.
 
 layout(std430, binding = 0) buffer voxel_color
 {
