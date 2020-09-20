@@ -1,5 +1,5 @@
 /// @file
-#version 410 core
+#version 460 core
 
 uniform mat4 V_mat;                                                             // View matrix.
 uniform mat4 P_mat;                                                             // Projection matrix.
