@@ -5,6 +5,7 @@
 in  vec4 voxel_color;                                                           // Voxel color.
 in  vec4 voxel_center; 
 in  vec4 voxel_point;
+
 out vec4 fragment_color;                                                        // Fragment color.
 
 void main(void)
