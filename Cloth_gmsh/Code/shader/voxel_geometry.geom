@@ -2,7 +2,7 @@
 #version 410 core
 
 layout (points) in;                                                             // Input points.
-layout (triangle_strip, max_vertices = 64) out;                                 // Output points.
+layout (points, max_vertices = 26) out;                                         // Output points.
 
 layout(std430, binding = 0) buffer voxel_color
 {
@@ -24,16 +24,15 @@ layout(std430, binding = 12) buffer voxel_offset
   int offset_SSBO[];                                                            // Voxel offset SSBO.
 };
 
-out VS_OUT
+in VS_OUT
 {
-  vec4 color;                                                                   // Color.
-  vec4 center;                                                                  // Center.
-  mat4 V_mat;
-  mat4 P_mat;
-} vs_out;
+  mat4 V_mat;                                                                   // View matrix.
+  mat4 P_mat;                                                                   // Porojection matrix.
+} gs_in[];
 
-uniform mat4 V_mat;                                                             // View matrix.
-uniform mat4 P_mat;                                                             // Projection matrix.
+out vec4 color;                                                                 // Voxel color (for fragment shader).
+out vec4 center;                                                                // Voxel center (for fragment shader).
+out vec4 point;                                                                 // Voxel point (for fragment shader).
 
 void main()
 {
@@ -41,12 +40,14 @@ void main()
   uint j = 0;
   uint j_min = 0;
   uint j_max = offset_SSBO[i];
-  vec4 center = center_SSBO[i];
-  vec4 color = color_SSBO[i];
   vec4 middle;
   uint k = 0;
   mat4 V_mat = gs_in[0].V_mat;
   mat4 P_mat = gs_in[0].P_mat;
+
+  color = color_SSBO[i];
+  center = center_SSBO[i];
+  point = P_mat*V_mat*center;
 
   // COMPUTING STRIDE MINIMUM INDEX:
   if (i == 0)
@@ -62,6 +63,7 @@ void main()
   {
     k = nearest_SSBO[j];                                                        // Computing neighbour index...
     
+    /*
     out_color = vec4(1.0, 0.0, 0.0, 1.0);
     gl_Position = P_mat*V_mat*center;
     EmitVertex();
@@ -76,13 +78,11 @@ void main()
 
     out_color = vec4(1.0, 0.0, 0.0, 1.0);
     gl_Position = P_mat*V_mat*(middle);
-    EmitVertex();
-
-    EndPrimitive();
+    */
   }
 
-  vs_out.color = color;                    
-  vs_out.center = center;        
-  vs_out.V_mat = V_mat;
-  vs_out.P_mat = P_mat;
+  gl_Position = point;     
+  gl_PointSize = (1.0 - gl_Position.z / gl_Position.w) * size;                  // Computing voxel point size...
+  EmitVertex();
+  EndPrimitive();
 }
