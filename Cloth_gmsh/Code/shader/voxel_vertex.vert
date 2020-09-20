@@ -14,6 +14,6 @@ out VS_OUT
 // Forwarding view and projection matrices:
 void main(void)
 {        
-  vs_out.V_mat = V_mat;
-  vs_out.P_mat = P_mat;
+  vs_out.V_mat = V_mat;                                                         // Forwarding view matrix...
+  vs_out.P_mat = P_mat;                                                         // Forwarding projection matrix...
 }
