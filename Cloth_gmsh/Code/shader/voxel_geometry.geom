@@ -1,5 +1,5 @@
 /// @file
-#version 410 core
+#version 460 core
 
 layout (points) in;                                                             // Input points.
 layout (points, max_vertices = 26) out;                                         // Output points.
@@ -33,6 +33,8 @@ in VS_OUT
 out vec4 color;                                                                 // Voxel color (for fragment shader).
 out vec4 center;                                                                // Voxel center (for fragment shader).
 out vec4 point;                                                                 // Voxel point (for fragment shader).
+
+const float size = 40;
 
 void main()
 {
