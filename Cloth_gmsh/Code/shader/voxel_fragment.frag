@@ -46,11 +46,12 @@ void main(void)
   float k2;
   float k3;
 
-  /*
+
   //color = color_SSBO[i];
   center = center_SSBO[i];
   node = P_mat*V_mat*center;
 
+  /*
   // COMPUTING STRIDE MINIMUM INDEX:
   if (i == 0)
   {
@@ -76,8 +77,8 @@ void main(void)
   {
     discard;                                                                    // Discarding fragment point...
   }
+
 */
 
-  //fragment_color = vec4(0.8*vec3(k2, 1.2*k3, k1) + color.rgb, 0.2 + k1);
-  fragment_color = color;
+  fragment_color = vec4(0.8*vec3(k2, 1.2*k3, k1) + color.rgb, 0.2 + k1);
 }
