@@ -1,8 +1,16 @@
 /// @file
 #version 460 core
 
+#define s 0.02
+
+uniform mat4 V_mat;                                                             // View matrix.
+uniform mat4 P_mat;                                                             // Projection matrix.
+uniform float size_x;                                                           // Framebuffer size_x.
+uniform float size_y;                                                           // Framebuffer size_y.
+uniform float AR;                                                               // Framebuffer aspect ratio.
+
 layout (points) in;                                                             // Input points.
-layout (line_strip, max_vertices = 26) out;                                         // Output points.
+layout (triangle_strip, max_vertices = 26) out;                                 // Output points.
 
 // Voxel colors:
 layout(std430, binding = 0) buffer voxel_color
@@ -28,18 +36,8 @@ layout(std430, binding = 12) buffer voxel_offset
   int offset_SSBO[];                                                            // Voxel offset SSBO.
 };
 
-in VS_OUT
-{
-  mat4 V_mat;                                                                   // View matrix.
-  mat4 P_mat;                                                                   // Projection matrix.
-} gs_in[];
-
 out vec4 color;
-out mat4 V_mat;
-out mat4 P_mat;
-
-const float size = 40;                                                          // Node graphics size.
-const vec2 WIN_SCALE = vec2(800, 600);
+out vec2 quad;
 
 void main()
 {
@@ -49,12 +47,11 @@ void main()
   uint j_max = offset_SSBO[i];                                                  // Neighbour node maximum index.
   uint k = 0;                                                                   // Neighbour node index.
 
-  mat4 V_mat = gs_in[0].V_mat;                                                  // View matrix.
-  mat4 P_mat = gs_in[0].P_mat;                                                  // Projection matrix.
+  vec4 A = vec4(-s, -s*AR, 0.0, 0.0);
+  vec4 B = vec4(+s, -s*AR, 0.0, 0.0);
+  vec4 C = vec4(-s, +s*AR, 0.0, 0.0);
+  vec4 D = vec4(+s, +s*AR, 0.0, 0.0);
 
-  V_mat = gs_in[0].V_mat;                                                       // Getting view matrix...
-  P_mat = gs_in[0].P_mat;                                                       // Getting projection matrix...
-  
   // FINDING MINIMUM STRIDE INDEX:
   if (i == 0)
   {
@@ -70,6 +67,7 @@ void main()
   {
     k = nearest_SSBO[j];                                                        // Computing neighbour index...
     
+    /*
     color = color_SSBO[i];
     gl_Position = P_mat*V_mat*center_SSBO[i];                                   // Setting central vertex...
     EmitVertex();                                                               // Emitting vertex...
@@ -79,5 +77,28 @@ void main()
     EmitVertex();                                                               // Emitting vertex...
 
     EndPrimitive();                                                             // Ending primitive...
+    */
   }
+
+  color = color_SSBO[i];                                                        // Setting voxel color...  
+  gl_Position = P_mat*V_mat*(center_SSBO[i]) + A;                               // Setting voxel position...
+  quad = vec2(-1.0, -1.0);
+  EmitVertex();                                                                 // Emitting vertex...
+
+  color = color_SSBO[i];                                                        // Setting voxel color...
+  gl_Position = P_mat*V_mat*(center_SSBO[i]) + B;                               // Setting voxel position...
+  quad = vec2(+1.0, -1.0);
+  EmitVertex();                                                                 // Emitting vertex...
+
+  color = color_SSBO[i];                                                        // Setting voxel color...
+  gl_Position = P_mat*V_mat*(center_SSBO[i]) + C;                               // Setting voxel position...
+  quad = vec2(-1.0, +1.0);
+  EmitVertex();                                                                 // Emitting vertex...
+
+  color = color_SSBO[i];                                                        // Setting voxel color...
+  gl_Position = P_mat*V_mat*(center_SSBO[i]) + D;                               // Setting voxel position...
+  quad = vec2(+1.0, +1.0);
+  EmitVertex();                                                                 // Emitting vertex...
+
+  EndPrimitive();                                                               // Ending primitive...
 }
