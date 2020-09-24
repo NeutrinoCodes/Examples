@@ -1,6 +1,12 @@
 /// @file
 #version 460 core
 
+uniform mat4 V_mat;                                                             // View matrix.
+uniform mat4 P_mat;                                                             // Projection matrix.
+uniform float size_x;                                                           // Framebuffer size_x.
+uniform float size_y;                                                           // Framebuffer size_y.
+uniform float AR;                                                               // Framebuffer aspect ratio.
+
 // Voxel colors:
 layout(std430, binding = 0) buffer voxel_color
 {
@@ -26,8 +32,7 @@ layout(std430, binding = 12) buffer voxel_offset
 };
 
 in vec4 color;
-in mat4 V_mat;
-in mat4 P_mat;
+in vec2 quad;
 
 out vec4 fragment_color;                                                        // Fragment color.
 
@@ -38,20 +43,23 @@ void main(void)
   uint j_min = 0;
   uint j_max = offset_SSBO[i];
   uint k = 0;
-  vec4 center; 
-  vec4 node;
-  vec2 P;                                                                       // 2D fragment coordinates of the voxel.
-  float R;                                                                      // Radius of the voxel.
+ 
   float k1;                                                                     // Smoothness coefficient.
-  float k2;
-  float k3;
+  float k2;                                                                     // Smoothness coefficient.
+  float k3;                                                                     // Smoothness coefficient.
+  float R;                                                                      // Blooming radius.
 
+  R = length(quad);                                                             // Setting blooming radius...
 
-  //color = color_SSBO[i];
-  center = center_SSBO[i];
-  node = P_mat*V_mat*center;
+  k1 = 1.0 - smoothstep(0.0, 0.5, R);                                           // Computing smoothness coefficient...
+  k2 = 1.0 - smoothstep(0.0, 0.1, R);                                           // Computing smoothness coefficient...
+  k3 = 1.0 - smoothstep(0.2, 0.3, R);                                           // Computing smoothness coefficient...
 
-  /*
+  if (k1 == 0.0)
+  {
+    discard;                                                                    // Discarding fragment point...
+  }
+
   // COMPUTING STRIDE MINIMUM INDEX:
   if (i == 0)
   {
@@ -67,18 +75,5 @@ void main(void)
     k = nearest_SSBO[j];                                                        // Computing neighbour index...
   }
 
-  P = gl_PointCoord;                                                            // Getting fragment coordinates...
-  R = distance(P, vec2(0.5, 0.5));                                              // Computing voxel radius...
-  k1 = 1.0 - smoothstep(0.0, 0.5, R);                                           // Computing smoothness coefficient...
-  k2 = 1.0 - smoothstep(0.0, 0.1, R);
-  k3 = 1.0 - smoothstep(0.2, 0.3, R);
-
-  if (k1 == 0.0)
-  {
-    discard;                                                                    // Discarding fragment point...
-  }
-
-*/
-
-  fragment_color = vec4(0.8*vec3(k2, 1.2*k3, k1) + color.rgb, 0.2 + k1);
+  fragment_color = vec4(0.8*vec3(k2, 1.2*k3, k1) + color.rgb, 0.2 + k1);        // Setting fragment color...
 }
