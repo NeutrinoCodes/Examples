@@ -1,7 +1,7 @@
 /// @file
 #version 460 core
 
-#define s 0.01
+#define s 0.005
 
 uniform mat4 V_mat;                                                             // View matrix.
 uniform mat4 P_mat;                                                             // Projection matrix.
@@ -55,6 +55,7 @@ void main()
   vec4 P;
   vec4 Q;
   vec2 link;
+  vec2 base;
   mat2 M;
 
   // FINDING MINIMUM STRIDE INDEX:
@@ -74,37 +75,39 @@ void main()
     
     P = P_mat*V_mat*center_SSBO[i];
     Q = P_mat*V_mat*center_SSBO[k];
-    vec2 H;
 
-    float alpha = 3.14/4.0;
 
-    link = normalize(Q.xy/Q.w - P.xy/P.w);
-    //M = mat2(link.x, -link.y, +link.y, link.x);
-    M = mat2(link.y, -link.x, +link.x, link.y);
+    link = vec2((Q.x/Q.w - P.x/P.w), (Q.y/Q.w - P.y/P.w));
+    base = normalize(vec2(-link.y, link.x));
 
-    A = vec4(-link.x, 0.0, 0.0, 0.0);
-    B = vec4(+link.x, 0.0, 0.0, 0.0);
+    vec4 A = vec4(-s*base, 0.0, 0.0);
+    vec4 B = vec4(+s*base, 0.0, 0.0);
+    vec4 C = vec4(-s*base, 0.0, 0.0);
+    vec4 D = vec4(+s*base, 0.0, 0.0);
 
     color = color_SSBO[i];                                                      // Setting voxel color...  
-    gl_Position = P;        // Setting voxel position...
+    gl_Position =  P + A;        // Setting voxel position...
     quad = vec2(-1.0, -1.0);
     EmitVertex();                                                               // Emitting vertex...
 
     color = color_SSBO[i];                                                      // Setting voxel color...
-    H = M*A.xy;
-    gl_Position = Q + s*vec4(H.x, H.y, 0.0, 0.0);        // Setting voxel position...
+    gl_Position =  P + B;        // Setting voxel position...
     quad = vec2(+1.0, -1.0);
     EmitVertex();                                                               // Emitting vertex...
 
     color = color_SSBO[i];                                                      // Setting voxel color...  
-    H = M*B.xy;
-    gl_Position = Q + s*vec4(H.x, H.y, 0.0, 0.0); ;        // Setting voxel position...
+    gl_Position = Q + D;        // Setting voxel position...
     quad = vec2(-1.0, +1.0);
     EmitVertex();                                                               // Emitting vertex...
 
     color = color_SSBO[i];                                                      // Setting voxel color...  
-    gl_Position = P;        // Setting voxel position...
+    gl_Position = Q + C;        // Setting voxel position...
     quad = vec2(+1.0, +1.0);
+    EmitVertex();                                                               // Emitting vertex...
+
+    color = color_SSBO[i];                                                      // Setting voxel color...  
+    gl_Position = P + A;          // Setting voxel position...
+    quad = vec2(-1.0, -1.0);
     EmitVertex();                                                               // Emitting vertex...
 
     EndPrimitive();                                                             // Ending primitive...
