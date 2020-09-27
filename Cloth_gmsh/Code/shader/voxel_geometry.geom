@@ -10,7 +10,7 @@ uniform float size_y;                                                           
 uniform float AR;                                                               // Framebuffer aspect ratio.
 
 layout (points) in;                                                             // Input points.
-layout (triangle_strip, max_vertices = 10) out;                                 // Output points.
+layout (triangle_strip, max_vertices = 64) out;                                 // Output points.
 
 // Voxel colors:
 layout(std430, binding = 0) buffer voxel_color
