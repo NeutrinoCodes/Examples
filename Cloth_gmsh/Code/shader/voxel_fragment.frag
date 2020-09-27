@@ -57,7 +57,7 @@ void main(void)
 
   if (k1 == 0.0)
   {
-    //discard;                                                                    // Discarding fragment point...
+    discard;                                                                    // Discarding fragment point...
   }
 
   // COMPUTING STRIDE MINIMUM INDEX:
@@ -75,6 +75,6 @@ void main(void)
     k = nearest_SSBO[j];                                                        // Computing neighbour index...
   }
 
-  //fragment_color = vec4(0.8*vec3(k2, 1.2*k3, k1) + color.rgb, 0.2 + k1);        // Setting fragment color...
-  fragment_color = color;
+  fragment_color = vec4(0.8*vec3(k2, 1.2*k3, k1) + color.rgb, 0.2 + k1);        // Setting fragment color...
+  //fragment_color = color;
 }
