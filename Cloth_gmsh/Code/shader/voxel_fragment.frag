@@ -44,6 +44,22 @@ void main(void)
   uint j_max = offset_SSBO[i];
   uint k = 0;
  
+  vec2 P = vec2(x_P, 0.0);
+  vec2 Q = vec2(x_Q, 0.0);
+
+  float A;
+  float B;
+  float C;
+  float d;
+  float T;
+  float f;
+
+  A = abs(quad + P);
+  B = abs(quad + Q);
+  f = (1/A) + (1/B) + (1/C)*abs((1/A + 1/B), ())
+
+
+  /*
   float k1;                                                                     // Smoothness coefficient.
   float k2;                                                                     // Smoothness coefficient.
   float k3;                                                                     // Smoothness coefficient.
@@ -59,6 +75,7 @@ void main(void)
   {
     discard;                                                                    // Discarding fragment point...
   }
+  */
 
   // COMPUTING STRIDE MINIMUM INDEX:
   if (i == 0)
