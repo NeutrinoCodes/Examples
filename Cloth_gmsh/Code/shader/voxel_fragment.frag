@@ -44,19 +44,19 @@ void main(void)
   uint j_max = offset_SSBO[i];
   uint k = 0;
  
-  vec2 P = vec2(x_P, 0.0);
-  vec2 Q = vec2(x_Q, 0.0);
-
+  float xP = 0.05;
+  float xQ = 0.95;
+  vec2 P = vec2(xP, 0.0);
+  vec2 Q = vec2(xQ, 0.0);
+  vec2 DP = quad - P;
+  vec2 DQ = quad - Q;
   float A;
   float B;
-  float C;
-  float d;
-  float T;
   float f;
 
-  A = abs(quad + P);
-  B = abs(quad + Q);
-  f = (1/A) + (1/B) + (1/C)*abs((1/A + 1/B), ())
+  A = length(DP);
+  B = length(DQ);
+  f = (1/A) + (1/B) + 4*log((DQ.x + B)/(DP.x + A));
 
 
   /*
@@ -77,6 +77,11 @@ void main(void)
   }
   */
 
+  if (f > 5)
+  {
+    discard;                                                                    // Discarding fragment point...
+  }
+
   // COMPUTING STRIDE MINIMUM INDEX:
   if (i == 0)
   {
@@ -92,6 +97,6 @@ void main(void)
     k = nearest_SSBO[j];                                                        // Computing neighbour index...
   }
 
-  fragment_color = vec4(0.8*vec3(k2, 1.2*k3, k1) + color.rgb, 0.2 + k1);        // Setting fragment color...
-  //fragment_color = color;
+  //fragment_color = vec4(0.8*vec3(k2, 1.2*k3, k1) + color.rgb, 0.2 + k1);        // Setting fragment color...
+  fragment_color = color;
 }
