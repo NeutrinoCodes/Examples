@@ -81,7 +81,7 @@ void main(void)
 
   if (f < 30)
   {
-    //discard;                                                                    // Discarding fragment point...
+    discard;                                                                    // Discarding fragment point...
   }
 
   // COMPUTING STRIDE MINIMUM INDEX:
