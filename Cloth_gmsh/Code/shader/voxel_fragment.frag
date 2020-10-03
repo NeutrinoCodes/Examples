@@ -33,7 +33,6 @@ layout(std430, binding = 12) buffer voxel_offset
 
 in vec4 color;
 in vec2 quad;
-in float s;
 in float AR_quad;
 
 out vec4 fragment_color;                                                        // Fragment color.

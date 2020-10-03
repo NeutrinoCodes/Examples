@@ -34,10 +34,9 @@ layout(std430, binding = 12) buffer voxel_offset
   int offset_SSBO[];                                                            // Voxel offset SSBO.
 };
 
-out vec4 color;
-out vec2 quad;
-out float s;
-out float AR_quad;
+out vec4 color;                                                                 // Fragment color.
+out vec2 quad;                                                                  // Billboard quad UV coordinates.
+out float AR_quad;                                                              // Billboard quad aspect ratio.
 
 void main()
 {
@@ -47,28 +46,28 @@ void main()
   uint j_max = offset_SSBO[i];                                                  // Neighbour node maximum index.
   uint k = 0;                                                                   // Neighbour node index.
 
-  vec4 A;
-  vec4 B;
-  vec4 C;
-  vec4 D;
+  vec4 A;                                                                       // Billboard vertex "a" (in clip space).
+  vec4 B;                                                                       // Billboard vertex "b" (in clip space).
+  vec4 C;                                                                       // Billboard vertex "c" (in clip space).
+  vec4 D;                                                                       // Billboard vertex "d" (in clip space).
 
-  vec4 a;
-  vec4 b;
-  vec4 c;
-  vec4 d;
-  vec4 e;
-  vec4 f;
+  vec4 a;                                                                       // Billboard boundary "a" (in clip space).
+  vec4 b;                                                                       // Billboard boundary "b" (in clip space).
+  vec4 c;                                                                       // Billboard boundary "c" (in clip space).
+  vec4 d;                                                                       // Billboard boundary "d" (in clip space).
+  vec4 e;                                                                       // Billboard boundary "ab" midpoint (in clip space).
+  vec4 f;                                                                       // Billboard boundary "cd" midpoint (in clip space).
 
-  mat2 M;
-  
-  vec2 link;
-  vec4 P;
-  vec4 Q;
+  vec4 P;                                                                       // Center node (in clip space).
+  vec4 Q;                                                                       // Neightbour node (in clip space).
+  vec2 link;                                                                    // PQ segment (in window space).
+  mat2 M;                                                                       // Billboard rotation matrix (in window space).
 
-  float base;
-  float height;
+  float s;                                                                      // Billboard thickness (in clip space).
+  float base;                                                                   // Billboard base (in window space).
+  float height;                                                                 // Billboard height (in window space).
 
-  s = 0.02;                                                                     // Setting billboard height (in clip space)...
+  s = 0.02;                                                                     // Setting billboard thickness (in clip space)...
 
   // FINDING MINIMUM STRIDE INDEX:
   if (i == 0)
