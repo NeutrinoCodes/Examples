@@ -46,20 +46,20 @@ void main(void)
   uint j_max = offset_SSBO[i];
   uint k = 0;
  
-  float xP = 10*s;
-  float xQ = 0.5*AR_quad;
-  vec2 P = vec2(0.0, xP);
-  vec2 Q = vec2(0.0, xQ);
-  vec2 DP = quad - P;
-  vec2 DQ = quad - Q;
+  float xP = -0.5*AR_quad + 0.5;
+  float xQ = 0.5*AR_quad - 0.5;
+  vec2 P = vec2(xP, 0.0);
+  vec2 Q = vec2(xQ, 0.0);
+  vec2 DP = P - quad;
+  vec2 DQ = Q - quad;
   float A;
   float B;
   float f;
 
   A = length(DP);
   B = length(DQ);
-  //f = (1.0/A) + (1.0/B) + 4.0*log((DQ.x + B)/(DP.x + A));
-  f = (1.0/A) + (1.0/B);
+  f = (1.0/A) + (1.0/B) + 1.0*log((DQ.x + B)/(DP.x + A));
+  //f = (1.0/A) + (1.0/B);
 
 
   /*
@@ -80,7 +80,7 @@ void main(void)
   }
   */
 
-  if (length(quad) > 0.2)
+  if (f < 10)
   {
     discard;                                                                    // Discarding fragment point...
   }
