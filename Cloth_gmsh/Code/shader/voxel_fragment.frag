@@ -31,9 +31,9 @@ layout(std430, binding = 12) buffer voxel_offset
   int offset_SSBO[];                                                            // Voxel offset SSBO.
 };
 
-in vec4 color;
-in vec2 quad;
-in float AR_quad;
+in vec4 color;                                                                  // Fragment color.
+in vec2 quad;                                                                   // Billboard quad UV coordinates.
+in float AR_quad;                                                               // Billboard quad aspect ratio.
 
 out vec4 fragment_color;                                                        // Fragment color.
 
@@ -58,28 +58,17 @@ void main(void)
   A = length(DP);
   B = length(DQ);
   f = (1.0/A) + (1.0/B) + 1.0*log((DQ.x + B)/(DP.x + A));
-  //f = (1.0/A) + (1.0/B);
 
-
-  /*
   float k1;                                                                     // Smoothness coefficient.
   float k2;                                                                     // Smoothness coefficient.
   float k3;                                                                     // Smoothness coefficient.
-  float R;                                                                      // Blooming radius.
+  
+  k1 = 1.0 - smoothstep(0.0, 0.2, 1/f);                                           // Computing smoothness coefficient...
+  k2 = 1.0 - smoothstep(0.0, 0.1, 1/f);                                           // Computing smoothness coefficient...
+  k3 = 1.0 - smoothstep(0.2, 0.3, 1/f);                                           // Computing smoothness coefficient...
 
-  R = length(quad);                                                             // Setting blooming radius...
-
-  k1 = 1.0 - smoothstep(0.0, 0.5, R);                                           // Computing smoothness coefficient...
-  k2 = 1.0 - smoothstep(0.0, 0.1, R);                                           // Computing smoothness coefficient...
-  k3 = 1.0 - smoothstep(0.2, 0.3, R);                                           // Computing smoothness coefficient...
-
+  //if (f < 10)
   if (k1 == 0.0)
-  {
-    discard;                                                                    // Discarding fragment point...
-  }
-  */
-
-  if (f < 10)
   {
     discard;                                                                    // Discarding fragment point...
   }
@@ -99,6 +88,7 @@ void main(void)
     k = nearest_SSBO[j];                                                        // Computing neighbour index...
   }
 
-  //fragment_color = vec4(0.8*vec3(k2, 1.2*k3, k1) + color.rgb, 0.2 + k1);        // Setting fragment color...
-  fragment_color = color;
+  //fragment_color = vec4(color.rgb, k1);
+  fragment_color = vec4(0.4*vec3(k2, 1.1*k3, k1) + color.rgb, 0.0 + k1);        // Setting fragment color...
+  //fragment_color = color;
 }
