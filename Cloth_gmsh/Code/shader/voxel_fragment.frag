@@ -34,6 +34,7 @@ layout(std430, binding = 12) buffer voxel_offset
 in vec4 color;
 in vec2 quad;
 in float s;
+in float AR_quad;
 
 out vec4 fragment_color;                                                        // Fragment color.
 
@@ -45,8 +46,8 @@ void main(void)
   uint j_max = offset_SSBO[i];
   uint k = 0;
  
-  float xP = -1.0 + s;
-  float xQ = 1.0 - s;
+  float xP = 10*s;
+  float xQ = 0.5*AR_quad;
   vec2 P = vec2(0.0, xP);
   vec2 Q = vec2(0.0, xQ);
   vec2 DP = quad - P;
@@ -57,8 +58,8 @@ void main(void)
 
   A = length(DP);
   B = length(DQ);
-  f = (1.0/A) + (1.0/B) + 0.0*log((DQ.x + B)/(DP.x + A));
-  //f = (1.0/A) + (1.0/B);
+  //f = (1.0/A) + (1.0/B) + 4.0*log((DQ.x + B)/(DP.x + A));
+  f = (1.0/A) + (1.0/B);
 
 
   /*
@@ -79,7 +80,7 @@ void main(void)
   }
   */
 
-  if (f < 30)
+  if (length(quad) > 0.2)
   {
     discard;                                                                    // Discarding fragment point...
   }
