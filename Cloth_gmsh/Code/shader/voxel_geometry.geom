@@ -68,6 +68,13 @@ void main()
   float base;
   float height;
 
+  // COMPUTING BILLBOARD BOUNDARIES:
+  s = 0.02;                                                                     // Setting billboard side (in clip space)...
+  A = s*vec4(-0.5, +0.5, 0.0, 1.0);
+  B = s*vec4(-0.5, -0.5, 0.0, 1.0);
+  C = s*vec4(+0.5, +0.5, 0.0, 1.0);
+  D = s*vec4(+0.5, -0.5, 0.0, 1.0);
+
   // FINDING MINIMUM STRIDE INDEX:
   if (i == 0)
   {
@@ -83,23 +90,13 @@ void main()
   {
     k = nearest_SSBO[j];                                                        // Computing neighbour index...
     
+    // COMPUTING BILLBOARD ROTATION
     P = P_mat*V_mat*center_SSBO[i];                                             // Getting center node (in clip space)...
     Q = P_mat*V_mat*center_SSBO[k];                                             // Getting neighbour node (in clip space)...
-
-    link = normalize(vec2(AR*(Q.x/Q.w - P.x/P.w), (Q.y/Q.w - P.y/P.w)));        // Computing PQ segment (in window space)...
-
-    M[0][0] = link.x; M[0][1] = +link.y;
-    M[1][0] = -link.y; M[1][1] = link.x; 
-
-    s = 0.02;
-
-    // COMPUTING BILLBOARD:
-    A = s*vec4(-0.5, +0.5, 0.0, 1.0);
-    B = s*vec4(-0.5, -0.5, 0.0, 1.0);
-    C = s*vec4(+0.5, +0.5, 0.0, 1.0);
-    D = s*vec4(+0.5, -0.5, 0.0, 1.0);
-
-    A.xy = M*A.xy;
+    link = normalize(vec2(AR*(Q.x/Q.w - P.x/P.w), (Q.y/Q.w - P.y/P.w)));        // Computing normalized PQ segment (in window space)...
+    M[0][0] = +link.x; M[0][1] = +link.y;                                       // Computing rotation matrix (in window space)...
+    M[1][0] = -link.y; M[1][1] = +link.x;                                       // Computing rotation matrix (in window space)...
+    A.xy = M*A.xy;                                                               
     B.xy = M*B.xy;
     C.xy = M*C.xy;
     D.xy = M*D.xy;
