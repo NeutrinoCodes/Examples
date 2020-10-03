@@ -37,6 +37,7 @@ layout(std430, binding = 12) buffer voxel_offset
 out vec4 color;
 out vec2 quad;
 out float s;
+out float AR_quad;
 
 void main()
 {
@@ -56,6 +57,8 @@ void main()
   vec2 link;
   vec4 P;
   vec4 Q;
+
+  float h;
 
   // FINDING MINIMUM STRIDE INDEX:
   if (i == 0)
@@ -77,9 +80,12 @@ void main()
 
     link = normalize(vec2(AR*(Q.x/Q.w - P.x/P.w), (Q.y/Q.w - P.y/P.w)));        // Computing PQ segment (in window space)...
 
-    s = 0.005;
     M[0][0] = link.x; M[0][1] = +link.y;
     M[1][0] = -link.y; M[1][1] = link.x; 
+
+    s = 0.02;
+    h = length(center_SSBO[i] - center_SSBO[k]) + s;
+    AR_quad = h/s;
 
     // COMPUTING BILLBOARD:
     A = s*vec4(-0.5, +0.5, 0.0, 1.0);
@@ -94,22 +100,22 @@ void main()
     
     color = color_SSBO[i];                                                      // Setting voxel color...  
     gl_Position = P_mat*(V_mat*center_SSBO[i] + A);                             // Adding offset...
-    quad = vec2(AR*(gl_Position.x/gl_Position.w), gl_Position.y/gl_Position.w);
+    quad = vec2(-0.5*AR_quad, +0.5);
     EmitVertex();                                                               // Emitting vertex...
 
     color = color_SSBO[i];                                                      // Setting voxel color...
     gl_Position = P_mat*(V_mat*center_SSBO[i] + B);                             // Adding offset...
-    quad = vec2(AR*(gl_Position.x/gl_Position.w), gl_Position.y/gl_Position.w);
+    quad = vec2(-0.5*AR_quad, -0.5);
     EmitVertex();                                                               // Emitting vertex...
 
     color = color_SSBO[i];                                                      // Setting voxel color...  
     gl_Position = P_mat*(V_mat*center_SSBO[k] + C);                             // Adding offset...
-    quad = vec2(AR*(gl_Position.x/gl_Position.w), gl_Position.y/gl_Position.w);
+    quad = vec2(+0.5*AR_quad, +0.5);
     EmitVertex();                                                               // Emitting vertex...
 
     color = color_SSBO[i];                                                      // Setting voxel color...  
     gl_Position = P_mat*(V_mat*center_SSBO[k] + D);                             // Adding offset...
-    quad = vec2(AR*(gl_Position.x/gl_Position.w), gl_Position.y/gl_Position.w);
+    quad = vec2(+0.5*AR_quad, -0.5);
     EmitVertex();                                                               // Emitting vertex...
 
     EndPrimitive();                                                             // Ending primitive...
