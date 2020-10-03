@@ -52,13 +52,21 @@ void main()
   vec4 C;
   vec4 D;
 
+  vec4 a;
+  vec4 b;
+  vec4 c;
+  vec4 d;
+  vec4 e;
+  vec4 f;
+
   mat2 M;
   
   vec2 link;
   vec4 P;
   vec4 Q;
 
-  float h;
+  float base;
+  float height;
 
   // FINDING MINIMUM STRIDE INDEX:
   if (i == 0)
@@ -84,8 +92,6 @@ void main()
     M[1][0] = -link.y; M[1][1] = link.x; 
 
     s = 0.02;
-    h = length(center_SSBO[i] - center_SSBO[k]) + s;
-    AR_quad = h/s;
 
     // COMPUTING BILLBOARD:
     A = s*vec4(-0.5, +0.5, 0.0, 1.0);
@@ -98,6 +104,18 @@ void main()
     C.xy = M*C.xy;
     D.xy = M*D.xy;
     
+    a = vec4(P_mat*(V_mat*center_SSBO[i] + A));
+    b = vec4(P_mat*(V_mat*center_SSBO[i] + B));
+    c = vec4(P_mat*(V_mat*center_SSBO[k] + C));
+    d = vec4(P_mat*(V_mat*center_SSBO[k] + D));
+    e = vec4(P_mat*(V_mat*center_SSBO[i] + 0.5*(A + B)));
+    f = vec4(P_mat*(V_mat*center_SSBO[k] + 0.5*(C + D)));
+
+    base = length(vec2(AR*(b.x/b.w - a.x/a.w), (b.y/b.w - a.y/a.w)));
+    height = length(vec2(AR*(f.x/f.w - e.x/e.w), (f.y/f.w - e.y/e.w)));
+
+    AR_quad = height/base;
+
     color = color_SSBO[i];                                                      // Setting voxel color...  
     gl_Position = P_mat*(V_mat*center_SSBO[i] + A);                             // Adding offset...
     quad = vec2(-0.5*AR_quad, +0.5);
