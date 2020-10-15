@@ -8,19 +8,19 @@
 
 #ifdef __linux__
   #define SHADER_HOME "../Cloth_gmsh/Code/shader"                                                   // Linux OpenGL shaders directory.
-  #define KERNEL_HOME "../Cloth_gmsh/Code/kernel"                                                   // Linux OpenCL kernels directory.
+  #define KERNEL_HOME "../Cloth_gmsh/Code/kernel/"                                                  // Linux OpenCL kernels directory.
   #define GMSH_HOME   "../Cloth_gmsh/Code/mesh/"                                                    // Linux GMSH mesh directory.
 #endif
 
 #ifdef __APPLE__
   #define SHADER_HOME "../Cloth_gmsh/Code/shader"                                                   // Mac OpenGL shaders directory.
-  #define KERNEL_HOME "../Cloth_gmsh/Code/kernel"                                                   // Mac OpenCL kernels directory.
+  #define KERNEL_HOME "../Cloth_gmsh/Code/kernel/"                                                  // Mac OpenCL kernels directory.
   #define GMSH_HOME   "../Cloth_gmsh/Code/mesh/"                                                    // Linux GMSH mesh directory.
 #endif
 
 #ifdef WIN32
   #define SHADER_HOME "..\\..\\Cloth_gmsh\\Code\\shader"                                            // Windows OpenGL shaders directory.
-  #define KERNEL_HOME "..\\..\\Cloth_gmsh\\Code\\kernel"                                            // Windows OpenCL kernels directory.
+  #define KERNEL_HOME "..\\..\\Cloth_gmsh\\Code\\kernel\\"                                          // Windows OpenCL kernels directory.
   #define GMSH_HOME   "..\\..\\Cloth_gmsh\\Code\\mesh\\"                                            // Linux GMSH mesh directory.
 #endif
 
@@ -28,6 +28,8 @@
 #define SHADER_GEOM_1 "voxel_geometry.geom"                                                         // OpenGL geometry shader.
 #define SHADER_GEOM_2 "voxel_geometry_2.geom"                                                       // OpenGL geometry shader.
 #define SHADER_FRAG   "voxel_fragment.frag"                                                         // OpenGL fragment shader.
+#define KERNEL_1      "thekernel1.cl"                                                               // OpenCL kernel source.
+#define KERNEL_2      "thekernel2.cl"                                                               // OpenCL kernel source.
 #define GMSH_MESH     "Square_triangles.msh"                                                        // GMSH mesh.
 
 // OPENCL:
@@ -40,108 +42,106 @@
 int main ()
 {
   // KERNEL FILES:
-  std::string              kernel_home;                                                             // Kernel home directory.
-  std::vector<std::string> kernel_1;                                                                // Kernel_1 source files.
-  std::vector<std::string> kernel_2;                                                                // Kernel_2 source files.
+  std::string         kernel_home;                                                                  // Kernel home directory.
 
   // INDEXES:
-  size_t                   i;                                                                       // Index [#].
-  size_t                   j;                                                                       // Index [#].
-  size_t                   j_min;                                                                   // Index [#].
-  size_t                   j_max;                                                                   // Index [#].
-  size_t                   k;                                                                       // Index [#].
+  size_t              i;                                                                            // Index [#].
+  size_t              j;                                                                            // Index [#].
+  size_t              j_min;                                                                        // Index [#].
+  size_t              j_max;                                                                        // Index [#].
+  size_t              k;                                                                            // Index [#].
 
   // GUI PARAMETERS (orbit):
-  float                    orbit_x_init       = 0.0f;                                               // x-axis orbit initial rotation.
-  float                    orbit_y_init       = 0.0f;                                               // y-axis orbit initial rotation.
+  float               orbit_x_init       = 0.0f;                                                    // x-axis orbit initial rotation.
+  float               orbit_y_init       = 0.0f;                                                    // y-axis orbit initial rotation.
 
   // GUI PARAMETERS (pan):
-  float                    pan_x_init         = 0.0f;                                               // x-axis pan initial translation.
-  float                    pan_y_init         = 0.0f;                                               // y-axis pan initial translation.
-  float                    pan_z_init         = -2.0f;                                              // z-axis pan initial translation.
+  float               pan_x_init         = 0.0f;                                                    // x-axis pan initial translation.
+  float               pan_y_init         = 0.0f;                                                    // y-axis pan initial translation.
+  float               pan_z_init         = -2.0f;                                                   // z-axis pan initial translation.
 
   // GUI PARAMETERS (mouse):
-  float                    mouse_orbit_rate   = 1.0f;                                               // Orbit rotation rate [rev/s].
-  float                    mouse_pan_rate     = 5.0f;                                               // Pan translation rate [m/s].
-  float                    mouse_decaytime    = 1.25f;                                              // Pan LP filter decay time [s].
+  float               mouse_orbit_rate   = 1.0f;                                                    // Orbit rotation rate [rev/s].
+  float               mouse_pan_rate     = 5.0f;                                                    // Pan translation rate [m/s].
+  float               mouse_decaytime    = 1.25f;                                                   // Pan LP filter decay time [s].
 
   // GUI PARAMETERS (gamepad):
-  float                    gamepad_orbit_rate = 1.0f;                                               // Orbit angular rate coefficient [rev/s].
-  float                    gamepad_pan_rate   = 1.0f;                                               // Pan translation rate [m/s].
-  float                    gamepad_decaytime  = 1.25f;                                              // Low pass filter decay time [s].
-  float                    gamepad_deadzone   = 0.1f;                                               // Gamepad joystick deadzone [0...1].
+  float               gamepad_orbit_rate = 1.0f;                                                    // Orbit angular rate coefficient [rev/s].
+  float               gamepad_pan_rate   = 1.0f;                                                    // Pan translation rate [m/s].
+  float               gamepad_decaytime  = 1.25f;                                                   // Low pass filter decay time [s].
+  float               gamepad_deadzone   = 0.1f;                                                    // Gamepad joystick deadzone [0...1].
 
   // NEUTRINO:
-  neutrino*                bas                = new neutrino ();                                    // Neutrino baseline.
-  opengl*                  gui                = new opengl ();                                      // OpenGL context.
-  opencl*                  ctx                = new opencl ();                                      // OpenCL context.
-  shader*                  S                  = new shader ();                                      // OpenGL shader program.
-  queue*                   Q                  = new queue ();                                       // OpenCL queue.
-  kernel*                  K1                 = new kernel ();                                      // OpenCL kernel array.
-  kernel*                  K2                 = new kernel ();                                      // OpenCL kernel array.
-  size_t                   kernel_sx;                                                               // Kernel dimension "x" [#].
-  size_t                   kernel_sy;                                                               // Kernel dimension "y" [#].
-  size_t                   kernel_sz;                                                               // Kernel dimension "z" [#].
+  neutrino*           bas                = new neutrino ();                                         // Neutrino baseline.
+  opengl*             gui                = new opengl ();                                           // OpenGL context.
+  opencl*             ctx                = new opencl ();                                           // OpenCL context.
+  shader*             S                  = new shader ();                                           // OpenGL shader program.
+  queue*              Q                  = new queue ();                                            // OpenCL queue.
+  kernel*             K1                 = new kernel ();                                           // OpenCL kernel array.
+  kernel*             K2                 = new kernel ();                                           // OpenCL kernel array.
+  size_t              kernel_sx;                                                                    // Kernel dimension "x" [#].
+  size_t              kernel_sy;                                                                    // Kernel dimension "y" [#].
+  size_t              kernel_sz;                                                                    // Kernel dimension "z" [#].
 
   // NODE COLOR:
-  nu_float4*               color              = new nu_float4 ();                                   // Color [].
+  nu_float4*          color              = new nu_float4 ();                                        // Color [].
 
   // NODE KINEMATICS:
-  nu_float4*               position           = new nu_float4 ();                                   // Position [m].
-  nu_float4*               velocity           = new nu_float4 ();                                   // Velocity [m/s].
-  nu_float4*               acceleration       = new nu_float4 ();                                   // Acceleration [m/s^2].
+  nu_float4*          position           = new nu_float4 ();                                        // Position [m].
+  nu_float4*          velocity           = new nu_float4 ();                                        // Velocity [m/s].
+  nu_float4*          acceleration       = new nu_float4 ();                                        // Acceleration [m/s^2].
 
   // NODE KINEMATICS (INTERMEDIATE):
-  nu_float4*               position_int       = new nu_float4 ();                                   // Position (intermediate) [m].
-  nu_float4*               velocity_int       = new nu_float4 ();                                   // Velocity (intermediate) [m/s].
+  nu_float4*          position_int       = new nu_float4 ();                                        // Position (intermediate) [m].
+  nu_float4*          velocity_int       = new nu_float4 ();                                        // Velocity (intermediate) [m/s].
 
   // NODE DYNAMICS:
-  nu_float4*               gravity            = new nu_float4 ();                                   // Gravity [m/s^2].
-  nu_float*                stiffness          = new nu_float ();                                    // Stiffness.
-  nu_float*                resting            = new nu_float ();                                    // Resting.
-  nu_float*                friction           = new nu_float ();                                    // Friction.
-  nu_float*                mass               = new nu_float ();                                    // Mass [kg].
+  nu_float4*          gravity            = new nu_float4 ();                                        // Gravity [m/s^2].
+  nu_float*           stiffness          = new nu_float ();                                         // Stiffness.
+  nu_float*           resting            = new nu_float ();                                         // Resting.
+  nu_float*           friction           = new nu_float ();                                         // Friction.
+  nu_float*           mass               = new nu_float ();                                         // Mass [kg].
 
   // MESH:
-  mesh*                    object             = new mesh ();                                        // Mesh object.
-  size_t                   nodes;                                                                   // Number of nodes.
-  size_t                   elements;                                                                // Number of elements.
-  size_t                   neighbours;                                                              // Number of neighbours.
-  size_t                   border_nodes;                                                            // Number of border nodes.
-  std::vector<size_t>      neighbourhood;                                                           // Neighbourhood.
-  std::vector<size_t>      neighbour;                                                               // Neighbour tuple.
-  std::vector<size_t>      border;                                                                  // Nodes on border.
-  std::vector<size_t>      side_x;                                                                  // Nodes on "x" side.
-  std::vector<size_t>      side_y;                                                                  // Nodes on "y" side.
-  float                    x_min              = -1.0f;                                              // "x_min" spatial boundary [m].
-  float                    x_max              = +1.0f;                                              // "x_max" spatial boundary [m].
-  float                    y_min              = -1.0f;                                              // "y_min" spatial boundary [m].
-  float                    y_max              = +1.0f;                                              // "y_max" spatial boundary [m].
-  size_t                   side_x_nodes;                                                            // Number of nodes in "x" direction [#].
-  size_t                   side_y_nodes;                                                            // Number of nodes in "x" direction [#].
-  float                    dx;                                                                      // x-axis mesh spatial size [m].
-  float                    dy;                                                                      // y-axis mesh spatial size [m].
-  float                    link_x;                                                                  // Link "x" component...
-  float                    link_y;                                                                  // Link "y" component...
-  float                    link_z;                                                                  // Link "z" component...
-  nu_int*                  freedom            = new nu_int ();                                      // Freedom.
-  nu_int*                  nearest            = new nu_int ();                                      // Neighbour.
-  nu_int*                  offset             = new nu_int ();                                      // Offset.
+  mesh*               object             = new mesh ();                                             // Mesh object.
+  size_t              nodes;                                                                        // Number of nodes.
+  size_t              elements;                                                                     // Number of elements.
+  size_t              neighbours;                                                                   // Number of neighbours.
+  size_t              border_nodes;                                                                 // Number of border nodes.
+  std::vector<size_t> neighbourhood;                                                                // Neighbourhood.
+  std::vector<size_t> neighbour;                                                                    // Neighbour tuple.
+  std::vector<size_t> border;                                                                       // Nodes on border.
+  std::vector<size_t> side_x;                                                                       // Nodes on "x" side.
+  std::vector<size_t> side_y;                                                                       // Nodes on "y" side.
+  float               x_min              = -1.0f;                                                   // "x_min" spatial boundary [m].
+  float               x_max              = +1.0f;                                                   // "x_max" spatial boundary [m].
+  float               y_min              = -1.0f;                                                   // "y_min" spatial boundary [m].
+  float               y_max              = +1.0f;                                                   // "y_max" spatial boundary [m].
+  size_t              side_x_nodes;                                                                 // Number of nodes in "x" direction [#].
+  size_t              side_y_nodes;                                                                 // Number of nodes in "x" direction [#].
+  float               dx;                                                                           // x-axis mesh spatial size [m].
+  float               dy;                                                                           // y-axis mesh spatial size [m].
+  float               link_x;                                                                       // Link "x" component...
+  float               link_y;                                                                       // Link "y" component...
+  float               link_z;                                                                       // Link "z" component...
+  nu_int*             freedom            = new nu_int ();                                           // Freedom.
+  nu_int*             nearest            = new nu_int ();                                           // Neighbour.
+  nu_int*             offset             = new nu_int ();                                           // Offset.
 
   // SIMULATION PARAMETERS:
-  float                    h                  = 0.01f;                                              // Cloth's thickness [m].
-  float                    rho                = 1000.0f;                                            // Cloth's mass density [kg/m^3].
-  float                    E                  = 100000.0f;                                          // Cloth's Young modulus [kg/(m*s^2)].
-  float                    mu                 = 700.0f;                                             // Cloth's viscosity [Pa*s].
-  float                    g                  = 9.81f;                                              // External gravity field [m/s^2].
+  float               h                  = 0.01f;                                                   // Cloth's thickness [m].
+  float               rho                = 1000.0f;                                                 // Cloth's mass density [kg/m^3].
+  float               E                  = 100000.0f;                                               // Cloth's Young modulus [kg/(m*s^2)].
+  float               mu                 = 700.0f;                                                  // Cloth's viscosity [Pa*s].
+  float               g                  = 9.81f;                                                   // External gravity field [m/s^2].
 
   // SIMULATION VARIABLES:
-  float                    m;                                                                       // Cloth's mass [kg].
-  float                    K;                                                                       // Cloth's elastic constant [kg/s^2].
-  float                    B;                                                                       // Cloth's damping [kg*s*m].
-  float                    dt_critical;                                                             // Critical time step [s].
-  float                    dt_simulation;                                                           // Simulation time step [s].
-  nu_float*                dt                 = new nu_float ();                                    // Time step [s].
+  float               m;                                                                            // Cloth's mass [kg].
+  float               K;                                                                            // Cloth's elastic constant [kg/s^2].
+  float               B;                                                                            // Cloth's damping [kg*s*m].
+  float               dt_critical;                                                                  // Critical time step [s].
+  float               dt_simulation;                                                                // Simulation time step [s].
+  nu_float*           dt                 = new nu_float ();                                         // Time step [s].
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
@@ -289,11 +289,12 @@ int main ()
   ctx->init (bas, gui, NU_GPU);                                                                     // Initializing OpenCL context...
   S->init (bas, SHADER_HOME, SHADER_VERT, SHADER_GEOM_2, SHADER_GEOM_1, SHADER_FRAG);               // Initializing OpenGL shader...
   Q->init (bas);                                                                                    // Initializing OpenCL queue...
-  kernel_home = KERNEL_HOME;                                                                        // Setting kernel home directory...
-  kernel_1.push_back ("thekernel1.cl");                                                             // Setting 1st source file...
-  K1->init (bas, kernel_home, kernel_1, kernel_sx, kernel_sy, kernel_sz);                           // Initializing OpenCL kernel K1...
-  kernel_2.push_back ("thekernel2.cl");                                                             // Setting 1st source file...
-  K2->init (bas, kernel_home, kernel_2, kernel_sx, kernel_sy, kernel_sz);                           // Initializing OpenCL kernel K2...
+  K1->init (bas, kernel_sx, kernel_sy, kernel_sz);                                                  // Initializing OpenCL kernel K1...
+  K1->addsource (std::string (KERNEL_HOME) + std::string (KERNEL_1));                               // Setting kernel source file...
+  K1->build ();                                                                                     // Building kernel program...
+  K2->init (bas, kernel_sx, kernel_sy, kernel_sz);                                                  // Initializing OpenCL kernel K1...
+  K2->addsource (std::string (KERNEL_HOME) + std::string (KERNEL_2));                               // Setting kernel source file...
+  K2->build ();                                                                                     // Building kernel program...
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////// SETTING OPENCL KERNEL ARGUMENTS /////////////////////////////////
