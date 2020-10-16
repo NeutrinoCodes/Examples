@@ -7,19 +7,19 @@
 #define GUI_NAME      "Neutrino - Cloth_gmsh"                                                       // Window name.
 
 #ifdef __linux__
-  #define SHADER_HOME "../Cloth_gmsh/Code/shader"                                                   // Linux OpenGL shaders directory.
+  #define SHADER_HOME "../Cloth_gmsh/Code/shader/"                                                  // Linux OpenGL shaders directory.
   #define KERNEL_HOME "../Cloth_gmsh/Code/kernel/"                                                  // Linux OpenCL kernels directory.
   #define GMSH_HOME   "../Cloth_gmsh/Code/mesh/"                                                    // Linux GMSH mesh directory.
 #endif
 
 #ifdef __APPLE__
-  #define SHADER_HOME "../Cloth_gmsh/Code/shader"                                                   // Mac OpenGL shaders directory.
+  #define SHADER_HOME "../Cloth_gmsh/Code/shader/"                                                  // Mac OpenGL shaders directory.
   #define KERNEL_HOME "../Cloth_gmsh/Code/kernel/"                                                  // Mac OpenCL kernels directory.
   #define GMSH_HOME   "../Cloth_gmsh/Code/mesh/"                                                    // Linux GMSH mesh directory.
 #endif
 
 #ifdef WIN32
-  #define SHADER_HOME "..\\..\\Cloth_gmsh\\Code\\shader"                                            // Windows OpenGL shaders directory.
+  #define SHADER_HOME "..\\..\\Cloth_gmsh\\Code\\shader\\"                                          // Windows OpenGL shaders directory.
   #define KERNEL_HOME "..\\..\\Cloth_gmsh\\Code\\kernel\\"                                          // Windows OpenCL kernels directory.
   #define GMSH_HOME   "..\\..\\Cloth_gmsh\\Code\\mesh\\"                                            // Linux GMSH mesh directory.
 #endif
@@ -287,7 +287,11 @@ int main ()
    pan_z_init                                                                                       // Initial z-pan.
   );
   ctx->init (bas, gui, NU_GPU);                                                                     // Initializing OpenCL context...
-  S->init (bas, SHADER_HOME, SHADER_VERT, SHADER_GEOM_2, SHADER_GEOM_1, SHADER_FRAG);               // Initializing OpenGL shader...
+  S->init (bas);                                                                                    // Initializing OpenGL shader...
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_VERT), NU_VERTEX);                  // Setting shader source file...
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_GEOM_1), NU_GEOMETRY);              // Setting shader source file...
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_GEOM_2), NU_GEOMETRY);              // Setting shader source file...
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_FRAG), NU_FRAGMENT);                // Setting shader source file...
   S->build ();                                                                                      // Building shader program...
   Q->init (bas);                                                                                    // Initializing OpenCL queue...
   K1->init (bas, kernel_sx, kernel_sy, kernel_sz);                                                  // Initializing OpenCL kernel K1...
