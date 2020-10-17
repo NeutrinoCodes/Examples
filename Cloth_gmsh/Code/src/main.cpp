@@ -2,8 +2,8 @@
 
 // OPENGL:
 #define INTEROP       true                                                                          // "true" = use OpenGL-OpenCL interoperability.
-#define GUI_SIZE_X    800                                                                           // Window x-size [px].
-#define GUI_SIZE_Y    600                                                                           // Window y-size [px].
+#define GUI_SX        800                                                                           // Window x-size [px].
+#define GUI_SY        600                                                                           // Window y-size [px].
 #define GUI_NAME      "Neutrino - Cloth_gmsh"                                                       // Window name.
 
 #ifdef __linux__
@@ -25,11 +25,11 @@
 #endif
 
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.
-#define SHADER_GEOM_1 "voxel_geometry.geom"                                                         // OpenGL geometry shader.
+#define SHADER_GEOM_1 "voxel_geometry_1.geom"                                                       // OpenGL geometry shader.
 #define SHADER_GEOM_2 "voxel_geometry_2.geom"                                                       // OpenGL geometry shader.
 #define SHADER_FRAG   "voxel_fragment.frag"                                                         // OpenGL fragment shader.
-#define KERNEL_1      "thekernel1.cl"                                                               // OpenCL kernel source.
-#define KERNEL_2      "thekernel2.cl"                                                               // OpenCL kernel source.
+#define KERNEL_1      "thekernel_1.cl"                                                              // OpenCL kernel source.
+#define KERNEL_2      "thekernel_2.cl"                                                              // OpenCL kernel source.
 #define GMSH_MESH     "Square_triangles.msh"                                                        // GMSH mesh.
 
 // OPENCL:
@@ -41,9 +41,6 @@
 
 int main ()
 {
-  // KERNEL FILES:
-  std::string         kernel_home;                                                                  // Kernel home directory.
-
   // INDEXES:
   size_t              i;                                                                            // Index [#].
   size_t              j;                                                                            // Index [#].
@@ -52,13 +49,13 @@ int main ()
   size_t              k;                                                                            // Index [#].
 
   // GUI PARAMETERS (orbit):
-  float               orbit_x_init       = 0.0f;                                                    // x-axis orbit initial rotation.
-  float               orbit_y_init       = 0.0f;                                                    // y-axis orbit initial rotation.
+  float               orbit_x0           = 0.0f;                                                    // x-axis orbit initial rotation.
+  float               orbit_y0           = 0.0f;                                                    // y-axis orbit initial rotation.
 
   // GUI PARAMETERS (pan):
-  float               pan_x_init         = 0.0f;                                                    // x-axis pan initial translation.
-  float               pan_y_init         = 0.0f;                                                    // y-axis pan initial translation.
-  float               pan_z_init         = -2.0f;                                                   // z-axis pan initial translation.
+  float               pan_x0             = 0.0f;                                                    // x-axis pan initial translation.
+  float               pan_y0             = 0.0f;                                                    // y-axis pan initial translation.
+  float               pan_z0             = -2.0f;                                                   // z-axis pan initial translation.
 
   // GUI PARAMETERS (mouse):
   float               mouse_orbit_rate   = 1.0f;                                                    // Orbit rotation rate [rev/s].
@@ -173,6 +170,8 @@ int main ()
   gravity->init (1);                                                                                // Initializing gravity data...
   friction->init (1);                                                                               // Initializing friction data...
   dt->init (1);                                                                                     // Initializing time step data [s]...
+
+  // SETTING NEUTRINO ARRAYS (parameters):
   gravity->data[0].x = 0.0f;                                                                        // Setting gravity acceleration "x" component...
   gravity->data[0].y = 0.0f;                                                                        // Setting gravity acceleration "y" component...
   gravity->data[0].z = -g;                                                                          // Setting gravity acceleration "z" component...
@@ -191,6 +190,7 @@ int main ()
   offset->init (nodes);                                                                             // Initializing node offset...
   freedom->init (nodes);                                                                            // Initializing freedom...
 
+  // SETTING NEUTRINO ARRAYS ("nodes" depending):
   for(i = 0; i < nodes; i++)
   {
     color->data[i].x        = 0.01f*(rand () % 100);                                                // Setting "r" color coordinate...
@@ -274,26 +274,12 @@ int main ()
   ////////////////////////////////////// NEUTRINO INITIALIZATION /////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   bas->init (QUEUE_NUM, KERNEL_NUM);                                                                // Initializing Neutrino baseline...
-  gui->init
-  (
-   bas,                                                                                             // Neutrino baseline.
-   GUI_SIZE_X,                                                                                      // GUI x-size [px].
-   GUI_SIZE_Y,                                                                                      // GUI y-size [px.]
-   GUI_NAME,                                                                                        // GUI name.
-   orbit_x_init,                                                                                    // Initial x-orbit.
-   orbit_y_init,                                                                                    // Initial y-orbit.
-   pan_x_init,                                                                                      // Initial x-pan.
-   pan_y_init,                                                                                      // Initial y-pan.
-   pan_z_init                                                                                       // Initial z-pan.
-  );
+  gui->init (bas, GUI_SX, GUI_SY, GUI_NAME, orbit_x0, orbit_y0, pan_x0, pan_y0, pan_z0);            // Initializing Neutrino GUI...
   ctx->init (bas, gui, NU_GPU);                                                                     // Initializing OpenCL context...
-  S->init (bas);                                                                                    // Initializing OpenGL shader...
-  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_VERT), NU_VERTEX);                  // Setting shader source file...
-  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_GEOM_1), NU_GEOMETRY);              // Setting shader source file...
-  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_GEOM_2), NU_GEOMETRY);              // Setting shader source file...
-  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_FRAG), NU_FRAGMENT);                // Setting shader source file...
-  S->build ();                                                                                      // Building shader program...
-  Q->init (bas);                                                                                    // Initializing OpenCL queue...
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////// OPENCL KERNELS INITIALIZATION /////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
   K1->init (bas, kernel_sx, kernel_sy, kernel_sz);                                                  // Initializing OpenCL kernel K1...
   K1->addsource (std::string (KERNEL_HOME) + std::string (KERNEL_1));                               // Setting kernel source file...
   K1->build ();                                                                                     // Building kernel program...
@@ -336,9 +322,10 @@ int main ()
   K2->setarg (freedom, 13);                                                                         // Setting freedom flag kernel argument...
   K2->setarg (dt, 14);                                                                              // Setting time step kernel argument...
 
-  color->name     = "voxel_color";                                                                  // Setting variable name for OpenGL shader...
-  position->name  = "voxel_center";                                                                 // Setting variable name for OpenGL shader...
-  stiffness->name = "voxel_stiffness";
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////// OPENCL QUEUE INITIALIZATION //////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  Q->init (bas);                                                                                    // Initializing OpenCL queue...
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////// WRITING DATA ON OPENCL QUEUE //////////////////////////////////
@@ -360,6 +347,16 @@ int main ()
   Q->write (dt, 14);                                                                                // Writing time step data on queue...
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////// OPENGL SHADERS INITIALIZATION /////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  S->init (bas);                                                                                    // Initializing OpenGL shader...
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_VERT), NU_VERTEX);                  // Setting shader source file...
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_GEOM_1), NU_GEOMETRY);              // Setting shader source file...
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_GEOM_2), NU_GEOMETRY);              // Setting shader source file...
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_FRAG), NU_FRAGMENT);                // Setting shader source file...
+  S->build ();                                                                                      // Building shader program...
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////// SETTING OPENGL SHADER ARGUMENTS ////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   S->setarg (color, 0);                                                                             // Setting shader argument "0"...
@@ -377,8 +374,9 @@ int main ()
   S->setarg (offset, 12);                                                                           // Setting shader argument "12"...
   //S->setarg (freedom, 13);                                                                          // Setting shader argument "13"...
   //S->setarg (dt, 14);                                                                               // Setting shader argument "14"...
-
-
+  color->name     = "voxel_color";                                                                  // Setting variable name for OpenGL shader...
+  position->name  = "voxel_center";                                                                 // Setting variable name for OpenGL shader...
+  stiffness->name = "voxel_stiffness";                                                              // Setting variable name for OpenGL shader...
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////// APPLICATION LOOP ////////////////////////////////////////
