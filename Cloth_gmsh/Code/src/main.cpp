@@ -261,14 +261,26 @@ int main ()
   // ANCHORING BORDER NODES:
   for(int i = 0; i < border_nodes; i++)
   {
-    freedom->data[i] = 0;                                                                           // Retting freedom flag...
+    freedom->data[i] = 0;                                                                           // Resetting freedom flag...
   }
 
   // EZOR 03DEC2020 test:
   std::vector<nu_data*> my_vector;
+  my_vector.push_back (color);
   my_vector.push_back (position);
+  my_vector.push_back (position_int);
+  my_vector.push_back (velocity);
+  my_vector.push_back (velocity_int);
+  my_vector.push_back (acceleration);
+  my_vector.push_back (gravity);
+  my_vector.push_back (stiffness);
+  my_vector.push_back (resting);
+  my_vector.push_back (friction);
   my_vector.push_back (mass);
   my_vector.push_back (neighbour);
+  my_vector.push_back (offset);
+  my_vector.push_back (freedom);
+  my_vector.push_back (dt);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////// NEUTRINO INITIALIZATION /////////////////////////////////////
@@ -300,6 +312,11 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////// SETTING OPENCL KERNEL ARGUMENTS /////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
+  for(i = 0; i < my_vector.size (); i++)
+  {
+    K1->setarg ((nu_float*)my_vector[i], i);                                                        // EZOR06DEC2020: to be completed. "my_vector" needs a "type" field.
+  }
+
   K1->setarg (color, 0);                                                                            // Setting color kernel argument...
   K1->setarg (position, 1);                                                                         // Setting position kernel argument...
   K1->setarg (position_int, 2);                                                                     // Setting intermediate position kernel argument...
