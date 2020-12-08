@@ -267,23 +267,6 @@ int main ()
     freedom->data[i] = 0;                                                                           // Resetting freedom flag...
   }
 
-  // EZOR 03DEC2020 test:
-  data.push_back (color);
-  data.push_back (position);
-  data.push_back (position_int);
-  data.push_back (velocity);
-  data.push_back (velocity_int);
-  data.push_back (acceleration);
-  data.push_back (gravity);
-  data.push_back (stiffness);
-  data.push_back (resting);
-  data.push_back (friction);
-  data.push_back (mass);
-  data.push_back (neighbour);
-  data.push_back (offset);
-  data.push_back (freedom);
-  data.push_back (dt);
-
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////// NEUTRINO INITIALIZATION /////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -316,42 +299,39 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   for(i = 0; i < data.size (); i++)
   {
-    switch(data.type)
+    switch(data[i]->type)
     {
       case NU_INT:
-        K1->setarg ((nu_int)data[i], i);
+        K1->setarg ((nu_int*)data[i], i);
         break;
 
       case NU_INT2:
-        K1->setarg ((nu_int2)data[i], i);
+        K1->setarg ((nu_int2*)data[i], i);
         break;
 
       case NU_INT3:
-        K1->setarg ((nu_int3)data[i], i);
+        K1->setarg ((nu_int3*)data[i], i);
         break;
 
       case NU_INT4:
-        K1->setarg ((nu_int4)data[i], i);
+        K1->setarg ((nu_int4*)data[i], i);
         break;
 
       case NU_FLOAT:
-        K1->setarg ((nu_float)data[i], i);
+        K1->setarg ((nu_float*)data[i], i);
         break;
 
       case NU_FLOAT2:
-        K1->setarg ((nu_float2)data[i], i);
+        K1->setarg ((nu_float2*)data[i], i);
         break;
 
       case NU_FLOAT3:
-        K1->setarg ((nu_float3)data[i], i);
+        K1->setarg ((nu_float3*)data[i], i);
         break;
 
       case NU_FLOAT4:
-        K1->setarg ((nu_float4)data[i], i);
-        break;
-
-      case NU_INT:
-        K1->setarg ((nu_int)data[i], i);
+        K1->setarg ((nu_float4*)data[i], i);
+        std::cout << "data length = " << (nu_float4*) data[i]->layout;
         break;
     }
   }
@@ -440,23 +420,30 @@ int main ()
   /////////////////////////////////// SETTING OPENGL SHADER ARGUMENTS ////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   S->setarg (color, 0);                                                                             // Setting shader argument "0"...
+  std::cout << "poppo" << std::endl;
+
   S->setarg (position, 1);                                                                          // Setting shader argument "1"...
-                                                                                                    //S->setarg (position_int, 2);                                                                      // Setting shader argument "2"...
-                                                                                                    //S->setarg (velocity, 3);                                                                          // Setting shader argument "3"...
-                                                                                                    //S->setarg (velocity_int, 4);                                                                      // Setting shader argument "4"...
-                                                                                                    //S->setarg (acceleration, 5);                                                                      // Setting shader argument "5"...
-                                                                                                    //S->setarg (gravity, 6);                                                                           // Setting shader argument "6"...
-                                                                                                    //S->setarg (stiffness, 7);                                                                         // Setting shader argument "7"...
-                                                                                                    //S->setarg (resting, 8);                                                                           // Setting shader argument "8"...
-                                                                                                    //S->setarg (friction, 9);                                                                          // Setting shader argument "9"...
-                                                                                                    //S->setarg (mass, 10);                                                                             // Setting shader argument "10"...
+  std::cout << "peppo" << std::endl;
+
+  //S->setarg (position_int, 2);                                                                      // Setting shader argument "2"...
+  //S->setarg (velocity, 3);                                                                          // Setting shader argument "3"...
+  //S->setarg (velocity_int, 4);                                                                      // Setting shader argument "4"...
+  //S->setarg (acceleration, 5);                                                                      // Setting shader argument "5"...
+  //S->setarg (gravity, 6);                                                                           // Setting shader argument "6"...
+  //S->setarg (stiffness, 7);                                                                         // Setting shader argument "7"...
+  //S->setarg (resting, 8);                                                                           // Setting shader argument "8"...
+  //S->setarg (friction, 9);                                                                          // Setting shader argument "9"...
+  //S->setarg (mass, 10);                                                                             // Setting shader argument "10"...
   S->setarg (neighbour, 11);                                                                        // Setting shader argument "11"...
+  std::cout << "peppo" << std::endl;
   S->setarg (offset, 12);                                                                           // Setting shader argument "12"...
-                                                                                                    //S->setarg (freedom, 13);                                                                          // Setting shader argument "13"...
-                                                                                                    //S->setarg (dt, 14);                                                                               // Setting shader argument "14"...
+  std::cout << "peppo" << std::endl;
+  //S->setarg (freedom, 13);                                                                          // Setting shader argument "13"...
+  //S->setarg (dt, 14);                                                                               // Setting shader argument "14"...
   color->name     = "voxel_color";                                                                  // Setting variable name for OpenGL shader...
   position->name  = "voxel_center";                                                                 // Setting variable name for OpenGL shader...
   stiffness->name = "voxel_stiffness";                                                              // Setting variable name for OpenGL shader...
+  std::cout << "pappo" << std::endl;
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////// APPLICATION LOOP ////////////////////////////////////////
@@ -483,7 +470,9 @@ int main ()
     Q->acquire (offset, 12);                                                                        // Acquiring OpenGL/CL shared argument...
     Q->acquire (freedom, 13);                                                                       // Acquiring OpenGL/CL shared argument...
     Q->acquire (dt, 14);                                                                            // Acquiring OpenGL/CL shared argument...
+    std::cout << "puppo" << std::endl;
     ctx->execute (K1, Q, NU_WAIT);                                                                  // Executing OpenCL kernel...
+    std::cout << "puppo" << std::endl;
     ctx->execute (K2, Q, NU_WAIT);                                                                  // Executing OpenCL kernel...
     Q->release (color, 0);                                                                          // Releasing OpenGL/CL shared argument...
     Q->release (position, 1);                                                                       // Releasing OpenGL/CL shared argument...
