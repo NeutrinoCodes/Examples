@@ -131,7 +131,7 @@ int main ()
   float                 h                  = 0.01f;                                                 // Cloth's thickness [m].
   float                 rho                = 1000.0f;                                               // Cloth's mass density [kg/m^3].
   float                 E                  = 100000.0f;                                             // Cloth's Young modulus [kg/(m*s^2)].
-  float                 mu                 = 700.0f;                                                // Cloth's viscosity [Pa*s].
+  float                 mu                 = 3000.0f;                                               // Cloth's viscosity [Pa*s].
   float                 g                  = 9.81f;                                                 // External gravity field [m/s^2].
 
   // SIMULATION VARIABLES:
@@ -400,38 +400,84 @@ int main ()
     gui->clear ();                                                                                  // Clearing gui...
     gui->poll_events ();                                                                            // Polling gui events...
 
-    Q->acquire (color, 0);                                                                          // Acquiring OpenGL/CL shared argument...
-    Q->acquire (position, 1);                                                                       // Acquiring OpenGL/CL shared argument...
-    Q->acquire (velocity, 2);                                                                       // Acquiring OpenGL/CL shared argument...
-    Q->acquire (acceleration, 3);                                                                   // Acquiring OpenGL/CL shared argument...
-    Q->acquire (position_int, 4);                                                                   // Acquiring OpenGL/CL shared argument...
-    Q->acquire (velocity_int, 5);                                                                   // Acquiring OpenGL/CL shared argument...
-    Q->acquire (gravity, 6);                                                                        // Acquiring OpenGL/CL shared argument...
-    Q->acquire (stiffness, 7);                                                                      // Acquiring OpenGL/CL shared argument...
-    Q->acquire (resting, 8);                                                                        // Acquiring OpenGL/CL shared argument...
-    Q->acquire (friction, 9);                                                                       // Acquiring OpenGL/CL shared argument...
-    Q->acquire (mass, 10);                                                                          // Acquiring OpenGL/CL shared argument...
-    Q->acquire (neighbour, 11);                                                                     // Acquiring OpenGL/CL shared argument...
-    Q->acquire (offset, 12);                                                                        // Acquiring OpenGL/CL shared argument...
-    Q->acquire (freedom, 13);                                                                       // Acquiring OpenGL/CL shared argument...
-    Q->acquire (dt, 14);                                                                            // Acquiring OpenGL/CL shared argument...
+    for(i = 0; i < data.size (); i++)
+    {
+      switch(data[i]->type)
+      {
+        case NU_INT:
+          Q->acquire ((nu_int*)data[i], i);
+          break;
+
+        case NU_INT2:
+          Q->acquire ((nu_int2*)data[i], i);
+          break;
+
+        case NU_INT3:
+          Q->acquire ((nu_int3*)data[i], i);
+          break;
+
+        case NU_INT4:
+          Q->acquire ((nu_int4*)data[i], i);
+          break;
+
+        case NU_FLOAT:
+          Q->acquire ((nu_float*)data[i], i);
+          break;
+
+        case NU_FLOAT2:
+          Q->acquire ((nu_float2*)data[i], i);
+          break;
+
+        case NU_FLOAT3:
+          Q->acquire ((nu_float3*)data[i], i);
+          break;
+
+        case NU_FLOAT4:
+          Q->acquire ((nu_float4*)data[i], i);
+          break;
+      }
+    }
+
     ctx->execute (K1, Q, NU_WAIT);                                                                  // Executing OpenCL kernel...
     ctx->execute (K2, Q, NU_WAIT);                                                                  // Executing OpenCL kernel...
-    Q->release (color, 0);                                                                          // Releasing OpenGL/CL shared argument...
-    Q->release (position, 1);                                                                       // Releasing OpenGL/CL shared argument...
-    Q->release (velocity, 2);                                                                       // Releasing OpenGL/CL shared argument...
-    Q->release (acceleration, 3);                                                                   // Releasing OpenGL/CL shared argument...
-    Q->release (position_int, 4);                                                                   // Releasing OpenGL/CL shared argument...
-    Q->release (velocity_int, 5);                                                                   // Releasing OpenGL/CL shared argument...
-    Q->release (gravity, 6);                                                                        // Releasing OpenGL/CL shared argument...
-    Q->release (stiffness, 7);                                                                      // Releasing OpenGL/CL shared argument...
-    Q->release (resting, 8);                                                                        // Releasing OpenGL/CL shared argument...
-    Q->release (friction, 9);                                                                       // Releasing OpenGL/CL shared argument...
-    Q->release (mass, 10);                                                                          // Releasing OpenGL/CL shared argument...
-    Q->release (neighbour, 11);                                                                     // Releasing OpenGL/CL shared argument...
-    Q->release (offset, 12);                                                                        // Releasing OpenGL/CL shared argument...
-    Q->release (freedom, 13);                                                                       // Releasing OpenGL/CL shared argument...
-    Q->release (dt, 14);                                                                            // Releasing OpenGL/CL shared argument...
+
+    for(i = 0; i < data.size (); i++)
+    {
+      switch(data[i]->type)
+      {
+        case NU_INT:
+          Q->release ((nu_int*)data[i], i);
+          break;
+
+        case NU_INT2:
+          Q->release ((nu_int2*)data[i], i);
+          break;
+
+        case NU_INT3:
+          Q->release ((nu_int3*)data[i], i);
+          break;
+
+        case NU_INT4:
+          Q->release ((nu_int4*)data[i], i);
+          break;
+
+        case NU_FLOAT:
+          Q->release ((nu_float*)data[i], i);
+          break;
+
+        case NU_FLOAT2:
+          Q->release ((nu_float2*)data[i], i);
+          break;
+
+        case NU_FLOAT3:
+          Q->release ((nu_float3*)data[i], i);
+          break;
+
+        case NU_FLOAT4:
+          Q->release ((nu_float4*)data[i], i);
+          break;
+      }
+    }
 
     gui->mouse_navigation (
                            mouse_orbit_rate,                                                        // Orbit angular rate coefficient [rev/s].
