@@ -271,48 +271,57 @@ int main ()
       case NU_INT:
         K1->setarg ((nu_int*)data[i], i);
         K2->setarg ((nu_int*)data[i], i);
+        (nu_int*)data[i]->name = "pippo";
+        S->setarg ((nu_int*)data[i], i);
         Q->write ((nu_int*)data[i], i);
         break;
 
       case NU_INT2:
         K1->setarg ((nu_int2*)data[i], i);
         K2->setarg ((nu_int2*)data[i], i);
+        S->setarg ((nu_int2*)data[i], i);
         Q->write ((nu_int2*)data[i], i);
         break;
 
       case NU_INT3:
         K1->setarg ((nu_int3*)data[i], i);
         K2->setarg ((nu_int3*)data[i], i);
+        S->setarg ((nu_int3*)data[i], i);
         Q->write ((nu_int3*)data[i], i);
         break;
 
       case NU_INT4:
         K1->setarg ((nu_int4*)data[i], i);
         K2->setarg ((nu_int4*)data[i], i);
+        S->setarg ((nu_int4*)data[i], i);
         Q->write ((nu_int4*)data[i], i);
         break;
 
       case NU_FLOAT:
         K1->setarg ((nu_float*)data[i], i);
         K2->setarg ((nu_float*)data[i], i);
+        S->setarg ((nu_float*)data[i], i);
         Q->write ((nu_float*)data[i], i);
         break;
 
       case NU_FLOAT2:
         K1->setarg ((nu_float2*)data[i], i);
         K2->setarg ((nu_float2*)data[i], i);
+        S->setarg ((nu_float2*)data[i], i);
         Q->write ((nu_float2*)data[i], i);
         break;
 
       case NU_FLOAT3:
         K1->setarg ((nu_float3*)data[i], i);
         K2->setarg ((nu_float3*)data[i], i);
+        S->setarg ((nu_float3*)data[i], i);
         Q->write ((nu_float3*)data[i], i);
         break;
 
       case NU_FLOAT4:
         K1->setarg ((nu_float4*)data[i], i);
         K2->setarg ((nu_float4*)data[i], i);
+        S->setarg ((nu_float4*)data[i], i);
         Q->write ((nu_float4*)data[i], i);
         break;
     }
@@ -323,15 +332,17 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////// SETTING OPENGL SHADER ARGUMENTS ////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
-  S->setarg (color, 0);                                                                             // Setting shader argument "0"...
-  S->setarg (position, 1);                                                                          // Setting shader argument "1"...
-  S->setarg (neighbour, 11);                                                                        // Setting shader argument "11"...
-  S->setarg (offset, 12);                                                                           // Setting shader argument "12"...
-  S->setarg (mass, 10);
+  //S->setarg (color, 0);                                                                             // Setting shader argument "0"...
+  i = 0;
+  S->setarg ((nu_float4*)data[i], i);
+  //S->setarg (position, 1);                                                                          // Setting shader argument "1"...
+  //S->setarg (neighbour, 11);                                                                        // Setting shader argument "11"...
+  //S->setarg (offset, 12);                                                                           // Setting shader argument "12"...
+  //S->setarg (mass, 10);
 
-  color->name     = "pippo";                                                                        // Setting variable name for OpenGL shader...
-  position->name  = "pippo";                                                                        // Setting variable name for OpenGL shader...
-  stiffness->name = "pippo";                                                                        // Setting variable name for OpenGL shader...
+  //color->name     = "pippo";                                                                        // Setting variable name for OpenGL shader...
+  //position->name  = "pippo";                                                                        // Setting variable name for OpenGL shader...
+  //stiffness->name = "pippo";                                                                        // Setting variable name for OpenGL shader...
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////// APPLICATION LOOP ////////////////////////////////////////
