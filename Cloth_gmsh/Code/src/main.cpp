@@ -79,28 +79,24 @@ int main ()
   size_t                kernel_sx;                                                                  // Kernel dimension "x" [#].
   size_t                kernel_sy;                                                                  // Kernel dimension "y" [#].
   size_t                kernel_sz;                                                                  // Kernel dimension "z" [#].
+  std::vector<nu_data*> data;                                                                       // Neutrino data vector.
 
-  // NEUTRINO DATA:
-  std::vector<nu_data*> data;
-
-  // NODE COLOR:
+  // KERNEL VARIABLES:
   nu_float4*            color              = new nu_float4 (data, 0);                               // Color [].
-
-  // NODE KINEMATICS:
   nu_float4*            position           = new nu_float4 (data, 1);                               // Position [m].
   nu_float4*            velocity           = new nu_float4 (data, 2);                               // Velocity [m/s].
   nu_float4*            acceleration       = new nu_float4 (data, 3);                               // Acceleration [m/s^2].
-
-  // NODE KINEMATICS (INTERMEDIATE):
   nu_float4*            position_int       = new nu_float4 (data, 4);                               // Position (intermediate) [m].
   nu_float4*            velocity_int       = new nu_float4 (data, 5);                               // Velocity (intermediate) [m/s].
-
-  // NODE DYNAMICS:
   nu_float4*            gravity            = new nu_float4 (data, 6);                               // Gravity [m/s^2].
   nu_float*             stiffness          = new nu_float (data, 7);                                // Stiffness.
   nu_float*             resting            = new nu_float (data, 8);                                // Resting.
   nu_float*             friction           = new nu_float (data, 9);                                // Friction.
   nu_float*             mass               = new nu_float (data, 10);                               // Mass [kg].
+  nu_int*               neighbour          = new nu_int (data, 11);                                 // Neighbour.
+  nu_int*               offset             = new nu_int (data, 12);                                 // Offset.
+  nu_int*               freedom            = new nu_int (data, 13);                                 // Freedom.
+  nu_float*             dt                 = new nu_float (data, 14);                               // Time step [s].
 
   // MESH:
   mesh*                 cloth              = new mesh ();                                           // Mesh cloth.
@@ -126,16 +122,13 @@ int main ()
   float                 pos_x;                                                                      // Position "x" component...
   float                 pos_y;                                                                      // Position "y" component...
   float                 pos_z;                                                                      // Position "z" component...
-  nu_int*               neighbour = new nu_int (data, 11);                                          // Neighbour.
-  nu_int*               offset    = new nu_int (data, 12);                                          // Offset.
-  nu_int*               freedom   = new nu_int (data, 13);                                          // Freedom.
 
   // SIMULATION PARAMETERS:
-  float                 h         = 0.01f;                                                          // Cloth's thickness [m].
-  float                 rho       = 1000.0f;                                                        // Cloth's mass density [kg/m^3].
-  float                 E         = 100000.0f;                                                      // Cloth's Young modulus [kg/(m*s^2)].
-  float                 mu        = 3000.0f;                                                        // Cloth's viscosity [Pa*s].
-  float                 g         = 9.81f;                                                          // External gravity field [m/s^2].
+  float                 h   = 0.01f;                                                                // Cloth's thickness [m].
+  float                 rho = 1000.0f;                                                              // Cloth's mass density [kg/m^3].
+  float                 E   = 100000.0f;                                                            // Cloth's Young modulus [kg/(m*s^2)].
+  float                 mu  = 3000.0f;                                                              // Cloth's viscosity [Pa*s].
+  float                 g   = 9.81f;                                                                // External gravity field [m/s^2].
 
   // SIMULATION VARIABLES:
   float                 m;                                                                          // Cloth's mass [kg].
@@ -143,7 +136,6 @@ int main ()
   float                 B;                                                                          // Cloth's damping [kg*s*m].
   float                 dt_critical;                                                                // Critical time step [s].
   float                 dt_simulation;                                                              // Simulation time step [s].
-  nu_float*             dt        = new nu_float (data, 14);                                        // Time step [s].
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
