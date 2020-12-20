@@ -271,70 +271,123 @@ int main ()
       case NU_INT:
         K1->setarg ((nu_int*)data[i], i);
         K2->setarg ((nu_int*)data[i], i);
-        (nu_int*)data[i]->name = "pippo";
-        S->setarg ((nu_int*)data[i], i);
         Q->write ((nu_int*)data[i], i);
         break;
 
       case NU_INT2:
         K1->setarg ((nu_int2*)data[i], i);
         K2->setarg ((nu_int2*)data[i], i);
-        S->setarg ((nu_int2*)data[i], i);
         Q->write ((nu_int2*)data[i], i);
         break;
 
       case NU_INT3:
         K1->setarg ((nu_int3*)data[i], i);
         K2->setarg ((nu_int3*)data[i], i);
-        S->setarg ((nu_int3*)data[i], i);
         Q->write ((nu_int3*)data[i], i);
         break;
 
       case NU_INT4:
         K1->setarg ((nu_int4*)data[i], i);
         K2->setarg ((nu_int4*)data[i], i);
-        S->setarg ((nu_int4*)data[i], i);
         Q->write ((nu_int4*)data[i], i);
         break;
 
       case NU_FLOAT:
         K1->setarg ((nu_float*)data[i], i);
         K2->setarg ((nu_float*)data[i], i);
-        S->setarg ((nu_float*)data[i], i);
         Q->write ((nu_float*)data[i], i);
         break;
 
       case NU_FLOAT2:
         K1->setarg ((nu_float2*)data[i], i);
         K2->setarg ((nu_float2*)data[i], i);
-        S->setarg ((nu_float2*)data[i], i);
         Q->write ((nu_float2*)data[i], i);
         break;
 
       case NU_FLOAT3:
         K1->setarg ((nu_float3*)data[i], i);
         K2->setarg ((nu_float3*)data[i], i);
-        S->setarg ((nu_float3*)data[i], i);
         Q->write ((nu_float3*)data[i], i);
         break;
 
       case NU_FLOAT4:
         K1->setarg ((nu_float4*)data[i], i);
         K2->setarg ((nu_float4*)data[i], i);
-        S->setarg ((nu_float4*)data[i], i);
         Q->write ((nu_float4*)data[i], i);
         break;
     }
   }
 
+  /*
+     for(i = 0; i < data.size (); i++)
+     {
+     switch(data[i]->type)
+     {
+      case NU_INT:
+        ((nu_int*)data[i])->name    = std::string ("arg_") + std::to_string (i);
+        S->setarg ((nu_int*)data[i], i);
+        std::cout << "int " << i << std::endl;
+        break;
 
+      case NU_INT2:
+        ((nu_int2*)data[i])->name   = std::string ("arg_") + std::to_string (i);
+        S->setarg ((nu_int2*)data[i], i);
+        break;
+
+      case NU_INT3:
+        ((nu_int3*)data[i])->name   = std::string ("arg_") + std::to_string (i);
+        S->setarg ((nu_int3*)data[i], i);
+        break;
+
+      case NU_INT4:
+        ((nu_int4*)data[i])->name   = std::string ("arg_") + std::to_string (i);
+        S->setarg ((nu_int4*)data[i], i);
+        break;
+
+      case NU_FLOAT:
+        ((nu_float*)data[i])->name  = std::string ("arg_") + std::to_string (i);
+        S->setarg ((nu_float*)data[i], i);
+        std::cout << "float " << i << std::endl;
+        break;
+
+      case NU_FLOAT2:
+        ((nu_float2*)data[i])->name = std::string ("arg_") + std::to_string (i);
+        S->setarg ((nu_float2*)data[i], i);
+        break;
+
+      case NU_FLOAT3:
+        ((nu_float3*)data[i])->name = std::string ("arg_") + std::to_string (i);
+        S->setarg ((nu_float3*)data[i], i);
+        break;
+
+      case NU_FLOAT4:
+        ((nu_float4*)data[i])->name = std::string ("arg_") + std::to_string (i);
+        S->setarg ((nu_float4*)data[i], i);
+        break;
+     }
+     }
+   */
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////// SETTING OPENGL SHADER ARGUMENTS ////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
-  //S->setarg (color, 0);                                                                             // Setting shader argument "0"...
-  i = 0;
-  S->setarg ((nu_float4*)data[i], i);
+  S->setarg ((nu_float4*)data[0], 0);
+  /*
+     S->setarg ((nu_float4*)data[1], 1);
+     S->setarg ((nu_float4*)data[2], 2);
+     S->setarg ((nu_float4*)data[3], 3);
+     S->setarg ((nu_float4*)data[4], 4);
+     S->setarg ((nu_float4*)data[5], 5);
+     S->setarg ((nu_float4*)data[6], 6);
+     S->setarg ((nu_float*)data[7], 7);
+     S->setarg ((nu_float*)data[8], 8);
+     S->setarg ((nu_float*)data[9], 9);
+     S->setarg ((nu_float*)data[10], 10);
+     S->setarg ((nu_int*)data[11], 11);
+     S->setarg ((nu_int*)data[12], 12);
+     S->setarg ((nu_int*)data[13], 13);*/
+  S->setarg ((nu_float*)data[10], 10);
+
   //S->setarg (position, 1);                                                                          // Setting shader argument "1"...
   //S->setarg (neighbour, 11);                                                                        // Setting shader argument "11"...
   //S->setarg (offset, 12);                                                                           // Setting shader argument "12"...
