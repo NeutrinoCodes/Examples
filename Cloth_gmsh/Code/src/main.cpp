@@ -269,136 +269,70 @@ int main ()
     switch(data[i]->type)
     {
       case NU_INT:
+        ((nu_int*)data[i])->name    = std::string ("arg_") + std::to_string (i);
+        S->setarg ((nu_int*)data[i], i);
         K1->setarg ((nu_int*)data[i], i);
         K2->setarg ((nu_int*)data[i], i);
         Q->write ((nu_int*)data[i], i);
         break;
 
       case NU_INT2:
+        ((nu_int2*)data[i])->name   = std::string ("arg_") + std::to_string (i);
+        S->setarg ((nu_int2*)data[i], i);
         K1->setarg ((nu_int2*)data[i], i);
         K2->setarg ((nu_int2*)data[i], i);
         Q->write ((nu_int2*)data[i], i);
         break;
 
       case NU_INT3:
+        ((nu_int3*)data[i])->name   = std::string ("arg_") + std::to_string (i);
+        S->setarg ((nu_int3*)data[i], i);
         K1->setarg ((nu_int3*)data[i], i);
         K2->setarg ((nu_int3*)data[i], i);
         Q->write ((nu_int3*)data[i], i);
         break;
 
       case NU_INT4:
+        ((nu_int4*)data[i])->name   = std::string ("arg_") + std::to_string (i);
+        S->setarg ((nu_int4*)data[i], i);
         K1->setarg ((nu_int4*)data[i], i);
         K2->setarg ((nu_int4*)data[i], i);
         Q->write ((nu_int4*)data[i], i);
         break;
 
       case NU_FLOAT:
+        ((nu_float*)data[i])->name  = std::string ("arg_") + std::to_string (i);
+        S->setarg ((nu_float*)data[i], i);
         K1->setarg ((nu_float*)data[i], i);
         K2->setarg ((nu_float*)data[i], i);
         Q->write ((nu_float*)data[i], i);
         break;
 
       case NU_FLOAT2:
+        ((nu_float2*)data[i])->name = std::string ("arg_") + std::to_string (i);
+        S->setarg ((nu_float2*)data[i], i);
         K1->setarg ((nu_float2*)data[i], i);
         K2->setarg ((nu_float2*)data[i], i);
         Q->write ((nu_float2*)data[i], i);
         break;
 
       case NU_FLOAT3:
+        ((nu_float3*)data[i])->name = std::string ("arg_") + std::to_string (i);
+        S->setarg ((nu_float3*)data[i], i);
         K1->setarg ((nu_float3*)data[i], i);
         K2->setarg ((nu_float3*)data[i], i);
         Q->write ((nu_float3*)data[i], i);
         break;
 
       case NU_FLOAT4:
+        ((nu_float4*)data[i])->name = std::string ("arg_") + std::to_string (i);
+        S->setarg ((nu_float4*)data[i], i);
         K1->setarg ((nu_float4*)data[i], i);
         K2->setarg ((nu_float4*)data[i], i);
         Q->write ((nu_float4*)data[i], i);
         break;
     }
   }
-
-  for(i = 0; i < (data.size ()); i++)
-  {
-    switch(data[i]->type)
-    {
-      case NU_INT:
-        ((nu_int*)data[i])->name    = std::string ("arg_") + std::to_string (i);
-        S->setarg ((nu_int*)data[i], i);
-        std::cout << "size = " << ((nu_int*)data[i])->data.size () << std::endl;
-        break;
-
-      case NU_INT2:
-        ((nu_int2*)data[i])->name   = std::string ("arg_") + std::to_string (i);
-        S->setarg ((nu_int2*)data[i], i);
-        break;
-
-      case NU_INT3:
-        ((nu_int3*)data[i])->name   = std::string ("arg_") + std::to_string (i);
-        S->setarg ((nu_int3*)data[i], i);
-        break;
-
-      case NU_INT4:
-        ((nu_int4*)data[i])->name   = std::string ("arg_") + std::to_string (i);
-        S->setarg ((nu_int4*)data[i], i);
-        break;
-
-      case NU_FLOAT:
-        ((nu_float*)data[i])->name  = std::string ("arg_") + std::to_string (i);
-        S->setarg ((nu_float*)data[i], i);
-        std::cout << "size = " << ((nu_float*)data[i])->data.size () << std::endl;
-        break;
-
-      case NU_FLOAT2:
-        ((nu_float2*)data[i])->name = std::string ("arg_") + std::to_string (i);
-        S->setarg ((nu_float2*)data[i], i);
-        break;
-
-      case NU_FLOAT3:
-        ((nu_float3*)data[i])->name = std::string ("arg_") + std::to_string (i);
-        S->setarg ((nu_float3*)data[i], i);
-        break;
-
-      case NU_FLOAT4:
-        ((nu_float4*)data[i])->name = std::string ("arg_") + std::to_string (i);
-        S->setarg ((nu_float4*)data[i], i);
-        std::cout << "size = " << ((nu_float4*)data[i])->data.size () << std::endl;
-        break;
-    }
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////// SETTING OPENGL SHADER ARGUMENTS ////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  /*
-     S->setarg ((nu_float4*)data[0], 0);
-     S->setarg ((nu_float4*)data[1], 1);
-     S->setarg ((nu_float4*)data[2], 2);
-     S->setarg ((nu_float4*)data[3], 3);
-     S->setarg ((nu_float4*)data[4], 4);
-     S->setarg ((nu_float4*)data[5], 5);
-     S->setarg ((nu_float4*)data[6], 6);
-     S->setarg ((nu_float*)data[7], 7);
-     S->setarg ((nu_float*)data[8], 8);
-     S->setarg ((nu_float*)data[9], 9);
-     S->setarg ((nu_float*)data[10], 10);
-     S->setarg ((nu_int*)data[11], 11);
-     S->setarg ((nu_int*)data[12], 12);
-     S->setarg ((nu_int*)data[13], 13);
-   */
-  //S->setarg ((nu_float*)data[14], 14);
-
-  //S->setarg (position, 1);                                                                          // Setting shader argument "1"...
-  //S->setarg (neighbour, 11);                                                                        // Setting shader argument "11"...
-  //S->setarg (offset, 12);                                                                           // Setting shader argument "12"...
-  //S->setarg (mass, 10);
-
-  //color->name     = "pippo";                                                                        // Setting variable name for OpenGL shader...
-  //position->name  = "pippo";                                                                        // Setting variable name for OpenGL shader...
-  //stiffness->name = "pippo";                                                                        // Setting variable name for OpenGL shader...
-
-  std::cout << "pippo" << std::endl;
 
   // EZOR: this is the problem:
   S->size = 11827;
@@ -451,10 +385,8 @@ int main ()
       }
     }
 
-    std::cout << "pippo" << std::endl;
     ctx->execute (K1, Q, NU_WAIT);                                                                  // Executing OpenCL kernel...
     ctx->execute (K2, Q, NU_WAIT);                                                                  // Executing OpenCL kernel...
-    std::cout << "pippo" << std::endl;
 
     for(i = 0; i < data.size (); i++)
     {
@@ -494,7 +426,6 @@ int main ()
       }
     }
 
-    std::cout << "pippo" << std::endl;
     gui->mouse_navigation (
                            mouse_orbit_rate,                                                        // Orbit angular rate coefficient [rev/s].
                            mouse_pan_rate,                                                          // Pan translation rate [m/s].
@@ -512,9 +443,8 @@ int main ()
     {
       gui->close ();                                                                                // Closing gui...
     }
-    std::cout << "poppo" << std::endl;
+
     gui->plot (S);                                                                                  // Plotting shared arguments...
-    std::cout << "poppo" << std::endl;
     gui->refresh ();                                                                                // Refreshing gui...
     bas->get_toc ();                                                                                // Getting "toc" [us]...
   }
