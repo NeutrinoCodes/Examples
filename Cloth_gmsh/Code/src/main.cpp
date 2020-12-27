@@ -5,6 +5,11 @@
 #define GUI_SX        800                                                                           // Window x-size [px].
 #define GUI_SY        600                                                                           // Window y-size [px].
 #define GUI_NAME      "Neutrino - Cloth_gmsh"                                                       // Window name.
+#define GUI_ORBIT_X0  0.0f                                                                          // x-axis orbit initial rotation.
+#define GUI_ORBIT_Y0  0.0f                                                                          // y-axis orbit initial rotation.
+#define GUI_PAN_X0    0.0f                                                                          // x-axis pan initial translation.
+#define GUI_PAN_Y0    0.0f                                                                          // y-axis pan initial translation.
+#define GUI_PAN_Z0    -2.0f                                                                         // z-axis pan initial translation.
 
 #ifdef __linux__
   #define SHADER_HOME "../Cloth_gmsh/Code/shader/"                                                  // Linux OpenGL shaders directory.
@@ -42,64 +47,66 @@
 int main ()
 {
   // INDEXES:
-  size_t                i;                                                                          // Index [#].
-  size_t                j;                                                                          // Index [#].
-  size_t                j_min;                                                                      // Index [#].
-  size_t                j_max;                                                                      // Index [#].
-  size_t                k;                                                                          // Index [#].
-
-  // gl PARAMETERS (orbit):
-  float                 orbit_x0           = 0.0f;                                                  // x-axis orbit initial rotation.
-  float                 orbit_y0           = 0.0f;                                                  // y-axis orbit initial rotation.
-
-  // gl PARAMETERS (pan):
-  float                 pan_x0             = 0.0f;                                                  // x-axis pan initial translation.
-  float                 pan_y0             = 0.0f;                                                  // y-axis pan initial translation.
-  float                 pan_z0             = -2.0f;                                                 // z-axis pan initial translation.
+  size_t    i;                                                                                      // Index [#].
+  size_t    j;                                                                                      // Index [#].
+  size_t    j_min;                                                                                  // Index [#].
+  size_t    j_max;                                                                                  // Index [#].
+  size_t    k;                                                                                      // Index [#].
 
   // gl PARAMETERS (mouse):
-  float                 mouse_orbit_rate   = 1.0f;                                                  // Orbit rotation rate [rev/s].
-  float                 mouse_pan_rate     = 5.0f;                                                  // Pan translation rate [m/s].
-  float                 mouse_decaytime    = 1.25f;                                                 // Pan LP filter decay time [s].
+  float     mouse_orbit_rate   = 1.0f;                                                              // Orbit rotation rate [rev/s].
+  float     mouse_pan_rate     = 5.0f;                                                              // Pan translation rate [m/s].
+  float     mouse_decaytime    = 1.25f;                                                             // Pan LP filter decay time [s].
 
   // gl PARAMETERS (gamepad):
-  float                 gamepad_orbit_rate = 1.0f;                                                  // Orbit angular rate coefficient [rev/s].
-  float                 gamepad_pan_rate   = 1.0f;                                                  // Pan translation rate [m/s].
-  float                 gamepad_decaytime  = 1.25f;                                                 // Low pass filter decay time [s].
-  float                 gamepad_deadzone   = 0.1f;                                                  // Gamepad joystick deadzone [0...1].
+  float     gamepad_orbit_rate = 1.0f;                                                              // Orbit angular rate coefficient [rev/s].
+  float     gamepad_pan_rate   = 1.0f;                                                              // Pan translation rate [m/s].
+  float     gamepad_decaytime  = 1.25f;                                                             // Low pass filter decay time [s].
+  float     gamepad_deadzone   = 0.1f;                                                              // Gamepad joystick deadzone [0...1].
 
   // NEUTRINO:
-  neutrino*             nu                 = new neutrino ();                                       // Neutrino baseline.
-  opengl*               gl                 = new opengl (QUEUE_NUM, KERNEL_NUM);                    // OpenGL context.
-  opencl*               cl                 = new opencl ();                                         // OpenCL context.
-  shader*               S                  = new shader ();                                         // OpenGL shader program.
-  queue*                Q                  = new queue ();                                          // OpenCL queue.
-  kernel*               K1                 = new kernel ();                                         // OpenCL kernel array.
-  kernel*               K2                 = new kernel ();                                         // OpenCL kernel array.
+  neutrino* nu                 = new neutrino ();                                                   // Neutrino baseline.
+  opengl*   gl                 = new opengl ();                                                     // OpenGL context.
+  opencl*   cl                 = new opencl (
+                                             QUEUE_NUM,
+                                             KERNEL_NUM,
+                                             GUI_SX,
+                                             GUI_SY,
+                                             GUI_NAME,
+                                             GUI_ORBIT_X0,
+                                             GUI_ORBIT_Y0,
+                                             GUI_PAN_X0,
+                                             GUI_PAN_Y0,
+                                             GUI_PAN_Z0
+                                            );                                                      // OpenCL context.
+  shader*               S            = new shader ();                                               // OpenGL shader program.
+  queue*                Q            = new queue ();                                                // OpenCL queue.
+  kernel*               K1           = new kernel ();                                               // OpenCL kernel array.
+  kernel*               K2           = new kernel ();                                               // OpenCL kernel array.
   size_t                kernel_sx;                                                                  // Kernel dimension "x" [#].
   size_t                kernel_sy;                                                                  // Kernel dimension "y" [#].
   size_t                kernel_sz;                                                                  // Kernel dimension "z" [#].
   std::vector<nu_data*> data;                                                                       // Neutrino data vector.
 
   // KERNEL VARIABLES:
-  nu_float4*            color              = new nu_float4 (data, 0);                               // Color [].
-  nu_float4*            position           = new nu_float4 (data, 1);                               // Position [m].
-  nu_float4*            velocity           = new nu_float4 (data, 2);                               // Velocity [m/s].
-  nu_float4*            acceleration       = new nu_float4 (data, 3);                               // Acceleration [m/s^2].
-  nu_float4*            position_int       = new nu_float4 (data, 4);                               // Position (intermediate) [m].
-  nu_float4*            velocity_int       = new nu_float4 (data, 5);                               // Velocity (intermediate) [m/s].
-  nu_float4*            gravity            = new nu_float4 (data, 6);                               // Gravity [m/s^2].
-  nu_float*             stiffness          = new nu_float (data, 7);                                // Stiffness.
-  nu_float*             resting            = new nu_float (data, 8);                                // Resting.
-  nu_float*             friction           = new nu_float (data, 9);                                // Friction.
-  nu_float*             mass               = new nu_float (data, 10);                               // Mass [kg].
-  nu_int*               neighbour          = new nu_int (data, 11);                                 // Neighbour.
-  nu_int*               offset             = new nu_int (data, 12);                                 // Offset.
-  nu_int*               freedom            = new nu_int (data, 13);                                 // Freedom.
-  nu_float*             dt                 = new nu_float (data, 14);                               // Time step [s].
+  nu_float4*            color        = new nu_float4 (data, 0);                                     // Color [].
+  nu_float4*            position     = new nu_float4 (data, 1);                                     // Position [m].
+  nu_float4*            velocity     = new nu_float4 (data, 2);                                     // Velocity [m/s].
+  nu_float4*            acceleration = new nu_float4 (data, 3);                                     // Acceleration [m/s^2].
+  nu_float4*            position_int = new nu_float4 (data, 4);                                     // Position (intermediate) [m].
+  nu_float4*            velocity_int = new nu_float4 (data, 5);                                     // Velocity (intermediate) [m/s].
+  nu_float4*            gravity      = new nu_float4 (data, 6);                                     // Gravity [m/s^2].
+  nu_float*             stiffness    = new nu_float (data, 7);                                      // Stiffness.
+  nu_float*             resting      = new nu_float (data, 8);                                      // Resting.
+  nu_float*             friction     = new nu_float (data, 9);                                      // Friction.
+  nu_float*             mass         = new nu_float (data, 10);                                     // Mass [kg].
+  nu_int*               neighbour    = new nu_int (data, 11);                                       // Neighbour.
+  nu_int*               offset       = new nu_int (data, 12);                                       // Offset.
+  nu_int*               freedom      = new nu_int (data, 13);                                       // Freedom.
+  nu_float*             dt           = new nu_float (data, 14);                                     // Time step [s].
 
   // MESH:
-  mesh*                 cloth              = new mesh ();                                           // Mesh cloth.
+  mesh*                 cloth        = new mesh ();                                                 // Mesh cloth.
   size_t                nodes;                                                                      // Number of nodes.
   size_t                elements;                                                                   // Number of elements.
   size_t                neighbours;                                                                 // Number of neighbours.
@@ -108,10 +115,10 @@ int main ()
   std::vector<size_t>   border;                                                                     // Nodes on border.
   std::vector<size_t>   side_x;                                                                     // Nodes on "x" side.
   std::vector<size_t>   side_y;                                                                     // Nodes on "y" side.
-  float                 x_min              = -1.0f;                                                 // "x_min" spatial boundary [m].
-  float                 x_max              = +1.0f;                                                 // "x_max" spatial boundary [m].
-  float                 y_min              = -1.0f;                                                 // "y_min" spatial boundary [m].
-  float                 y_max              = +1.0f;                                                 // "y_max" spatial boundary [m].
+  float                 x_min        = -1.0f;                                                       // "x_min" spatial boundary [m].
+  float                 x_max        = +1.0f;                                                       // "x_max" spatial boundary [m].
+  float                 y_min        = -1.0f;                                                       // "y_min" spatial boundary [m].
+  float                 y_max        = +1.0f;                                                       // "y_max" spatial boundary [m].
   size_t                side_x_nodes;                                                               // Number of nodes in "x" direction [#].
   size_t                side_y_nodes;                                                               // Number of nodes in "x" direction [#].
   float                 dx;                                                                         // x-axis mesh spatial size [m].
@@ -237,12 +244,12 @@ int main ()
   ////////////////////////////////////// NEUTRINO INITIALIZATION /////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   //gl->neutrino::init (QUEUE_NUM, KERNEL_NUM);                                                       // Initializing Neutrino baseline...
-  gl->init (nu, GUI_SX, GUI_SY, GUI_NAME, orbit_x0, orbit_y0, pan_x0, pan_y0, pan_z0);              // Initializing Neutrino gl...
-  cl->init (nu, gl, NU_GPU);                                                                        // Initializing OpenCL context...
-  Q->init (nu);                                                                                     // Initializing OpenCL queue...
-  K1->init (nu, kernel_sx, kernel_sy, kernel_sz);                                                   // Initializing OpenCL kernel K1...
-  K2->init (nu, kernel_sx, kernel_sy, kernel_sz);                                                   // Initializing OpenCL kernel K1...
-  S->init (nu);                                                                                     // Initializing OpenGL shader...
+  //gl->init (GUI_SX, GUI_SY, GUI_NAME, orbit_x0, orbit_y0, pan_x0, pan_y0, pan_z0);                  // Initializing Neutrino gl...
+  cl->init (NU_GPU);                                                                                // Initializing OpenCL context...
+  Q->init ();                                                                                       // Initializing OpenCL queue...
+  K1->init (kernel_sx, kernel_sy, kernel_sz);                                                       // Initializing OpenCL kernel K1...
+  K2->init (kernel_sx, kernel_sy, kernel_sz);                                                       // Initializing OpenCL kernel K1...
+  S->init ();                                                                                       // Initializing OpenGL shader...
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////// OPENCL KERNELS INITIALIZATION /////////////////////////////////
@@ -343,12 +350,12 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////// APPLICATION LOOP ////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
-  while(!gl->closed ())                                                                             // Opening window...
+  while(!cl->closed ())                                                                             // Opening window...
   {
-    gl->get_tic ();                                                                                 // Getting "tic" [us]...
+    cl->get_tic ();                                                                                 // Getting "tic" [us]...
 
-    gl->clear ();                                                                                   // Clearing gl...
-    gl->poll_events ();                                                                             // Polling gl events...
+    cl->clear ();                                                                                   // Clearing gl...
+    cl->poll_events ();                                                                             // Polling gl events...
 
     for(i = 0; i < data.size (); i++)
     {
@@ -429,27 +436,27 @@ int main ()
       }
     }
 
-    gl->mouse_navigation (
+    cl->mouse_navigation (
                           mouse_orbit_rate,                                                         // Orbit angular rate coefficient [rev/s].
                           mouse_pan_rate,                                                           // Pan translation rate [m/s].
                           mouse_decaytime                                                           // Orbit low pass decay time [s].
                          );
 
-    gl->gamepad_navigation (
+    cl->gamepad_navigation (
                             gamepad_orbit_rate,                                                     // Orbit angular rate coefficient [rev/s].
                             gamepad_pan_rate,                                                       // Pan translation rate [m/s].
                             gamepad_decaytime,                                                      // Low pass filter decay time [s].
                             gamepad_deadzone                                                        // Gamepad joystick deadzone [0...1].
                            );
 
-    if(gl->button_CROSS)
+    if(cl->button_CROSS)
     {
-      gl->close ();                                                                                 // Closing gl...
+      cl->close ();                                                                                 // Closing gl...
     }
 
-    gl->plot (S);                                                                                   // Plotting shared arguments...
-    gl->refresh ();                                                                                 // Refreshing gl...
-    gl->get_toc ();                                                                                 // Getting "toc" [us]...
+    cl->plot (S);                                                                                   // Plotting shared arguments...
+    cl->refresh ();                                                                                 // Refreshing gl...
+    cl->get_toc ();                                                                                 // Getting "toc" [us]...
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
