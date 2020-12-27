@@ -70,7 +70,7 @@ int main ()
 
   // NEUTRINO:
   neutrino*             nu                 = new neutrino ();                                       // Neutrino baseline.
-  opengl*               gl                 = new opengl ();                                         // OpenGL context.
+  opengl*               gl                 = new opengl (QUEUE_NUM, KERNEL_NUM);                    // OpenGL context.
   opencl*               cl                 = new opencl ();                                         // OpenCL context.
   shader*               S                  = new shader ();                                         // OpenGL shader program.
   queue*                Q                  = new queue ();                                          // OpenCL queue.
@@ -236,7 +236,7 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////// NEUTRINO INITIALIZATION /////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
-  gl->neutrino::init (QUEUE_NUM, KERNEL_NUM);                                                       // Initializing Neutrino baseline...
+  //gl->neutrino::init (QUEUE_NUM, KERNEL_NUM);                                                       // Initializing Neutrino baseline...
   gl->init (nu, GUI_SX, GUI_SY, GUI_NAME, orbit_x0, orbit_y0, pan_x0, pan_y0, pan_z0);              // Initializing Neutrino gl...
   cl->init (nu, gl, NU_GPU);                                                                        // Initializing OpenCL context...
   Q->init (nu);                                                                                     // Initializing OpenCL queue...
