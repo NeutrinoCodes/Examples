@@ -47,40 +47,41 @@
 int main ()
 {
   // INDEXES:
-  size_t    i;                                                                                      // Index [#].
-  size_t    j;                                                                                      // Index [#].
-  size_t    j_min;                                                                                  // Index [#].
-  size_t    j_max;                                                                                  // Index [#].
-  size_t    k;                                                                                      // Index [#].
+  size_t  i;                                                                                        // Index [#].
+  size_t  j;                                                                                        // Index [#].
+  size_t  j_min;                                                                                    // Index [#].
+  size_t  j_max;                                                                                    // Index [#].
+  size_t  k;                                                                                        // Index [#].
 
   // gl PARAMETERS (mouse):
-  float     mouse_orbit_rate   = 1.0f;                                                              // Orbit rotation rate [rev/s].
-  float     mouse_pan_rate     = 5.0f;                                                              // Pan translation rate [m/s].
-  float     mouse_decaytime    = 1.25f;                                                             // Pan LP filter decay time [s].
+  float   mouse_orbit_rate   = 1.0f;                                                                // Orbit rotation rate [rev/s].
+  float   mouse_pan_rate     = 5.0f;                                                                // Pan translation rate [m/s].
+  float   mouse_decaytime    = 1.25f;                                                               // Pan LP filter decay time [s].
 
   // gl PARAMETERS (gamepad):
-  float     gamepad_orbit_rate = 1.0f;                                                              // Orbit angular rate coefficient [rev/s].
-  float     gamepad_pan_rate   = 1.0f;                                                              // Pan translation rate [m/s].
-  float     gamepad_decaytime  = 1.25f;                                                             // Low pass filter decay time [s].
-  float     gamepad_deadzone   = 0.1f;                                                              // Gamepad joystick deadzone [0...1].
+  float   gamepad_orbit_rate = 1.0f;                                                                // Orbit angular rate coefficient [rev/s].
+  float   gamepad_pan_rate   = 1.0f;                                                                // Pan translation rate [m/s].
+  float   gamepad_decaytime  = 1.25f;                                                               // Low pass filter decay time [s].
+  float   gamepad_deadzone   = 0.1f;                                                                // Gamepad joystick deadzone [0...1].
 
   // NEUTRINO:
-  neutrino* nu                 = new neutrino ();                                                   // Neutrino baseline.
-  opengl*   gl                 = new opengl ();                                                     // OpenGL context.
-  opencl*   cl                 = new opencl (
-                                             QUEUE_NUM,
-                                             KERNEL_NUM,
-                                             GUI_SX,
-                                             GUI_SY,
-                                             GUI_NAME,
-                                             GUI_ORBIT_X0,
-                                             GUI_ORBIT_Y0,
-                                             GUI_PAN_X0,
-                                             GUI_PAN_Y0,
-                                             GUI_PAN_Z0
-                                            );                                                      // OpenCL context.
+  opencl* cl                 = new opencl (
+                                           QUEUE_NUM,
+                                           KERNEL_NUM,
+                                           GUI_SX,
+                                           GUI_SY,
+                                           GUI_NAME,
+                                           GUI_ORBIT_X0,
+                                           GUI_ORBIT_Y0,
+                                           GUI_PAN_X0,
+                                           GUI_PAN_Y0,
+                                           GUI_PAN_Z0,
+                                           NU_GPU
+                                          );                                                        // OpenCL context.
+
   shader*               S            = new shader ();                                               // OpenGL shader program.
   queue*                Q            = new queue ();                                                // OpenCL queue.
+  Q->init ();                                                                                       // Initializing OpenCL queue...
   kernel*               K1           = new kernel ();                                               // OpenCL kernel array.
   kernel*               K2           = new kernel ();                                               // OpenCL kernel array.
   size_t                kernel_sx;                                                                  // Kernel dimension "x" [#].
@@ -148,7 +149,7 @@ int main ()
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   // MESH:
-  cloth->init (nu, std::string (GMSH_HOME) + std::string (GMSH_MESH));                              // Initializing cloth mesh...
+  cloth->init (std::string (GMSH_HOME) + std::string (GMSH_MESH));                                  // Initializing cloth mesh...
   nodes         = cloth->node.size ();                                                              // Getting number of nodes...
   elements      = cloth->element.size ();                                                           // Getting number of elements...
   border        = cloth->physical (1, 1);                                                           // Getting nodes on border...
@@ -245,8 +246,8 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   //gl->neutrino::init (QUEUE_NUM, KERNEL_NUM);                                                       // Initializing Neutrino baseline...
   //gl->init (GUI_SX, GUI_SY, GUI_NAME, orbit_x0, orbit_y0, pan_x0, pan_y0, pan_z0);                  // Initializing Neutrino gl...
-  cl->init (NU_GPU);                                                                                // Initializing OpenCL context...
-  Q->init ();                                                                                       // Initializing OpenCL queue...
+
+
   K1->init (kernel_sx, kernel_sy, kernel_sz);                                                       // Initializing OpenCL kernel K1...
   K2->init (kernel_sx, kernel_sy, kernel_sz);                                                       // Initializing OpenCL kernel K1...
   S->init ();                                                                                       // Initializing OpenGL shader...
@@ -462,8 +463,6 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////// CLEANUP ////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
-  delete nu;                                                                                        // Deleting Neutrino baseline...
-  delete gl;                                                                                        // Deleting OpenGL gl...
   delete cl;                                                                                        // Deleting OpenCL context...
 
   delete color;                                                                                     // Deleting color data...
