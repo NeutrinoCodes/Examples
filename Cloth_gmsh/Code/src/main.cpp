@@ -77,7 +77,6 @@ int main ()
                                                         );
   opencl*               cl                 = new opencl (NU_GPU);                                   // OpenCL context.
   queue*                Q                  = new queue ();                                          // OpenCL queue.
-  Q->init ();                                                                                       // Initializing OpenCL queue...
   shader*               S                  = new shader ();                                         // OpenGL shader program.
   kernel*               K1                 = new kernel ();                                         // OpenCL kernel array.
   kernel*               K2                 = new kernel ();                                         // OpenCL kernel array.
