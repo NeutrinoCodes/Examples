@@ -84,21 +84,21 @@ int main ()
   size_t              kernel_sz;                                                                    // Kernel dimension "z" [#].
 
   // KERNEL VARIABLES:
-  nu_float4*          color          = new nu_float4 (cl->neutrino::data, 0);                       // Color [].
-  nu_float4*          position       = new nu_float4 (cl->neutrino::data, 1);                       // Position [m].
-  nu_float4*          velocity       = new nu_float4 (cl->neutrino::data, 2);                       // Velocity [m/s].
-  nu_float4*          acceleration   = new nu_float4 (cl->neutrino::data, 3);                       // Acceleration [m/s^2].
-  nu_float4*          position_int   = new nu_float4 (cl->neutrino::data, 4);                       // Position (intermediate) [m].
-  nu_float4*          velocity_int   = new nu_float4 (cl->neutrino::data, 5);                       // Velocity (intermediate) [m/s].
-  nu_float4*          gravity        = new nu_float4 (cl->neutrino::data, 6);                       // Gravity [m/s^2].
-  nu_float*           stiffness      = new nu_float (cl->neutrino::data, 7);                        // Stiffness.
-  nu_float*           resting        = new nu_float (cl->neutrino::data, 8);                        // Resting.
-  nu_float*           friction       = new nu_float (cl->neutrino::data, 9);                        // Friction.
-  nu_float*           mass           = new nu_float (cl->neutrino::data, 10);                       // Mass [kg].
-  nu_int*             neighbour      = new nu_int (cl->neutrino::data, 11);                         // Neighbour.
-  nu_int*             offset         = new nu_int (cl->neutrino::data, 12);                         // Offset.
-  nu_int*             freedom        = new nu_int (cl->neutrino::data, 13);                         // Freedom.
-  nu_float*           dt             = new nu_float (cl->neutrino::data, 14);                       // Time step [s].
+  nu_float4*          color          = new nu_float4 (0);                                           // Color [].
+  nu_float4*          position       = new nu_float4 (1);                                           // Position [m].
+  nu_float4*          velocity       = new nu_float4 (2);                                           // Velocity [m/s].
+  nu_float4*          acceleration   = new nu_float4 (3);                                           // Acceleration [m/s^2].
+  nu_float4*          position_int   = new nu_float4 (4);                                           // Position (intermediate) [m].
+  nu_float4*          velocity_int   = new nu_float4 (5);                                           // Velocity (intermediate) [m/s].
+  nu_float4*          gravity        = new nu_float4 (6);                                           // Gravity [m/s^2].
+  nu_float*           stiffness      = new nu_float (7);                                            // Stiffness.
+  nu_float*           resting        = new nu_float (8);                                            // Resting.
+  nu_float*           friction       = new nu_float (9);                                            // Friction.
+  nu_float*           mass           = new nu_float (10);                                           // Mass [kg].
+  nu_int*             neighbour      = new nu_int (11);                                             // Neighbour.
+  nu_int*             offset         = new nu_int (12);                                             // Offset.
+  nu_int*             freedom        = new nu_int (13);                                             // Freedom.
+  nu_float*           dt             = new nu_float (14);                                           // Time step [s].
 
   // MESH:
   mesh*               cloth          = new mesh ();                                                 // Mesh cloth.
