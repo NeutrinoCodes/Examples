@@ -142,6 +142,7 @@ int main ()
   // MESH:
   cloth->init (std::string (GMSH_HOME) + std::string (GMSH_MESH));                                  // Initializing cloth mesh...
   nodes         = cloth->node.size ();                                                              // Getting number of nodes...
+  neighbours    = cloth->neighbourhood.size ();                                                     // Getting number of neighbours nodes...
   elements      = cloth->element.size ();                                                           // Getting number of elements...
   border        = cloth->physical (1, 1);                                                           // Getting nodes on border...
   side_x        = cloth->physical (1, 2);                                                           // Getting nodes on side_x...
@@ -179,11 +180,10 @@ int main ()
     offset->data.push_back (cloth->offset[i]);
   }
 
-
-  for(i = 0; i < cloth->neighbourhood.size (); i++)
+  // SETTING NEUTRINO ARRAYS ("neighbours" depending):
+  for(i = 0; i < neighbours; i++)
   {
     neighbour->data.push_back (cloth->neighbourhood[i]);
-
   }
 
 /*
