@@ -48,10 +48,6 @@ int main ()
 {
   // INDEXES:
   size_t              i;                                                                            // Index [#].
-  size_t              j;                                                                            // Index [#].
-  size_t              j_min;                                                                        // Index [#].
-  size_t              j_max;                                                                        // Index [#].
-  size_t              k;                                                                            // Index [#].
 
   // gl PARAMETERS (mouse):
   float               ms_orbit_rate  = 1.0f;                                                        // Orbit rotation rate [rev/s].
