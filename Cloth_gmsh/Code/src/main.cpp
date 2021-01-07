@@ -151,7 +151,7 @@ int main ()
   K             = E*h*dy/dx;                                                                        // Elastic constant [kg/s^2].
   B             = mu*h*dx*dy;                                                                       // Damping [kg*s*m].
   dt_critical   = sqrt (m/K);                                                                       // Critical time step [s].
-  dt_simulation = 0.5*dt_critical;                                                                  // Simulation time step [s].
+  dt_simulation = 0.5f*dt_critical;                                                                 // Simulation time step [s].
 
   // SETTING NEUTRINO ARRAYS (parameters):
   gravity->data.push_back ({0.0f, 0.0f, -g, 1.0f});                                                 // Setting gravity...
