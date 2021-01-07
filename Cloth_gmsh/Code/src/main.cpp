@@ -85,7 +85,7 @@ int main ()
   nu_float*           dt             = new nu_float (14);                                            // Time step [s].
 
   // MESH:
-  mesh*               cloth          = new mesh ();                                                  // Mesh cloth.
+  mesh*               cloth          = new mesh (std::string (GMSH_HOME) + std::string (GMSH_MESH)); // Mesh cloth.
   size_t              nodes;                                                                         // Number of nodes.
   size_t              elements;                                                                      // Number of elements.
   size_t              neighbours;                                                                    // Number of neighbours.
@@ -126,7 +126,6 @@ int main ()
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   // MESH:
-  cloth->init (std::string (GMSH_HOME) + std::string (GMSH_MESH));                                   // Initializing cloth mesh...
   nodes         = cloth->node.size ();                                                               // Getting number of nodes...
   neighbours    = cloth->neighbourhood.size ();                                                      // Getting number of neighbours nodes...
   elements      = cloth->element.size ();                                                            // Getting number of elements...
