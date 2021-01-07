@@ -1,6 +1,5 @@
 /// @file
 
-// OPENGL:
 #define INTEROP       true                                                                           // "true" = use OpenGL-OpenCL interoperability.
 #define SX            800                                                                            // Window x-size [px].
 #define SY            600                                                                            // Window y-size [px].
@@ -37,10 +36,6 @@
 #define KERNEL_2      "thekernel_2.cl"                                                               // OpenCL kernel source.
 #define GMSH_MESH     "Square_triangles.msh"                                                         // GMSH mesh.
 
-// OPENCL:
-#define QUEUE_NUM     1                                                                              // # of OpenCL queues [#].
-#define KERNEL_NUM    2                                                                              // # of OpenCL kernel [#].
-
 // INCLUDES:
 #include "nu.hpp"                                                                                    // Neutrino's header file.
 
@@ -49,12 +44,12 @@ int main ()
   // INDEXES:
   size_t              i;                                                                             // Index [#].
 
-  // gl PARAMETERS (mouse):
+  // MOUSE PARAMETERS:
   float               ms_orbit_rate  = 1.0f;                                                         // Orbit rotation rate [rev/s].
   float               ms_pan_rate    = 5.0f;                                                         // Pan translation rate [m/s].
   float               ms_decaytime   = 1.25f;                                                        // Pan LP filter decay time [s].
 
-  // gl PARAMETERS (gamepad):
+  // GAMEPAD PARAMETERS:
   float               gmp_orbit_rate = 1.0f;                                                         // Orbit angular rate coefficient [rev/s].
   float               gmp_pan_rate   = 1.0f;                                                         // Pan translation rate [m/s].
   float               gmp_decaytime  = 1.25f;                                                        // Low pass filter decay time [s].
