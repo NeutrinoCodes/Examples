@@ -103,7 +103,6 @@ int main ()
   size_t              elements;                                                                     // Number of elements.
   size_t              neighbours;                                                                   // Number of neighbours.
   size_t              border_nodes;                                                                 // Number of border nodes.
-  std::vector<size_t> neighbourhood;                                                                // Neighbourhood.
   std::vector<size_t> border;                                                                       // Nodes on border.
   std::vector<size_t> side_x;                                                                       // Nodes on "x" side.
   std::vector<size_t> side_y;                                                                       // Nodes on "y" side.
@@ -184,33 +183,14 @@ int main ()
   for(i = 0; i < neighbours; i++)
   {
     neighbour->data.push_back (cloth->neighbourhood[i]);
+    link_x = cloth->link[i].x;
+    link_y = cloth->link[i].y;
+    link_z = cloth->link[i].z;
+    resting->data.push_back (sqrt (pow (link_x, 2) + pow (link_y, 2) + pow (link_z, 2)));           // Computing resting distace...
+    stiffness->data.push_back (K);                                                                  // Setting stiffness...
   }
 
-  for(i = 0; i < nodes; i++)
-  {
-    j_max = offset->data[i];                                                                        // Setting stride maximum...
-
-    if(i == 0)
-    {
-      j_min = 0;                                                                                    // Setting stride minimum (first stride)...
-    }
-    else
-    {
-      j_min = offset->data[i - 1];                                                                  // Setting stride minimum (all others)...
-    }
-
-    for(j = j_min; j < j_max; j++)
-    {
-      k      = neighbour->data[j];                                                                  // Getting neighbour index...
-      link_x = position->data[k].x - position->data[i].x;                                           // Computing link "x" component...
-      link_y = position->data[k].y - position->data[i].y;                                           // Computing link "y" component...
-      link_z = position->data[k].z - position->data[i].z;                                           // Computing link "z" component...
-      resting->data.push_back (sqrt (pow (link_x, 2) + pow (link_y, 2) + pow (link_z, 2)));         // Computing resting distace...
-      stiffness->data.push_back (K);                                                                // Setting stiffness...
-    }
-  }
-
-  // ANCHORING BORDER NODES:
+  // SETTING NEUTRINO ARRAYS ("border" depending):
   for(int i = 0; i < border_nodes; i++)
   {
     freedom->data[i] = 0;                                                                           // Resetting freedom flag...
