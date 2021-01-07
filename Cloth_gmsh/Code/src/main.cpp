@@ -193,15 +193,12 @@ int main ()
   S->addsource (std::string (SHADER_HOME) + std::string (SHADER_GEOM_1), NU_GEOMETRY);               // Setting shader source file...
   S->addsource (std::string (SHADER_HOME) + std::string (SHADER_GEOM_2), NU_GEOMETRY);               // Setting shader source file...
   S->addsource (std::string (SHADER_HOME) + std::string (SHADER_FRAG), NU_FRAGMENT);                 // Setting shader source file...
-  S->build ();                                                                                       // Building shader program...
+  S->build (nodes);                                                                                  // Building shader program...
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////// SETTING OPENCL KERNEL ARGUMENTS /////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   cl->write ();
-
-  // EZOR: this is the problem:
-  S->size = 11827;
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////// APPLICATION LOOP ////////////////////////////////////////
