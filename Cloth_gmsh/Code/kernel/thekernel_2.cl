@@ -57,9 +57,13 @@ __kernel void thekernel(__global float4*    color,                              
   float         L                 = 0.0f;                                       // Neighbour link length.
   float         dt                = dt_simulation[0];                           // Simulation time step [s].
 
-  float         gauss_curvature   = 0.0f;                                       // Gaussian curvature.
+  float         K_gauss           = 0.0f;                                       // Gaussian curvature.
+  float         K_mean            = 0.0f;                                       // Mean curvature.
   float         area              = 0.0f;                                       // Laplace-Beltrami area.
   float         theta             = 0.0f;                                       // Laplace-Beltrami angle.
+  float3        p_A               = (float3)(0.0f, 0.0f, 0.0f);
+  float3        p_B               = (float3)(0.0f, 0.0f, 0.0f);
+  float3        p_C               = (float3)(0.0f, 0.0f, 0.0f);
   float3        link_A            = (float3)(0.0f, 0.0f, 0.0f);                 // Laplace_Beltrami 1st edge backup.
   float3        link_B            = (float3)(0.0f, 0.0f, 0.0f);                 // Laplace-Beltrami previous edge.
   float3        link_C            = (float3)(0.0f, 0.0f, 0.0f);                 // Laplace-Beltrami current edge.
@@ -89,25 +93,35 @@ __kernel void thekernel(__global float4*    color,                              
     D = S*normalize(link);                                                      // Computing neighbour link displacement...
     Fe += K*D;                                                                  // Building up elastic force on central node...
     
+    p_B = p_C;
+    p_C = neighbour.xyz;
     link_B = link_C;
     link_C = link.xyz;
     
     if (j == j_min)
     {
+      p_A = neighbour.xyz;
       link_A = link.xyz;
     }
     else
     {
+      K_mean += dot((normalize(link_C) - normalize(link_B)),(p_C - p_B))/
+                dot((p_C - p_B),(p_C - p_B));
       theta += fabs(acos(dot(normalize(link_B), normalize(link_C))));
       area += length(cross(link_B, link_C));
     }
   }
 
+  p_B = p_C;
+  p_C = p_A;
   link_B = link_C;
   link_C = link_A;
+  K_mean += dot((normalize(link_C) - normalize(link_B)),(p_C - p_B))/
+            dot((p_C - p_B),(p_C - p_B));
+  K_mean = K_mean/(j_max - j_min);     
   theta += fabs(acos(dot(normalize(link_B), normalize(link_C))));
   area += length(cross(link_B, link_C));
-  gauss_curvature = 3.0f*(2.0f*M_PI - theta)/area;
+  K_gauss = 3.0f*(2.0f*M_PI - theta)/area;
   
   // COMPUTING TOTAL FORCE:
   Fg = m*g;                                                                     // Computing node gravitational force...
@@ -153,8 +167,8 @@ __kernel void thekernel(__global float4*    color,                              
   velocity[i] = v_new;                                                          // Updating velocity [m/s]...
   acceleration[i] = a_new;                                                      // Updating acceleration [m/s^2]...
 
-  c.x = 1.0f;
-  c.y = 0.00005f*fabs(gauss_curvature);
-  c.z = 0.00005f*fabs(gauss_curvature);
+  c.x = 0.1f*(50 - K_mean);
+  c.y = 0.4f - 0.1f*(50 - K_mean);
+  c.z = 0.2f;
   color[i] = c;
 }
