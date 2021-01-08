@@ -9,6 +9,7 @@
 #define BMIN                      0.0f                                          // Offset blue channel for colormap
 #define BMAX                      1.0f                                          // Maximum blue channel for colormap
 #define SCALE                     1.5f                                          // Scale factor for plot
+#define ONE4                      (float4)(1.0f, 1.0f, 1.0f, 1.0f)              // Vector of 4 ones.
 
 void link_displacements (
                           float4 position_R,                                    // Right neighbour position [m].
@@ -113,6 +114,18 @@ void fix_projective_space (
   *vector *= (float4)(1.0f, 1.0f, 1.0f, 0.0f);                                  // Nullifying 4th projective component...
 
   *vector += (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                  // Setting 4th projective component to "1.0f"...
+}
+
+// Determinant of 3x3 matrix.
+float det(float4 row_1, float4 row_2, float4 row_3)
+{
+  float d;                                                                                          // Determinant.
+
+  d = (row_1.x*row_2.y - row_1.y*row_2.x)*row_3.z -
+      (row_1.x*row_3.y - row_1.y*row_3.x)*row_2.z +
+      (row_2.x*row_3.y - row_2.y*row_3.x)*row_1.z;
+
+  return d;
 }
 
 // Assign color based on a custom colormap.

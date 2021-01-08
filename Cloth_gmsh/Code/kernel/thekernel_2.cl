@@ -28,6 +28,7 @@ __kernel void thekernel(__global float4*    color,                              
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////// CELL VARIABLES //////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
+  float4        c                 = color[i];                                   // Central node color.
   float4        v                 = velocity[i];                                // Central node velocity.
   float4        a                 = acceleration[i];                            // Central node acceleration.
   float4        p_int             = position_int[i];                            // Central node position (intermediate).
@@ -55,6 +56,13 @@ __kernel void thekernel(__global float4*    color,                              
   float         S                 = 0.0f;                                       // Neighbour link strain.
   float         L                 = 0.0f;                                       // Neighbour link length.
   float         dt                = dt_simulation[0];                           // Simulation time step [s].
+
+  float         gauss_curvature   = 0.0f;                                       // Gaussian curvature.
+  float         area              = 0.0f;                                       // Laplace-Beltrami area.
+  float         theta             = 0.0f;                                       // Laplace-Beltrami angle.
+  float3        link_A            = (float3)(0.0f, 0.0f, 0.0f);                 // Laplace_Beltrami 1st edge backup.
+  float3        link_B            = (float3)(0.0f, 0.0f, 0.0f);                 // Laplace-Beltrami previous edge.
+  float3        link_C            = (float3)(0.0f, 0.0f, 0.0f);                 // Laplace-Beltrami current edge.
   
   // COMPUTING STRIDE MINIMUM INDEX:
   if (i == 0)
@@ -65,6 +73,8 @@ __kernel void thekernel(__global float4*    color,                              
   {
     j_min = offset[i - 1];                                                      // Setting stride minimum (all others)...
   }
+
+  theta = 0.0f;
 
   // COMPUTING ELASTIC FORCE:
   for (j = j_min; j < j_max; j++)
@@ -78,8 +88,27 @@ __kernel void thekernel(__global float4*    color,                              
     S = L - R;                                                                  // Computing neighbour link strain...
     D = S*normalize(link);                                                      // Computing neighbour link displacement...
     Fe += K*D;                                                                  // Building up elastic force on central node...
+    
+    link_B = link_C;
+    link_C = link.xyz;
+    
+    if (j == j_min)
+    {
+      link_A = link.xyz;
+    }
+    else
+    {
+      theta += acos(dot(normalize(link_B), normalize(link_C)));
+      area += length(cross(link_B, link_C));
+    }
   }
 
+  link_B = link_C;
+  link_C = link_A;
+  theta += acos(dot(normalize(link_B), normalize(link_C)));
+  area += length(cross(link_B, link_C));
+  gauss_curvature = 6.0f*(M_PI - theta)/area;
+  
   // COMPUTING TOTAL FORCE:
   Fg = m*g;                                                                     // Computing node gravitational force...
   Fv = -B*v_int;                                                                // Computing node viscous force...
@@ -123,4 +152,8 @@ __kernel void thekernel(__global float4*    color,                              
   position[i] = p_int;                                                          // Updating position [m]...
   velocity[i] = v_new;                                                          // Updating velocity [m/s]...
   acceleration[i] = a_new;                                                      // Updating acceleration [m/s^2]...
+
+  c.x = 0.00001f*fabs(gauss_curvature);
+  c.y = 0.00001f*fabs(gauss_curvature);
+  color[i] = c;
 }
