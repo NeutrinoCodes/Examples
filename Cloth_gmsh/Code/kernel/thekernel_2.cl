@@ -98,16 +98,16 @@ __kernel void thekernel(__global float4*    color,                              
     }
     else
     {
-      theta += acos(dot(normalize(link_B), normalize(link_C)));
+      theta += fabs(acos(dot(normalize(link_B), normalize(link_C))));
       area += length(cross(link_B, link_C));
     }
   }
 
   link_B = link_C;
   link_C = link_A;
-  theta += acos(dot(normalize(link_B), normalize(link_C)));
+  theta += fabs(acos(dot(normalize(link_B), normalize(link_C))));
   area += length(cross(link_B, link_C));
-  gauss_curvature = 6.0f*(M_PI - theta)/area;
+  gauss_curvature = 3.0f*(2.0f*M_PI - theta)/area;
   
   // COMPUTING TOTAL FORCE:
   Fg = m*g;                                                                     // Computing node gravitational force...
@@ -153,7 +153,8 @@ __kernel void thekernel(__global float4*    color,                              
   velocity[i] = v_new;                                                          // Updating velocity [m/s]...
   acceleration[i] = a_new;                                                      // Updating acceleration [m/s^2]...
 
-  c.x = 0.00001f*fabs(gauss_curvature);
-  c.y = 0.00001f*fabs(gauss_curvature);
+  c.x = 1.0f;
+  c.y = 0.00005f*fabs(gauss_curvature);
+  c.z = 0.00005f*fabs(gauss_curvature);
   color[i] = c;
 }
