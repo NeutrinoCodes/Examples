@@ -34,7 +34,7 @@
 #define SHADER_FRAG   "voxel_fragment.frag"                                                          // OpenGL fragment shader.
 #define KERNEL_1      "thekernel_1.cl"                                                               // OpenCL kernel source.
 #define KERNEL_2      "thekernel_2.cl"                                                               // OpenCL kernel source.
-#define GMSH_MESH     "Square_triangles.msh"                                                         // GMSH mesh.
+#define GMSH_MESH     "Square_quadrangles.msh"                                                       // GMSH mesh.
 
 // INCLUDES:
 #include "nu.hpp"                                                                                    // Neutrino's header file.
