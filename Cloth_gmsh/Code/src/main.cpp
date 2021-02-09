@@ -83,6 +83,7 @@ int main ()
   mesh*               cloth          = new mesh (std::string (GMSH_HOME) + std::string (GMSH_MESH)); // Mesh cloth.
   size_t              nodes;                                                                         // Number of nodes.
   size_t              elements;                                                                      // Number of elements.
+  size_t              groups;                                                                        // Number of groups.
   size_t              neighbours;                                                                    // Number of neighbours.
   std::vector<size_t> side_x;                                                                        // Nodes on "x" side.
   std::vector<size_t> side_y;                                                                        // Nodes on "y" side.
@@ -90,10 +91,10 @@ int main ()
   size_t              side_x_nodes;                                                                  // Number of nodes in "x" direction [#].
   size_t              side_y_nodes;                                                                  // Number of nodes in "x" direction [#].
   size_t              border_nodes;                                                                  // Number of border nodes.
-  float               x_min          = -1.0f;                                                        // "x_min" spatial boundary [m].
-  float               x_max          = +1.0f;                                                        // "x_max" spatial boundary [m].
-  float               y_min          = -1.0f;                                                        // "y_min" spatial boundary [m].
-  float               y_max          = +1.0f;                                                        // "y_max" spatial boundary [m].
+  float               x_min = -1.0f;                                                                 // "x_min" spatial boundary [m].
+  float               x_max = +1.0f;                                                                 // "x_max" spatial boundary [m].
+  float               y_min = -1.0f;                                                                 // "y_min" spatial boundary [m].
+  float               y_max = +1.0f;                                                                 // "y_max" spatial boundary [m].
   float               dx;                                                                            // x-axis mesh spatial size [m].
   float               dy;                                                                            // y-axis mesh spatial size [m].
   float               pos_x;                                                                         // Position "x" component...
@@ -123,7 +124,12 @@ int main ()
   // MESH:
   nodes         = cloth->node (2, 10, NU_MSH_TRI_3).size ();                                         // Getting number of nodes...
   std::cout << "nodes = " << nodes << std::endl;
-  //neighbours    = cloth->neighbourhood[2][0][NU_MSH_TRI_3].size ();                                  // Getting number of neighbours nodes...
+  elements      = cloth->element (2, 10, NU_MSH_TRI_3).size ();                                      // Getting number of elements...
+  std::cout << "elements = " << elements << std::endl;
+  groups        = cloth->group (2, 10, NU_MSH_TRI_3).size ();                                        // Getting number of groups...
+  std::cout << "groups = " << groups << std::endl;
+  neighbours    = cloth->neighbour (2, 0, NU_MSH_TRI_3).size ();                                     // Getting number of neighbours...
+  std::cout << "neighbours = " << neighbours << std::endl;
   //elements      = cloth->element[2][0][NU_MSH_TRI_3].size ();                                        // Getting number of elements...
   border        = cloth->physical (1, 1);                                                            // Getting nodes on border...
   side_x        = cloth->physical (1, 2);                                                            // Getting nodes on side_x...
