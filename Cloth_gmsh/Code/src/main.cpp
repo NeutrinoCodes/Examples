@@ -138,12 +138,15 @@ int main ()
   neighbours    = cloth->neighbour.size ();
   std::cout << "neighbours = " << neighbours << std::endl;
 
-  //cloth->get_physicals (1, 1);
-  //border        = cloth->physical;                                                                   // Getting nodes on border...
+  cloth->get_physicals (1, 1);
+  border        = cloth->physical;                                                                   // Getting nodes on border...
 
-  //cloth->get_physicals (1, 2);
-  //side_x        = cloth->physical;                                                            // Getting nodes on side_x...
-  //side_y        = cloth->physical (1, 3);                                                            // Getting nodes on side_y...
+  cloth->get_physicals (1, 2);
+  side_x        = cloth->physical;                                                                   // Getting nodes on side_x...
+
+  cloth->get_physicals (1, 3);
+  side_y        = cloth->physical;                                                                   // Getting nodes on side_y...
+
   border_nodes  = border.size ();                                                                    // Getting number of nodes on border...
   side_x_nodes  = side_x.size ();                                                                    // Getting number of nodes on side_x...
   side_y_nodes  = side_y.size ();                                                                    // Getting number of nodes on side_y...
@@ -160,8 +163,6 @@ int main ()
   friction->data.push_back (B);                                                                      // Setting friction...
   dt->data.push_back (dt_simulation);                                                                // Setting time step...
 
-  std::cout << "pippo" << std::endl;
-
   // SETTING NEUTRINO ARRAYS ("nodes" depending):
   for(i = 0; i < nodes; i++)
   {
@@ -177,6 +178,11 @@ int main ()
     mass->data.push_back (m);                                                                        // Setting "x" mass...
     freedom->data.push_back (1);                                                                     // Setting freedom flag...
     offset->data.push_back (cloth->neighbour[i].offset);                                             // Setting neighbour offset...
+    neighbour->data.insert (
+                            neighbour->data.end (),
+                            cloth->neighbour[i].node.begin (),
+                            cloth->neighbour[i].node.end ()
+                           );
   }
 
   std::cout << "pippo" << std::endl;
@@ -184,8 +190,7 @@ int main ()
   // SETTING NEUTRINO ARRAYS ("neighbours" depending):
   for(i = 0; i < neighbours; i++)
   {
-    //neighbour->data.push_back (cloth->neighbourhood[2][0][NU_MSH_TRI_3][i]);
-    //link_x = cloth->link[2][0][NU_MSH_TRI_3][i].x;
+    //link_x = cloth->neighbour.link[2][0][NU_MSH_TRI_3][i].x;
     //link_y = cloth->link[2][0][NU_MSH_TRI_3][i].y;
     //link_z = cloth->link[2][0][NU_MSH_TRI_3][i].z;
     //resting->data.push_back (sqrt (pow (link_x, 2) + pow (link_y, 2) + pow (link_z, 2)));            // Computing resting distace...
