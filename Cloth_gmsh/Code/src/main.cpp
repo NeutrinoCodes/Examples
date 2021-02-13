@@ -122,46 +122,53 @@ int main ()
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   // MESH:
-  cloth->get_nodes (2, 10, NU_MSH_TRI_3);                                                            // Getting number of nodes...
-  nodes         = cloth->node.size ();
+  cloth->get_nodes (2, 10, NU_MSH_TRI_3);                                                            // Getting nodes...
+  position->data = cloth->node;
+  nodes          = cloth->node.size ();
   std::cout << "nodes = " << nodes << std::endl;
 
   cloth->get_elements (2, 10, NU_MSH_TRI_3);                                                         // Getting number of elements...
-  elements      = cloth->element.size ();
+  elements       = cloth->element.size ();
   std::cout << "elements = " << elements << std::endl;
 
   cloth->get_groups (2, 10, NU_MSH_TRI_3);                                                           // Getting number of groups...
-  groups        = cloth->group.size ();
+  groups         = cloth->group.size ();
   std::cout << "groups = " << groups << std::endl;
 
   cloth->get_neighbours (2, 10, NU_MSH_TRI_3);                                                       // Getting number of neighbours...
-  neighbours    = cloth->neighbour.size ();
+  neighbours     = cloth->neighbour.size ();
+  offset->data   = cloth->neighbour.offset;                                                          // Setting neighbour offset...
+
   std::cout << "neighbours = " << neighbours << std::endl;
 
   cloth->get_physicals (1, 1);
-  border        = cloth->physical;                                                                   // Getting nodes on border...
+  border         = cloth->physical;                                                                  // Getting nodes on border...
 
   cloth->get_physicals (1, 2);
-  side_x        = cloth->physical;                                                                   // Getting nodes on side_x...
+  side_x         = cloth->physical;                                                                  // Getting nodes on side_x...
 
   cloth->get_physicals (1, 3);
-  side_y        = cloth->physical;                                                                   // Getting nodes on side_y...
+  side_y         = cloth->physical;                                                                  // Getting nodes on side_y...
 
-  border_nodes  = border.size ();                                                                    // Getting number of nodes on border...
-  side_x_nodes  = side_x.size ();                                                                    // Getting number of nodes on side_x...
-  side_y_nodes  = side_y.size ();                                                                    // Getting number of nodes on side_y...
-  dx            = (x_max - x_min)/(side_x_nodes - 1);                                                // x-axis mesh spatial size [m].
-  dy            = (y_max - y_min)/(side_y_nodes - 1);                                                // y-axis mesh spatial size [m].
-  m             = rho*h*dx*dy;                                                                       // Node mass [kg].
-  K             = E*h*dy/dx;                                                                         // Elastic constant [kg/s^2].
-  B             = mu*h*dx*dy;                                                                        // Damping [kg*s*m].
-  dt_critical   = sqrt (m/K);                                                                        // Critical time step [s].
-  dt_simulation = 0.5f*dt_critical;                                                                  // Simulation time step [s].
+  border_nodes   = border.size ();                                                                   // Getting number of nodes on border...
+  side_x_nodes   = side_x.size ();                                                                   // Getting number of nodes on side_x...
+  side_y_nodes   = side_y.size ();                                                                   // Getting number of nodes on side_y...
+  dx             = (x_max - x_min)/(side_x_nodes - 1);                                               // x-axis mesh spatial size [m].
+  dy             = (y_max - y_min)/(side_y_nodes - 1);                                               // y-axis mesh spatial size [m].
+  m              = rho*h*dx*dy;                                                                      // Node mass [kg].
+  K              = E*h*dy/dx;                                                                        // Elastic constant [kg/s^2].
+  B              = mu*h*dx*dy;                                                                       // Damping [kg*s*m].
+  dt_critical    = sqrt (m/K);                                                                       // Critical time step [s].
+  dt_simulation  = 0.5f*dt_critical;                                                                 // Simulation time step [s].
 
   // SETTING NEUTRINO ARRAYS (parameters):
   gravity->data.push_back ({0.0f, 0.0f, -g, 1.0f});                                                  // Setting gravity...
   friction->data.push_back (B);                                                                      // Setting friction...
   dt->data.push_back (dt_simulation);                                                                // Setting time step...
+
+
+
+  std::cout << "poppo" << std::endl;
 
   // SETTING NEUTRINO ARRAYS ("nodes" depending):
   for(i = 0; i < nodes; i++)
