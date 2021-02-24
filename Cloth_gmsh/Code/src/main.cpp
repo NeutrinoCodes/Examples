@@ -188,6 +188,8 @@ int main ()
   // SETTING NEUTRINO ARRAYS ("neighbours" depending):
   for(i = 0; i < neighbours; i++)
   {
+    std::cout << "i = " << i << " neighbour = " << neighbour->data[i]
+              << " offset = " << offset->data[i] << std::endl;
     stiffness->data.push_back (K);                                                                   // Setting stiffness...
   }
 
