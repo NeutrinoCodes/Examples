@@ -34,7 +34,7 @@
 #define SHADER_FRAG   "voxel_fragment.frag"                                                          // OpenGL fragment shader.
 #define KERNEL_1      "thekernel_1.cl"                                                               // OpenCL kernel source.
 #define KERNEL_2      "thekernel_2.cl"                                                               // OpenCL kernel source.
-#define GMSH_MESH     "Square_triangles.msh"                                                         // GMSH mesh.
+#define GMSH_MESH     "Square_quadrangles.msh"                                                       // GMSH mesh.
 
 // INCLUDES:
 #include "nu.hpp"                                                                                    // Neutrino's header file.
@@ -122,7 +122,7 @@ int main ()
   ///////////////////////////////////////// DATA INITIALIZATION ///////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   // MESH:
-  cloth->process (4, 2, NU_MSH_TRI_3);                                                               // Porcessing mesh...
+  cloth->process (200, 2, NU_MSH_QUA_4);                                                             // Processing mesh...
 
   position->data  = cloth->node_coordinates;                                                         // Getting node coordinates...
   neighbour->data = cloth->neighbour;                                                                // Setting neighbours...
@@ -142,6 +142,8 @@ int main ()
   std::cout << "lenghts = " << cloth->neighbour_length.size () << std::endl;
   std::cout << "links = " << cloth->neighbour_link.size () << std::endl;
 
+  //cloth->process (1, 1, NU_MSH_PNT);                                                                 // Processing mesh...
+  //border->data = cloth->
   /*
      cloth->get_physicals (2, 4);
      border         = cloth->physical;                                                                  // Getting nodes on border...
@@ -153,11 +155,11 @@ int main ()
      side_y         = cloth->physical;                                                                  // Getting nodes on side_y...
    */
 
-  std::cout << "surface = " << border.size () << std::endl;
+  //std::cout << "surface = " << border.size () << std::endl;
 
-  border_nodes  = border.size ();                                                                    // Getting number of nodes on border...
-  side_x_nodes  = side_x.size ();                                                                    // Getting number of nodes on side_x...
-  side_y_nodes  = side_y.size ();                                                                    // Getting number of nodes on side_y...
+  //border_nodes  = border.size ();                                                                    // Getting number of nodes on border...
+  //side_x_nodes  = side_x.size ();                                                                    // Getting number of nodes on side_x...
+  //side_y_nodes  = side_y.size ();                                                                    // Getting number of nodes on side_y...
   dx            = (x_max - x_min)/(side_x_nodes - 1);                                                // x-axis mesh spatial size [m].
   dy            = (y_max - y_min)/(side_y_nodes - 1);                                                // y-axis mesh spatial size [m].
   m             = rho*h*dx*dy;                                                                       // Node mass [kg].
@@ -171,10 +173,6 @@ int main ()
   friction->data.push_back (B);                                                                      // Setting friction...
   dt->data.push_back (dt_simulation);                                                                // Setting time step...
 
-
-
-  std::cout << "poppo" << std::endl;
-
   // SETTING NEUTRINO ARRAYS ("nodes" depending):
   for(i = 0; i < nodes; i++)
   {
@@ -185,12 +183,7 @@ int main ()
     acceleration->data.push_back ({0.0f, 0.0f, -g, 1.0f});                                           // Setting acceleration...
     mass->data.push_back (m);                                                                        // Setting "x" mass...
     freedom->data.push_back (1);                                                                     // Setting freedom flag...
-    std::cout << "x[i] = " << position->data[i].x <<
-      " y[i] = " << position->data[i].y <<
-      " z[i] = " << position->data[i].z << std::endl;
   }
-
-  std::cout << "pippo" << std::endl;
 
   // SETTING NEUTRINO ARRAYS ("neighbours" depending):
   for(i = 0; i < neighbours; i++)
@@ -198,12 +191,14 @@ int main ()
     stiffness->data.push_back (K);                                                                   // Setting stiffness...
   }
 
-  // SETTING NEUTRINO ARRAYS ("border" depending):
-  for(int i = 0; i < border_nodes; i++)
-  {
+/*
+   // SETTING NEUTRINO ARRAYS ("border" depending):
+   for(int i = 0; i < border_nodes; i++)
+   {
     freedom->data[i] = 0;                                                                            // Resetting freedom flag...
-  }
+   }
 
+ */
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////// OPENCL KERNELS INITIALIZATION /////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
