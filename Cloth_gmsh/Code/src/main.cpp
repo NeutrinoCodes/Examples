@@ -122,17 +122,13 @@ int main ()
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   // MESH:
-  cloth->get_nodes ();                                                                               // Getting nodes...
-  position->data = cloth->node;
+  cloth->process (4, 2, NU_MSH_TRI_3);                                                               // Getting nodes...
+  position->data = cloth->node_coordinates;
 
   nodes          = position->data.size ();
   std::cout << "nodes = " << nodes << std::endl;
-
-  cloth->get_elements (2, 10, NU_MSH_TRI_3);                                                         // Getting number of elements...
   elements       = cloth->element.size ();
   std::cout << "elements = " << elements << std::endl;
-
-  cloth->get_groups (2, 10, NU_MSH_TRI_3);                                                           // Getting number of groups...
   groups         = cloth->group.size ();
   std::cout << "groups = " << groups << std::endl;
 
@@ -145,14 +141,16 @@ int main ()
      std::cout << "neighbours = " << neighbours << std::endl;
    */
 
-  cloth->get_physicals (2, 4);
-  border         = cloth->physical;                                                                  // Getting nodes on border...
+  /*
+     cloth->get_physicals (2, 4);
+     border         = cloth->physical;                                                                  // Getting nodes on border...
 
-  cloth->get_physicals (1, 2);
-  side_x         = cloth->physical;                                                                  // Getting nodes on side_x...
+     cloth->get_physicals (1, 2);
+     side_x         = cloth->physical;                                                                  // Getting nodes on side_x...
 
-  cloth->get_physicals (1, 3);
-  side_y         = cloth->physical;                                                                  // Getting nodes on side_y...
+     cloth->get_physicals (1, 3);
+     side_y         = cloth->physical;                                                                  // Getting nodes on side_y...
+   */
 
   std::cout << "surface = " << border.size () << std::endl;
 
