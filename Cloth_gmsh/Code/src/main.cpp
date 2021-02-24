@@ -118,28 +118,29 @@ int main ()
   float               dt_critical;                                                                   // Critical time step [s].
   float               dt_simulation;                                                                 // Simulation time step [s].
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////// DATA INITIALIZATION ///////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
   // MESH:
-  cloth->process (4, 2, NU_MSH_TRI_3);                                                               // Getting nodes...
-  position->data = cloth->node_coordinates;
+  cloth->process (4, 2, NU_MSH_TRI_3);                                                               // Porcessing mesh...
 
-  nodes          = position->data.size ();
+  position->data  = cloth->node_coordinates;                                                         // Getting node coordinates...
+  neighbour->data = cloth->neighbour;                                                                // Setting neighbours...
+  offset->data    = cloth->neighbour_offset;
+  resting->data   = cloth->neighbour_length;                                                         // Setting resting distances...
+
+  nodes           = position->data.size ();
+  elements        = cloth->element.size ();
+  groups          = cloth->group.size ();
+  neighbours      = cloth->neighbour.size ();                                                        // Getting the number of nodes...
+
   std::cout << "nodes = " << nodes << std::endl;
-  elements       = cloth->element.size ();
   std::cout << "elements = " << elements << std::endl;
-  groups         = cloth->group.size ();
   std::cout << "groups = " << groups << std::endl;
-
-  /*
-     cloth->get_neighbours (2, 10, NU_MSH_TRI_3);                                                       // Getting number of neighbours...
-     neighbours      = cloth->neighbour.size ();
-     neighbour->data = cloth->neighbour;                                                                // Setting neighbours...
-     offset->data    = cloth->neighbour_offset;                                                         // Setting neighbour offsets...
-     resting->data   = cloth->neighbour_length;                                                         // Setting resting distances...
-     std::cout << "neighbours = " << neighbours << std::endl;
-   */
+  std::cout << "neighbours = " << neighbours << std::endl;
+  std::cout << "offsets = " << cloth->neighbour_offset.size () << std::endl;
+  std::cout << "lenghts = " << cloth->neighbour_length.size () << std::endl;
+  std::cout << "links = " << cloth->neighbour_link.size () << std::endl;
 
   /*
      cloth->get_physicals (2, 4);
@@ -154,16 +155,16 @@ int main ()
 
   std::cout << "surface = " << border.size () << std::endl;
 
-  border_nodes   = border.size ();                                                                   // Getting number of nodes on border...
-  side_x_nodes   = side_x.size ();                                                                   // Getting number of nodes on side_x...
-  side_y_nodes   = side_y.size ();                                                                   // Getting number of nodes on side_y...
-  dx             = (x_max - x_min)/(side_x_nodes - 1);                                               // x-axis mesh spatial size [m].
-  dy             = (y_max - y_min)/(side_y_nodes - 1);                                               // y-axis mesh spatial size [m].
-  m              = rho*h*dx*dy;                                                                      // Node mass [kg].
-  K              = E*h*dy/dx;                                                                        // Elastic constant [kg/s^2].
-  B              = mu*h*dx*dy;                                                                       // Damping [kg*s*m].
-  dt_critical    = sqrt (m/K);                                                                       // Critical time step [s].
-  dt_simulation  = 0.5f*dt_critical;                                                                 // Simulation time step [s].
+  border_nodes  = border.size ();                                                                    // Getting number of nodes on border...
+  side_x_nodes  = side_x.size ();                                                                    // Getting number of nodes on side_x...
+  side_y_nodes  = side_y.size ();                                                                    // Getting number of nodes on side_y...
+  dx            = (x_max - x_min)/(side_x_nodes - 1);                                                // x-axis mesh spatial size [m].
+  dy            = (y_max - y_min)/(side_y_nodes - 1);                                                // y-axis mesh spatial size [m].
+  m             = rho*h*dx*dy;                                                                       // Node mass [kg].
+  K             = E*h*dy/dx;                                                                         // Elastic constant [kg/s^2].
+  B             = mu*h*dx*dy;                                                                        // Damping [kg*s*m].
+  dt_critical   = sqrt (m/K);                                                                        // Critical time step [s].
+  dt_simulation = 0.5f*dt_critical;                                                                  // Simulation time step [s].
 
   // SETTING NEUTRINO ARRAYS (parameters):
   gravity->data.push_back ({0.0f, 0.0f, -g, 1.0f});                                                  // Setting gravity...
