@@ -43,6 +43,9 @@ int main ()
 {
   // INDEXES:
   size_t              i;                                                                             // Index [#].
+  size_t              j;                                                                             // Index [#].
+  size_t              j_min;                                                                         // Index [#].
+  size_t              j_max;                                                                         // Index [#].
 
   // MOUSE PARAMETERS:
   float               ms_orbit_rate  = 1.0f;                                                         // Orbit rotation rate [rev/s].
@@ -186,11 +189,31 @@ int main ()
   }
 
   // SETTING NEUTRINO ARRAYS ("neighbours" depending):
-  for(i = 0; i < neighbours; i++)
+  for(i = 0; i < nodes; i++)
   {
-    std::cout << "i = " << i << " neighbour = " << neighbour->data[i]
-              << " offset = " << offset->data[i] << std::endl;
+    std::cout << "offset = " << offset->data[i] << " nodes: ";
+
+    // Computing minimum element offset index:
+    if(i == 0)
+    {
+      j_min = 0;                                                                                     // Setting minimum element offset index...
+    }
+    else
+    {
+      j_min = offset->data[i - 1];                                                                   // Setting minimum element offset index...
+    }
+
+    j_max = offset->data[i];                                                                         // Setting maximum element offset index...
+
+    for(j = j_min; j < j_max; j++)
+    {
+      std::cout << neighbour->data[j] << " ";
+    }
+
+    std::cout << std::endl;
+
     stiffness->data.push_back (K);                                                                   // Setting stiffness...
+
   }
 
 /*
