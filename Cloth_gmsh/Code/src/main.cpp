@@ -91,6 +91,7 @@ int main ()
   std::vector<size_t> side_x;                                                                        // Nodes on "x" side.
   std::vector<size_t> side_y;                                                                        // Nodes on "y" side.
   std::vector<size_t> border;                                                                        // Nodes on border.
+  std::vector<GLint>  central;                                                                       // Central nodes.
   size_t              side_x_nodes;                                                                  // Number of nodes in "x" direction [#].
   size_t              side_y_nodes;                                                                  // Number of nodes in "x" direction [#].
   size_t              border_nodes;                                                                  // Number of border nodes.
@@ -131,6 +132,7 @@ int main ()
   neighbour->data = cloth->neighbour;                                                                // Setting neighbours...
   offset->data    = cloth->neighbour_offset;
   resting->data   = cloth->neighbour_length;                                                         // Setting resting distances...
+  central         = cloth->all_node;
 
   nodes           = position->data.size ();
   elements        = cloth->element.size ();
@@ -192,7 +194,7 @@ int main ()
   // SETTING NEUTRINO ARRAYS ("neighbours" depending):
   for(i = 0; i < nodes; i++)
   {
-    std::cout << "offset = " << offset->data[i] << " nodes: ";
+    std::cout << "offset = " << offset->data[i] << " central = " << central[i] << " nodes: ";
 
     // Computing minimum element offset index:
     if(i == 0)
