@@ -137,6 +137,7 @@ int main ()
   groups          = cloth->group.size ();
   neighbours      = cloth->neighbour.size ();                                                        // Getting the number of nodes...
 
+
   std::cout << "nodes = " << nodes << std::endl;
   std::cout << "elements = " << elements << std::endl;
   std::cout << "groups = " << groups << std::endl;
