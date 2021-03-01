@@ -50,8 +50,8 @@ void main(void)
   uint j_min = 0;                                                               // Neighbour node minimum index.
   uint j_max = offset_SSBO[i];                                                  // Neighbour node maximum index.
   uint k = 0;                                                                   // Neighbour node index.
-  uint n = central_SSBO[i];                                                     // Node index.
- 
+  //uint n = central_SSBO[i];                                                     // Node index.
+
   float u_P = -0.5*AR_quad + 0.5;                                               // Central node billboard U coordinate.
   float u_Q = 0.5*AR_quad - 0.5;                                                // Neighbour node billboard U coordinate.
   vec2 P = vec2(u_P, 0.0) - quad;                                               // Central node billboard UV vector.
