@@ -13,20 +13,26 @@ layout(std430, binding = 0) buffer voxel_color
   vec4 color_SSBO[];                                                            // Voxel color SSBO.
 };
 
-// Voxel centers:
-layout(std430, binding = 1) buffer voxel_center
+// Voxel positions:
+layout(std430, binding = 1) buffer voxel_position
 {
-  vec4 center_SSBO[];                                                           // Voxel center SSBO.
+  vec4 position_SSBO[];                                                         // Voxel position SSBO.
+};
+
+// Voxel central nodes:
+layout(std430, binding = 11) buffer voxel_central
+{
+  int central_SSBO[];                                                           // Voxel central SSBO.
 };
 
 // Voxel nearest neighbours:
-layout(std430, binding = 11) buffer voxel_nearest
+layout(std430, binding = 12) buffer voxel_nearest
 {
   int nearest_SSBO[];                                                           // Voxel nearest SSBO.
 };
 
 // Voxel offsets:
-layout(std430, binding = 12) buffer voxel_offset
+layout(std430, binding = 13) buffer voxel_offset
 {
   int offset_SSBO[];                                                            // Voxel offset SSBO.
 };
@@ -44,6 +50,7 @@ void main(void)
   uint j_min = 0;                                                               // Neighbour node minimum index.
   uint j_max = offset_SSBO[i];                                                  // Neighbour node maximum index.
   uint k = 0;                                                                   // Neighbour node index.
+  uint n = central_SSBO[i];                                                     // Node index.
  
   float u_P = -0.5*AR_quad + 0.5;                                               // Central node billboard U coordinate.
   float u_Q = 0.5*AR_quad - 0.5;                                                // Neighbour node billboard U coordinate.

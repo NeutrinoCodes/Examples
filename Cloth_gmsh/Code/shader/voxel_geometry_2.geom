@@ -65,22 +65,27 @@ layout(std430, binding = 10) buffer voxel_mass
   float mass_SSBO[];                                                            // Voxel mass SSBO.
 };
 
-layout(std430, binding = 11) buffer voxel_nearest
+layout(std430, binding = 11) buffer voxel_central
+{
+  int central_SSBO[];                                                           // Voxel central SSBO.
+};
+
+layout(std430, binding = 12) buffer voxel_nearest
 {
   int nearest_SSBO[];                                                           // Voxel nearest SSBO.
 };
 
-layout(std430, binding = 12) buffer voxel_offset
+layout(std430, binding = 13) buffer voxel_offset
 {
   int offset_SSBO[];                                                            // Voxel offset SSBO.
 };
 
-layout(std430, binding = 13) buffer voxel_freedom
+layout(std430, binding = 14) buffer voxel_freedom
 {
   int freedom_SSBO[];                                                           // Voxel freedom SSBO.
 };
 
-layout(std430, binding = 14) buffer voxel_dt
+layout(std430, binding = 15) buffer voxel_dt
 {
   float dt_SSBO[];                                                              // Voxel dt SSBO.
 };
