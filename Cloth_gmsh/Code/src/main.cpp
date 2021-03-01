@@ -132,9 +132,9 @@ int main ()
   neighbour->data = cloth->neighbour;                                                                // Setting neighbours...
   offset->data    = cloth->neighbour_offset;
   resting->data   = cloth->neighbour_length;                                                         // Setting resting distances...
-  central         = cloth->all_node;
+  central         = cloth->node;
 
-  nodes           = position->data.size ();
+  nodes           = central.size ();
   elements        = cloth->element.size ();
   groups          = cloth->group.size ();
   neighbours      = cloth->neighbour.size ();                                                        // Getting the number of nodes...
@@ -194,7 +194,8 @@ int main ()
   // SETTING NEUTRINO ARRAYS ("neighbours" depending):
   for(i = 0; i < nodes; i++)
   {
-    std::cout << "offset = " << offset->data[i] << " central = " << central[i] << " nodes: ";
+    std::cout << "i = " << i << " offset = " << offset->data[i] << " central = " << central[i] <<
+      " nodes: ";
 
     // Computing minimum element offset index:
     if(i == 0)
