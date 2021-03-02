@@ -1,7 +1,9 @@
 /// @file
 #version 460 core
 
+/*
 float x_over_y(float x, float y);
+*/
 
 uniform mat4 V_mat;                                                             // View matrix.
 uniform mat4 P_mat;                                                             // Projection matrix.
@@ -98,6 +100,7 @@ out float AR_quad;                                                              
 
 void main()
 {
+  /*
   uint i = gl_PrimitiveIDIn;                                                    // Central node index.        
   uint j = 0;                                                                   // Offset index.
   uint j_min = 0;                                                               // Neighbour node minimum index.
@@ -193,4 +196,5 @@ void main()
 
     EndPrimitive();                                                             // Ending primitive...
   }
+  */
 }
