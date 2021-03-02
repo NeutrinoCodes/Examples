@@ -1,6 +1,6 @@
 /// @file
 #version 460 core
-/*
+
 uniform mat4 V_mat;                                                             // View matrix.
 uniform mat4 P_mat;                                                             // Projection matrix.
 uniform float size_x;                                                           // Framebuffer size_x.
@@ -42,10 +42,9 @@ in vec2 quad;                                                                   
 in float AR_quad;                                                               // Billboard quad aspect ratio.
 
 out vec4 fragment_color;                                                        // Fragment color.
-*/
+
 void main(void)
 {
-  /*
   uint i = gl_PrimitiveID;                                                      // Central node index.
   uint j = 0;                                                                   // Offset index.                 
   uint j_min = 0;                                                               // Neighbour node minimum index.
@@ -100,5 +99,4 @@ void main(void)
   //fragment_color = vec4(color.rgb, k1);
   fragment_color = vec4(0.4*vec3(k2, 1.1*k3, k1) + color.rgb, 0.0 + k1);        // Setting fragment color...
   //fragment_color = color;
-  */
 }
