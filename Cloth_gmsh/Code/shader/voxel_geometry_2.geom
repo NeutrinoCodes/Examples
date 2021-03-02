@@ -1,6 +1,6 @@
 /// @file
 #version 460 core
-/*
+
 uniform mat4 V_mat;                                                             // View matrix.
 uniform mat4 P_mat;                                                             // Projection matrix.
 uniform float size_x;                                                           // Framebuffer size_x.
@@ -94,4 +94,3 @@ float x_over_y(float x, float y)
 {
     return (x/y);
 }
-*/
