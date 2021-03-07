@@ -13,18 +13,6 @@ layout(std430, binding = 0) buffer voxel_color
   vec4 color_SSBO[];                                                            // Voxel color SSBO.
 };
 
-// Voxel positions:
-layout(std430, binding = 1) buffer voxel_position
-{
-  vec4 position_SSBO[];                                                         // Voxel position SSBO.
-};
-
-// Voxel central nodes:
-layout(std430, binding = 11) buffer voxel_central
-{
-  int central_SSBO[];                                                           // Voxel central SSBO.
-};
-
 // Voxel nearest neighbours:
 layout(std430, binding = 12) buffer voxel_nearest
 {
@@ -45,13 +33,12 @@ out vec4 fragment_color;                                                        
 
 void main(void)
 {
-  uint i = gl_PrimitiveID;                                                      // Central node index.
+  uint i = gl_PrimitiveID;                                                      // Primitive index.
   uint j = 0;                                                                   // Offset index.                 
   uint j_min = 0;                                                               // Neighbour node minimum index.
   uint j_max = offset_SSBO[i];                                                  // Neighbour node maximum index.
   uint k = 0;                                                                   // Neighbour node index.
-  //uint n = central_SSBO[i];                                                     // Node index.
-
+ 
   float u_P = -0.5*AR_quad + 0.5;                                               // Central node billboard U coordinate.
   float u_Q = 0.5*AR_quad - 0.5;                                                // Neighbour node billboard U coordinate.
   vec2 P = vec2(u_P, 0.0) - quad;                                               // Central node billboard UV vector.
@@ -96,7 +83,7 @@ void main(void)
     k = nearest_SSBO[j];                                                        // Computing neighbour index...
   }
 
-  //fragment_color = vec4(color.rgb, k1);
-  fragment_color = vec4(0.4*vec3(k2, 1.1*k3, k1) + color.rgb, 0.0 + k1);        // Setting fragment color...
+  fragment_color = vec4(color.rgb, k1*color.a);
+  //fragment_color = vec4(0.4*vec3(k2, 1.1*k3, k1) + color.rgb, 0.0 + k1);        // Setting fragment color...
   //fragment_color = color;
 }
