@@ -100,19 +100,13 @@ int main ()
   float               y_max = +1.0f;                                                                 // "y_max" spatial boundary [m].
   float               dx;                                                                            // x-axis mesh spatial size [m].
   float               dy;                                                                            // y-axis mesh spatial size [m].
-  float               pos_x;                                                                         // Position "x" component...
-  float               pos_y;                                                                         // Position "y" component...
-  float               pos_z;                                                                         // Position "z" component...
-  float               link_x;                                                                        // Link "x" component...
-  float               link_y;                                                                        // Link "y" component...
-  float               link_z;                                                                        // Link "z" component...
 
   // SIMULATION PARAMETERS:
-  float               h   = 0.01f;                                                                   // Cloth's thickness [m].
-  float               rho = 1000.0f;                                                                 // Cloth's mass density [kg/m^3].
-  float               E   = 100000.0f;                                                               // Cloth's Young modulus [kg/(m*s^2)].
-  float               mu  = 3000.0f;                                                                 // Cloth's viscosity [Pa*s].
-  float               g   = 9.81f;                                                                   // External gravity field [m/s^2].
+  float               h     = 0.01f;                                                                 // Cloth's thickness [m].
+  float               rho   = 1000.0f;                                                               // Cloth's mass density [kg/m^3].
+  float               E     = 100000.0f;                                                             // Cloth's Young modulus [kg/(m*s^2)].
+  float               mu    = 3000.0f;                                                               // Cloth's viscosity [Pa*s].
+  float               g     = 9.81f;                                                                 // External gravity field [m/s^2].
 
   // SIMULATION VARIABLES:
   float               m;                                                                             // Cloth's mass [kg].
@@ -145,18 +139,8 @@ int main ()
   std::cout << "lenghts = " << cloth->neighbour_length.size () << std::endl;
   std::cout << "links = " << cloth->neighbour_link.size () << std::endl;
 
-  dx              = (x_max - x_min)/(side_x_nodes - 1);                                              // x-axis mesh spatial size [m].
-  dy              = (y_max - y_min)/(side_y_nodes - 1);                                              // y-axis mesh spatial size [m].
-  m               = rho*h*dx*dy;                                                                     // Node mass [kg].
-  K               = E*h*dy/dx;                                                                       // Elastic constant [kg/s^2].
-  B               = mu*h*dx*dy;                                                                      // Damping [kg*s*m].
-  dt_critical     = sqrt (m/K);                                                                      // Critical time step [s].
-  dt_simulation   = 0.5f*dt_critical;                                                                // Simulation time step [s].
-
   // SETTING NEUTRINO ARRAYS (parameters):
   gravity->data.push_back ({0.0f, 0.0f, -g, 1.0f});                                                  // Setting gravity...
-  friction->data.push_back (B);                                                                      // Setting friction...
-  dt->data.push_back (dt_simulation);                                                                // Setting time step...
 
   // SETTING NEUTRINO ARRAYS:
   for(i = 0; i < nodes; i++)
@@ -165,8 +149,6 @@ int main ()
     velocity->data.push_back ({0.0f, 0.0f, 0.0f, 1.0f});                                             // Setting velocity...
     velocity_int->data.push_back ({0.0f, 0.0f, 0.0f, 1.0f});                                         // Setting intermediate velocity...
     acceleration->data.push_back ({0.0f, 0.0f, -g, 1.0f});                                           // Setting acceleration...
-    mass->data.push_back (m);                                                                        // Setting mass...
-    stiffness->data.push_back (K);                                                                   // Setting stiffness...
     freedom->data.push_back (1);                                                                     // Setting freedom flag...
 
     // Computing minimum element offset index:
@@ -198,18 +180,38 @@ int main ()
 
   cloth->process (6, 1, NU_MSH_PNT);                                                                 // Processing mesh...
 
-  border = cloth->node;
+  border        = cloth->node;
+  border_nodes  = border.size ();
 
-  std::cout << "border nodes = " << border.size () << std::endl;
+  // SETTING NEUTRINO ARRAYS ("border" depending):
+  for(i = 0; i < border_nodes; i++)
+  {
+    freedom->data[border[i]] = 0;                                                                    // Resetting freedom flag...
+  }
 
-/*
-   // SETTING NEUTRINO ARRAYS ("border" depending):
-   for(int i = 0; i < border_nodes; i++)
-   {
-    freedom->data[i] = 0;                                                                            // Resetting freedom flag...
-   }
+  cloth->process (7, 1, NU_MSH_PNT);                                                                 // Processing mesh...
+  side_x_nodes  = cloth->node.size ();
 
- */
+  cloth->process (8, 1, NU_MSH_PNT);                                                                 // Processing mesh...
+  side_y_nodes  = cloth->node.size ();
+
+  dx            = (x_max - x_min)/(side_x_nodes - 1);                                                // x-axis mesh spatial size [m].
+  dy            = (y_max - y_min)/(side_y_nodes - 1);                                                // y-axis mesh spatial size [m].
+  m             = rho*h*dx*dy;                                                                       // Node mass [kg].
+  K             = E*h*dy/dx;                                                                         // Elastic constant [kg/s^2].
+  B             = mu*h*dx*dy;                                                                        // Damping [kg*s*m].
+  dt_critical   = sqrt (m/K);                                                                        // Critical time step [s].
+  dt_simulation = 0.5f*dt_critical;                                                                  // Simulation time step [s].
+  dt->data.push_back (dt_simulation);
+
+  friction->data.push_back (B);                                                                      // Setting friction...
+
+  for(i = 0; i < nodes; i++)
+  {
+    mass->data.push_back (m);                                                                        // Setting mass...
+    stiffness->data.push_back (K);                                                                   // Setting stiffness...
+  }
+
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////// OPENCL KERNELS INITIALIZATION /////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -240,7 +242,7 @@ int main ()
     cl->get_tic ();                                                                                  // Getting "tic" [us]...
     cl->acquire ();
     cl->execute (K1, NU_WAIT);                                                                       // Executing OpenCL kernel...
-    //cl->execute (K2, NU_WAIT);                                                                       // Executing OpenCL kernel...
+    cl->execute (K2, NU_WAIT);                                                                       // Executing OpenCL kernel...
     cl->release ();
 
     gl->clear ();                                                                                    // Clearing gl...
