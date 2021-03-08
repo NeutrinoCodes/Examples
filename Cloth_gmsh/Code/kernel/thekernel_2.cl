@@ -25,16 +25,16 @@ __kernel void thekernel(__global float4*    color,                              
   unsigned int j_min = 0;                                                       // Neighbour stride minimun index.
   unsigned int j_max = offset[i];                                               // Neighbour stride maximum index.
   unsigned int k = 0;                                                           // Neighbour tuple index.
-  unsigned int n = central[i];                                                  // Node index.
+  unsigned int n = central[j_max - 1];                                          // Node index.
 
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////// CELL VARIABLES //////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   float4        c                 = color[n];                                   // Central node color.
-  float4        v                 = velocity[n];                                // Central node velocity.
-  float4        a                 = acceleration[n];                            // Central node acceleration.
-  float4        p_int             = position_int[n];                            // Central node position (intermediate).
-  float4        v_int             = velocity_int[n];                            // Central node velocity (intermediate).
+  float4        v                 = velocity[i];                                // Central node velocity.
+  float4        a                 = acceleration[i];                            // Central node acceleration.
+  float4        p_int             = position_int[i];                            // Central node position (intermediate).
+  float4        v_int             = velocity_int[i];                            // Central node velocity (intermediate).
   float4        p_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node position (new).
   float4        v_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node velocity (new).
   float4        a_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node acceleration (new).
@@ -69,7 +69,7 @@ __kernel void thekernel(__global float4*    color,                              
   float3        link_A            = (float3)(0.0f, 0.0f, 0.0f);                 // Laplace_Beltrami 1st edge backup.
   float3        link_B            = (float3)(0.0f, 0.0f, 0.0f);                 // Laplace-Beltrami previous edge.
   float3        link_C            = (float3)(0.0f, 0.0f, 0.0f);                 // Laplace-Beltrami current edge.
-  
+
   // COMPUTING STRIDE MINIMUM INDEX:
   if (i == 0)
   {
@@ -124,7 +124,7 @@ __kernel void thekernel(__global float4*    color,                              
   theta += fabs(acos(dot(normalize(link_B), normalize(link_C))));
   area += length(cross(link_B, link_C));
   K_gauss = 3.0f*(2.0f*M_PI - theta)/area;
-  
+
   // COMPUTING TOTAL FORCE:
   Fg = m*g;                                                                     // Computing node gravitational force...
   Fv = -B*v_int;                                                                // Computing node viscous force...
@@ -165,12 +165,15 @@ __kernel void thekernel(__global float4*    color,                              
   a_new.w = 1.0f;                                                               // Adjusting projective space...
 
   // UPDATING KINEMATICS:
-  position[n] = p_int;                                                          // Updating position [m]...
-  velocity[n] = v_new;                                                          // Updating velocity [m/s]...
-  acceleration[n] = a_new;                                                      // Updating acceleration [m/s^2]...
+  position[i] = p_int;                                                          // Updating position [m]...
+  velocity[i] = v_new;                                                          // Updating velocity [m/s]...
+  acceleration[i] = a_new;                                                      // Updating acceleration [m/s^2]...
+
+  //velocity[n] = (float4)(0.0f, 0.0f, -0.1f, 1.0f);
+  //acceleration[n] = (float4)(0.0f, 0.0f, -0.1f, 1.0f);
 
   c.x = 0.1f*(50 - K_mean);
   c.y = 0.4f - 0.1f*(50 - K_mean);
   c.z = 0.2f;
-  color[n] = c;
+  color[i] = c;
 }
