@@ -90,7 +90,7 @@ int main ()
   size_t              neighbours;                                                                    // Number of neighbours.
   std::vector<size_t> side_x;                                                                        // Nodes on "x" side.
   std::vector<size_t> side_y;                                                                        // Nodes on "y" side.
-  std::vector<size_t> border;                                                                        // Nodes on border.
+  std::vector<GLint>  border;                                                                        // Nodes on border.
   size_t              side_x_nodes;                                                                  // Number of nodes in "x" direction [#].
   size_t              side_y_nodes;                                                                  // Number of nodes in "x" direction [#].
   size_t              border_nodes;                                                                  // Number of border nodes.
@@ -195,6 +195,12 @@ int main ()
       }
     }
   }
+
+  cloth->process (6, 1, NU_MSH_PNT);                                                                 // Processing mesh...
+
+  border = cloth->node;
+
+  std::cout << "border nodes = " << border.size () << std::endl;
 
 /*
    // SETTING NEUTRINO ARRAYS ("border" depending):
