@@ -104,8 +104,8 @@ int main ()
   // SIMULATION PARAMETERS:
   float               h     = 0.01f;                                                                 // Cloth's thickness [m].
   float               rho   = 1000.0f;                                                               // Cloth's mass density [kg/m^3].
-  float               E     = 100000.0f;                                                             // Cloth's Young modulus [kg/(m*s^2)].
-  float               mu    = 3000.0f;                                                               // Cloth's viscosity [Pa*s].
+  float               E     = 10000.0f;                                                              // Cloth's Young modulus [kg/(m*s^2)].
+  float               mu    = 1000.0f;                                                               // Cloth's viscosity [Pa*s].
   float               g     = 9.81f;                                                                 // External gravity field [m/s^2].
 
   // SIMULATION VARIABLES:
@@ -118,13 +118,15 @@ int main ()
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////// DATA INITIALIZATION ///////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////
-  // MESH:
+  // MESH "X" SIDE:
   cloth->process (7, 1, NU_MSH_PNT);                                                                 // Processing mesh...
   side_x_nodes    = cloth->node.size ();                                                             // Getting number of nodes along "x" side...
 
+  // MESH "Y" SIDE:
   cloth->process (8, 1, NU_MSH_PNT);                                                                 // Processing mesh...
   side_y_nodes    = cloth->node.size ();                                                             // Getting number of nodes along "y" side...
 
+  // COMPUTING PHYSICAL PARAMETERS:
   dx              = (x_max - x_min)/(side_x_nodes - 1);                                              // x-axis mesh spatial size [m].
   dy              = (y_max - y_min)/(side_y_nodes - 1);                                              // y-axis mesh spatial size [m].
   m               = rho*h*dx*dy;                                                                     // Node mass [kg].
@@ -137,6 +139,7 @@ int main ()
   friction->data.push_back (B);                                                                      // Setting friction...
   gravity->data.push_back ({0.0f, 0.0f, -g, 1.0f});                                                  // Setting gravity...
 
+  // MESH BULK:
   cloth->process (2, 2, NU_MSH_QUA_4);                                                               // Processing mesh...
 
   position->data  = cloth->node_coordinates;                                                         // Setting all node coordinates...
@@ -160,10 +163,11 @@ int main ()
   // SETTING NEUTRINO ARRAYS:
   for(i = 0; i < nodes; i++)
   {
-    position_int->data.push_back ({0.0f, 0.0f, 0.0f, 1.0f});                                         // Setting intermediate position...
+    std::cout << "i = " << i << " node[i] = " << cloth->node[i];
+    position_int->data.push_back (position->data[i]);                                                // Setting intermediate position...
     velocity->data.push_back ({0.0f, 0.0f, 0.0f, 1.0f});                                             // Setting velocity...
     velocity_int->data.push_back ({0.0f, 0.0f, 0.0f, 1.0f});                                         // Setting intermediate velocity...
-    acceleration->data.push_back ({0.0f, 0.0f, -g, 1.0f});                                           // Setting acceleration...
+    acceleration->data.push_back ({0.0f, 0.0f, 0.0f, 1.0f});                                         // Setting acceleration...
     mass->data.push_back (m);                                                                        // Setting mass...
     freedom->data.push_back (1);                                                                     // Setting freedom flag...
 
@@ -182,23 +186,29 @@ int main ()
     for(j = j_min; j < j_max; j++)
     {
       central->data.push_back (cloth->node[i]);                                                      // Building central node tuple...
-      stiffness->data.push_back (K);                                                                 // Setting stiffness...
+      stiffness->data.push_back (K);                                                                 // Setting link stiffness...
+
+      std::cout << " " << neighbour->data[j];
 
       if(resting->data[j] > 0.055)
       {
-        color->data.push_back ({1.0f, 0.0f, 0.0f, 0.5f});                                            // Setting color...
+        color->data.push_back ({1.0f, 0.0f, 0.0f, 0.5f});                                            // Setting link color...
       }
       else
       {
-        color->data.push_back ({0.0f, 1.0f, 0.0f, 1.0f});                                            // Setting color...
+        color->data.push_back ({0.0f, 1.0f, 0.0f, 1.0f});                                            // Setting link color...
       }
     }
+
+
+    std::cout << "    " << central->data[offset->data[i] - 1] << std::endl;
   }
 
+  // MESH BORDER:
   cloth->process (6, 1, NU_MSH_PNT);                                                                 // Processing mesh...
 
-  border       = cloth->node;
-  border_nodes = border.size ();
+  border       = cloth->node;                                                                        // Getting nodes on border...
+  border_nodes = border.size ();                                                                     // Getting the number of nodes on border...
 
   // SETTING NEUTRINO ARRAYS ("border" depending):
   for(i = 0; i < border_nodes; i++)
@@ -226,7 +236,7 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////// SETTING OPENCL KERNEL ARGUMENTS /////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
-  cl->write ();
+  cl->write ();                                                                                      // Writing OpenCL data...
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////// APPLICATION LOOP ////////////////////////////////////////

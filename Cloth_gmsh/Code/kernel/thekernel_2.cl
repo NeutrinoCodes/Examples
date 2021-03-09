@@ -30,11 +30,11 @@ __kernel void thekernel(__global float4*    color,                              
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////// CELL VARIABLES //////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  float4        c                 = color[n];                                   // Central node color.
-  float4        v                 = velocity[i];                                // Central node velocity.
-  float4        a                 = acceleration[i];                            // Central node acceleration.
-  float4        p_int             = position_int[i];                            // Central node position (intermediate).
-  float4        v_int             = velocity_int[i];                            // Central node velocity (intermediate).
+  float4        c;                                                              // Central node color.
+  float4        v                 = velocity[n];                                // Central node velocity.
+  float4        a                 = acceleration[n];                            // Central node acceleration.
+  float4        p_int             = position_int[n];                            // Central node position (intermediate).
+  float4        v_int             = velocity_int[n];                            // Central node velocity (intermediate).
   float4        p_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node position (new).
   float4        v_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node velocity (new).
   float4        a_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);           // Central node acceleration (new).
@@ -94,7 +94,7 @@ __kernel void thekernel(__global float4*    color,                              
     S = L - R;                                                                  // Computing neighbour link strain...
     D = S*normalize(link);                                                      // Computing neighbour link displacement...
     Fe += K*D;                                                                  // Building up elastic force on central node...
-    
+
     p_B = p_C;
     p_C = neighbour.xyz;
     link_B = link_C;
@@ -125,11 +125,20 @@ __kernel void thekernel(__global float4*    color,                              
   area += length(cross(link_B, link_C));
   K_gauss = 3.0f*(2.0f*M_PI - theta)/area;
 
+  /*
+  c = color[k];                                                               // Getting link color...
+  c.x = 0.1f*(50 - K_mean);
+  c.y = 0.4f - 0.1f*(50 - K_mean);
+  c.z = 0.2f;
+  */
+
   // COMPUTING TOTAL FORCE:
   Fg = m*g;                                                                     // Computing node gravitational force...
   Fv = -B*v_int;                                                                // Computing node viscous force...
   F = Fg + Fe + Fv;                                                             // Computing total node force...
-  
+
+  //printf("Fx = %f, Fy = %f, Fz = %f, Fg = %f, L = %f\n", Fe.x, Fe.y, Fe.z, Fg.z, L);
+
   // COMPUTING NEW ACCELERATION ESTIMATION:
   a_est  = F/m;                                                                 // Computing acceleration...
 
@@ -165,15 +174,15 @@ __kernel void thekernel(__global float4*    color,                              
   a_new.w = 1.0f;                                                               // Adjusting projective space...
 
   // UPDATING KINEMATICS:
-  position[i] = p_int;                                                          // Updating position [m]...
-  velocity[i] = v_new;                                                          // Updating velocity [m/s]...
-  acceleration[i] = a_new;                                                      // Updating acceleration [m/s^2]...
+  position[n] = p_int;                                                          // Updating position [m]...
+  velocity[n] = v_new;                                                          // Updating velocity [m/s]...
+  acceleration[n] = a_new;                                                      // Updating acceleration [m/s^2]...
 
-  //velocity[n] = (float4)(0.0f, 0.0f, -0.1f, 1.0f);
+  //position[i] = position_int[i];
+  //velocity[i] = velocity_int[i];
+  //acceleration[i] = (float4)(0.0f, 0.0f, -9.81f, 0.0f);
   //acceleration[n] = (float4)(0.0f, 0.0f, -0.1f, 1.0f);
 
-  c.x = 0.1f*(50 - K_mean);
-  c.y = 0.4f - 0.1f*(50 - K_mean);
-  c.z = 0.2f;
-  color[i] = c;
+  
+  //color[i] = c;
 }
