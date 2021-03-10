@@ -7,7 +7,6 @@ uniform mat4 P_mat;                                                             
 
 in  vec4 color;                                                                 // Voxel color.
 in  vec2 quad;
-in float AR_quad;                                                               // Billboard quad aspect ratio.
 
 out vec4 fragment_color;                                                        // Fragment color.
 
@@ -17,10 +16,9 @@ void main(void)
   float k1;                                                                     // Blooming coefficient.
   float k2;                                                                     // Smoothness coefficient.
   float k3;                                                                     // Smoothness coefficient.
-  float R;
+  float R;                                                                      // Blooming radius.
 
-  R = length(quad);
-
+  R = length(quad);                                                             // Computing blooming radius.
   k1 = 1.0 - smoothstep(0.0, 0.5, R);                                           // Computing blooming coefficient...
   k2 = 1.0 - smoothstep(0.0, 0.1, R);                                           // Computing smoothing coefficient...
   k3 = 1.0 - smoothstep(0.2, 0.3, R);                                           // Computing smoothing coefficient...
