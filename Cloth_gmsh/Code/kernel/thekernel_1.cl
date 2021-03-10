@@ -21,9 +21,7 @@ __kernel void thekernel(__global float4*    color,                              
   //////////////////////////////////// INDEXES ///////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   unsigned int i = get_global_id(0);                                            // Global index [#].
-  unsigned int j = offset[i];                                                   // Neighbour stride maximum index.
-  unsigned int n = central[j - 1];                                              // Node index.
-
+  
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////// CELL VARIABLES //////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
@@ -49,6 +47,6 @@ __kernel void thekernel(__global float4*    color,                              
   velocity_int[i] = v + a*dt;                                                   // Updating intermediate velocity...
 
   // FIXING PROJECTIVE SPACE:
-  position_int[i].w = 1.0f;                                                        // Adjusting projective space...
-  velocity_int[i].w = 1.0f;                                                        // Adjusting projective space...
+  position_int[i].w = 1.0f;                                                     // Adjusting projective space...
+  velocity_int[i].w = 1.0f;                                                     // Adjusting projective space...
 }

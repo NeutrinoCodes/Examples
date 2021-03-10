@@ -60,15 +60,11 @@ __kernel void thekernel(__global float4*    color,                              
   float         dt                = dt_simulation[0];                           // Simulation time step [s].
 
   float         K_gauss           = 0.0f;                                       // Gaussian curvature.
-  float         K_mean            = 0.0f;                                       // Mean curvature.
   float         area              = 0.0f;                                       // Laplace-Beltrami area.
   float         theta             = 0.0f;                                       // Laplace-Beltrami angle.
-  float3        p_A               = (float3)(0.0f, 0.0f, 0.0f);
-  float3        p_B               = (float3)(0.0f, 0.0f, 0.0f);
-  float3        p_C               = (float3)(0.0f, 0.0f, 0.0f);
-  float3        link_A            = (float3)(0.0f, 0.0f, 0.0f);                 // Laplace_Beltrami 1st edge backup.
-  float3        link_B            = (float3)(0.0f, 0.0f, 0.0f);                 // Laplace-Beltrami previous edge.
-  float3        link_C            = (float3)(0.0f, 0.0f, 0.0f);                 // Laplace-Beltrami current edge.
+  float3        link_PA           = (float3)(0.0f, 0.0f, 0.0f);                 // Laplace_Beltrami 1st edge.
+  float3        link_PB           = (float3)(0.0f, 0.0f, 0.0f);                 // Laplace_Beltrami 2nd edge.
+  float3        link_PB_last      = (float3)(0.0f, 0.0f, 0.0f);                 // Laplace-Beltrami last edge.
 
   // COMPUTING STRIDE MINIMUM INDEX:
   if (i == 0)
@@ -95,49 +91,43 @@ __kernel void thekernel(__global float4*    color,                              
     D = S*normalize(link);                                                      // Computing neighbour link displacement...
     Fe += K*D;                                                                  // Building up elastic force on central node...
 
-    p_B = p_C;
-    p_C = neighbour.xyz;
-    link_B = link_C;
-    link_C = link.xyz;
-    
+    /*
     if (j == j_min)
     {
-      p_A = neighbour.xyz;
-      link_A = link.xyz;
+      link_PB = link.xyz;                                                       // Setting PB link...
+      link_PB_last = link_PB;                                                   // Backing up PB link for last computation...
     }
     else
     {
-      K_mean += dot((normalize(link_C) - normalize(link_B)),(p_C - p_B))/
-                dot((p_C - p_B),(p_C - p_B));
-      theta += fabs(acos(dot(normalize(link_B), normalize(link_C))));
-      area += length(cross(link_B, link_C));
+      link_PA = link_PB;                                                        // Setting PA link...
+      link_PB = link.xyz;                                                       // Setting PB link...
+      theta += fabs(acos(dot(normalize(link_PB), normalize(link_PA))));         // Computing Delaunay cell P-vertex angle... 
+      area += length(cross(link_PB, link_PA))/3.0f;                             // Computing Voronoi cell P-vertex area... 
     }
+    */
   }
-
-  p_B = p_C;
-  p_C = p_A;
-  link_B = link_C;
-  link_C = link_A;
-  K_mean += dot((normalize(link_C) - normalize(link_B)),(p_C - p_B))/
-            dot((p_C - p_B),(p_C - p_B));
-  K_mean = K_mean/(j_max - j_min);     
-  theta += fabs(acos(dot(normalize(link_B), normalize(link_C))));
-  area += length(cross(link_B, link_C));
-  K_gauss = 3.0f*(2.0f*M_PI - theta)/area;
-
+   
   /*
-  c = color[k];                                                               // Getting link color...
-  c.x = 0.1f*(50 - K_mean);
-  c.y = 0.4f - 0.1f*(50 - K_mean);
-  c.z = 0.2f;
+  link_PA = link_PB;                                                            // Setting PA link...
+  link_PB = link_PB_last;                                                       // Setting PB link...
+  theta += fabs(acos(dot(normalize(link_PB), normalize(link_PA))));             // Computing Delaunay cell P-vertex angle...
+  area += length(cross(link_PB, link_PA))/3.0f;                                 // Computing Voronoi cell P-vertex area...
+  K_gauss = (2.0f*M_PI - theta)/area;                                           // Computing P-vertex gaussian curvature...
+
+  for (j = j_min; j < j_max; j++)
+  {
+    c.x = -0.0025*K_gauss;
+    c.y = 0.1f;
+    c.z = 0.2f;
+    c.w = 1.0f;
+    color[j] = c;
+  }
   */
 
   // COMPUTING TOTAL FORCE:
   Fg = m*g;                                                                     // Computing node gravitational force...
   Fv = -B*v_int;                                                                // Computing node viscous force...
   F = Fg + Fe + Fv;                                                             // Computing total node force...
-
-  //printf("Fx = %f, Fy = %f, Fz = %f, Fg = %f, L = %f\n", Fe.x, Fe.y, Fe.z, Fg.z, L);
 
   // COMPUTING NEW ACCELERATION ESTIMATION:
   a_est  = F/m;                                                                 // Computing acceleration...
@@ -177,12 +167,4 @@ __kernel void thekernel(__global float4*    color,                              
   position[n] = p_int;                                                          // Updating position [m]...
   velocity[n] = v_new;                                                          // Updating velocity [m/s]...
   acceleration[n] = a_new;                                                      // Updating acceleration [m/s^2]...
-
-  //position[i] = position_int[i];
-  //velocity[i] = velocity_int[i];
-  //acceleration[i] = (float4)(0.0f, 0.0f, -9.81f, 0.0f);
-  //acceleration[n] = (float4)(0.0f, 0.0f, -0.1f, 1.0f);
-
-  
-  //color[i] = c;
 }

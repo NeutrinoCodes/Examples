@@ -20,49 +20,9 @@ layout(std430, binding = 1) buffer voxel_position
   vec4 position_SSBO[];                                                         // Voxel position SSBO.
 };
 
-layout(std430, binding = 2) buffer voxel_velocity
-{
-  vec4 velocity_SSBO[];                                                         // Voxel velocity SSBO.
-};
-
-layout(std430, binding = 3) buffer voxel_acceleration
-{
-  vec4 acceleration_SSBO[];                                                     // Voxel acceleration SSBO.
-};
-
-layout(std430, binding = 4) buffer voxel_position_int
-{
-  vec4 position_int_SSBO[];                                                     // Voxel intermediate position SSBO.
-};
-
-layout(std430, binding = 5) buffer voxel_velocity_int
-{
-  vec4 velocity_int_SSBO[];                                                     // Voxel intermediate velocity SSBO.
-};
-
-layout(std430, binding = 6) buffer voxel_gravity
-{
-  vec4 gravity_SSBO[];                                                          // Voxel gravity SSBO.
-};
-
-layout(std430, binding = 7) buffer voxel_stiffness
-{
-  float stiffness_SSBO[];                                                       // Voxel stiffness SSBO.
-};
-
 layout(std430, binding = 8) buffer voxel_resting
 {
   float resting_SSBO[];                                                         // Voxel resting SSBO.
-};
-
-layout(std430, binding = 9) buffer voxel_friction
-{
-  float friction_SSBO[];                                                        // Voxel friction SSBO.
-};
-
-layout(std430, binding = 10) buffer voxel_mass
-{
-  float mass_SSBO[];                                                            // Voxel mass SSBO.
 };
 
 layout(std430, binding = 11) buffer voxel_central
@@ -75,21 +35,6 @@ layout(std430, binding = 12) buffer voxel_nearest
   int nearest_SSBO[];                                                           // Voxel nearest SSBO.
 };
 
-layout(std430, binding = 13) buffer voxel_offset
-{
-  int offset_SSBO[];                                                            // Voxel offset SSBO.
-};
-
-layout(std430, binding = 14) buffer voxel_freedom
-{
-  int freedom_SSBO[];                                                           // Voxel freedom SSBO.
-};
-
-layout(std430, binding = 15) buffer voxel_dt
-{
-  float dt_SSBO[];                                                              // Voxel dt SSBO.
-};
-
 out vec4 color;                                                                 // Fragment color.
 out vec2 quad;                                                                  // Billboard quad UV coordinates.
 out float AR_quad;                                                              // Billboard quad aspect ratio.
@@ -99,8 +44,6 @@ void main()
   uint i = gl_PrimitiveIDIn;                                                    // Central node index.        
   uint j;                                                                       // Neighbour node index.
   uint k;                                                                       // Node index.
-
-  float L;                                                                      // Link resting distance.
 
   vec4 A;                                                                       // Billboard vertex "a" (in clip space).
   vec4 B;                                                                       // Billboard vertex "b" (in clip space).
@@ -128,7 +71,6 @@ void main()
   // BUILDING LINE FROM CENTER TO NEIGHBOUR:
   j = nearest_SSBO[i];                                                          // Computing neighbour index...
   k = central_SSBO[i];                                                          // Computing central node index...
-  L = resting_SSBO[i];                                                          // Getting link resting distance...
 
   // COMPUTING BILLBOARD ROTATION:
   P = P_mat*V_mat*position_SSBO[k];                                             // Getting center node (in clip space)...
