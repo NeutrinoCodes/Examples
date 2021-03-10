@@ -22,7 +22,6 @@ layout(std430, binding = 1) buffer voxel_position
 
 out vec4 color;                                                                 // Fragment color.
 out vec2 quad;                                                                  // Billboard quad UV coordinates.
-out float AR_quad;                                                              // Billboard quad aspect ratio.
 
 void main()
 {
