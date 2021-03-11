@@ -1,21 +1,21 @@
 /// @file
 
-__kernel void thekernel(__global float4*    color,                              // Color [#].
-                        __global float4*    position,                           // Position [m].
-                        __global float4*    position_int,                       // Position (intermediate) [m].
-                        __global float4*    velocity,                           // Velocity [m/s].
-                        __global float4*    velocity_int,                       // Velocity (intermediate) [m/s].
-                        __global float4*    acceleration,                       // Acceleration [m/s^2].
-                        __global float*     stiffness,                          // Stiffness
-                        __global float*     resting,                            // Resting distance [m].
-                        __global float*     friction,                           // Friction
-                        __global float*     mass,                               // Mass [kg].
-                        __global int*       central,                            // Node.
-                        __global int*       nearest,                            // Neighbour.
-                        __global int*       offset,                             // Offset.
-                        __global int*       freedom,                            // Freedom flag.
-                        __global float*     radius,                             // Particle radius [m].
-                        __global float*     dt_simulation)                      // Simulation time step [s].
+__kernel void thekernel(__global float4*    color,                                    // Color [#].
+                        __global float4*    position,                                 // Position [m].
+                        __global float4*    velocity,                                 // Velocity [m/s].
+                        __global float4*    acceleration,                             // Acceleration [m/s^2].
+                        __global float4*    position_int,                             // Position (intermediate) [m].
+                        __global float4*    velocity_int,                             // Velocity (intermediate) [m/s].
+                        __global float*     radius,                                   // Particle radius [m].
+                        __global float*     stiffness,                                // Stiffness
+                        __global float*     resting,                                  // Resting distance [m].
+                        __global float*     friction,                                 // Friction
+                        __global float*     mass,                                     // Mass [kg].
+                        __global int*       central,                                  // Node.
+                        __global int*       nearest,                                  // Neighbour.
+                        __global int*       offset,                                   // Offset.
+                        __global int*       freedom,                                  // Freedom flag.
+                        __global float*     dt_simulation)                            // Simulation time step [s].
 {
   ////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////// INDEXES ///////////////////////////////////
@@ -136,6 +136,6 @@ __kernel void thekernel(__global float4*    color,                              
 
   // UPDATING KINEMATICS:
   position[n] = p_int;                                                          // Updating position [m]...
-  velocity[n] = v_new;                                                          // Updating velocity [m/s]...
-  acceleration[n] = a_new;                                                      // Updating acceleration [m/s^2]...
+  //velocity[n] = v_new;                                                          // Updating velocity [m/s]...
+  //acceleration[n] = a_new;                                                      // Updating acceleration [m/s^2]...
 }
