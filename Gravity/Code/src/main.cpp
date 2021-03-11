@@ -71,18 +71,20 @@ int main ()
   // KERNEL VARIABLES:
   nu_float4*          color          = new nu_float4 (0);                                            // Color [].
   nu_float4*          position       = new nu_float4 (1);                                            // Position [m].
-  nu_float4*          velocity       = new nu_float4 (2);                                            // Velocity [m/s].
-  nu_float4*          acceleration   = new nu_float4 (3);                                            // Acceleration [m/s^2].
-  nu_float4*          position_int   = new nu_float4 (4);                                            // Position (intermediate) [m].
-  nu_float4*          velocity_int   = new nu_float4 (5);                                            // Velocity (intermediate) [m/s].
+  nu_float4*          position_int   = new nu_float4 (2);                                            // Position (intermediate) [m].
+  nu_float4*          velocity       = new nu_float4 (3);                                            // Velocity [m/s].
+  nu_float4*          velocity_int   = new nu_float4 (4);                                            // Velocity (intermediate) [m/s].
+  nu_float4*          acceleration   = new nu_float4 (5);                                            // Acceleration [m/s^2].
   nu_float*           stiffness      = new nu_float (6);                                             // Stiffness.
   nu_float*           resting        = new nu_float (7);                                             // Resting.
   nu_float*           friction       = new nu_float (8);                                             // Friction.
-  nu_int*             central        = new nu_int (9);                                               // Central nodes.
-  nu_int*             neighbour      = new nu_int (10);                                              // Neighbour.
-  nu_int*             offset         = new nu_int (11);                                              // Offset.
-  nu_int*             freedom        = new nu_int (12);                                              // Freedom.
-  nu_float*           dt             = new nu_float (13);                                            // Time step [s].
+  nu_float*           mass           = new nu_float (9);                                             // Mass.
+  nu_int*             central        = new nu_int (10);                                              // Central nodes.
+  nu_int*             neighbour      = new nu_int (11);                                              // Neighbour.
+  nu_int*             offset         = new nu_int (12);                                              // Offset.
+  nu_int*             freedom        = new nu_int (13);                                              // Freedom.
+  nu_float*           radius         = new nu_float (14);                                            // Particle radius [m].
+  nu_float*           dt             = new nu_float (15);                                            // Time step [s].
 
   // MESH:
   mesh*               gravity        = new mesh (std::string (GMSH_HOME) + std::string (GMSH_MESH)); // Mesh cloth.
@@ -92,13 +94,13 @@ int main ()
   size_t              neighbours;                                                                    // Number of neighbours.
   std::vector<size_t> frame;                                                                         // Nodes on frame.
   size_t              frame_nodes;                                                                   // Number of frame nodes.
-  float               x_min          = -0.9f;                                                        // "x_min" spatial boundary [m].
-  float               x_max          = +0.9f;                                                        // "x_max" spatial boundary [m].
-  float               y_min          = -0.9f;                                                        // "y_min" spatial boundary [m].
-  float               y_max          = +0.9f;                                                        // "y_max" spatial boundary [m].
-  float               z_min          = -0.9f;                                                        // "z_min" spatial boundary [m].
-  float               z_max          = +0.9f;                                                        // "z_max" spatial boundary [m].
-  float               ds             = 0.9f;                                                         // Cell size [m].
+  float               x_min          = -1.0f;                                                        // "x_min" spatial boundary [m].
+  float               x_max          = +1.0f;                                                        // "x_max" spatial boundary [m].
+  float               y_min          = -1.0f;                                                        // "y_min" spatial boundary [m].
+  float               y_max          = +1.0f;                                                        // "y_max" spatial boundary [m].
+  float               z_min          = -1.0f;                                                        // "z_min" spatial boundary [m].
+  float               z_max          = +1.0f;                                                        // "z_max" spatial boundary [m].
+  float               ds             = 1.0f;                                                         // Cell size [m].
   float               pos_x;                                                                         // Position "x" component...
   float               pos_y;                                                                         // Position "y" component...
   float               pos_z;                                                                         // Position "z" component...
@@ -172,7 +174,7 @@ int main ()
 
       if(resting->data[j] > 0.21)
       {
-        color->data.push_back ({1.0f, 0.0f, 0.0f, 0.5f});                                            // Setting color...
+        color->data.push_back ({0.0f, 0.0f, 0.0f, 0.0f});                                            // Setting color...
       }
       else
       {
