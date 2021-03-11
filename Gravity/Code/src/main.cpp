@@ -83,7 +83,7 @@ int main ()
   nu_int*             neighbour      = new nu_int (11);                                              // Neighbour.
   nu_int*             offset         = new nu_int (12);                                              // Offset.
   nu_int*             freedom        = new nu_int (13);                                              // Freedom.
-  nu_float*           radius         = new nu_float (14);                                            // Particle radius [m].
+  nu_float*           radius         = new nu_float (14);                                            // Nucleus radius [m].
   nu_float*           dt             = new nu_float (15);                                            // Time step [s].
 
   // MESH:
@@ -113,6 +113,7 @@ int main ()
   float               m              = 0.001f;                                                       // Node mass [kg].
   float               K              = 100.0f;                                                       // Link elastic constant [kg/s^2].
   float               B              = 1.0f;                                                         // Damping [kg*s*m].
+  float               R0             = 0.2f;                                                         // Nuclesu radius [m].
   float               dt_critical;                                                                   // Critical time step [s].
   float               dt_simulation;                                                                 // Simulation time step [s].
 
@@ -146,6 +147,7 @@ int main ()
   // SETTING NEUTRINO ARRAYS (parameters):
   friction->data.push_back (B);                                                                      // Setting friction...
   dt->data.push_back (dt_simulation);                                                                // Setting time step...
+  radius->data.push_back (R0);                                                                       // Setting nucleus radius...
 
   // SETTING NEUTRINO ARRAYS ("nodes" depending):
   for(i = 0; i < nodes; i++)
@@ -154,6 +156,7 @@ int main ()
     velocity->data.push_back ({0.0f, 0.0f, 0.0f, 1.0f});                                             // Setting velocity...
     velocity_int->data.push_back ({0.0f, 0.0f, 0.0f, 1.0f});                                         // Setting intermediate velocity...
     acceleration->data.push_back ({0.0f, 0.0f, 0.0f, 1.0f});                                         // Setting acceleration...
+    mass->data.push_back (m);                                                                        // Setting mass...
     freedom->data.push_back (1);                                                                     // Setting freedom flag...
 
     // Computing minimum element offset index:
@@ -174,7 +177,7 @@ int main ()
 
       if(resting->data[j] > 0.21)
       {
-        color->data.push_back ({0.0f, 0.0f, 0.0f, 0.0f});                                            // Setting color...
+        color->data.push_back ({1.0f, 0.0f, 0.0f, 0.5f});                                            // Setting color...
       }
       else
       {

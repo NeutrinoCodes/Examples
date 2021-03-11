@@ -1,226 +1,57 @@
 /// @file
 
-__kernel void thekernel(__global float4*    color,                                                  // Color [#].
-                        __global float4*    position,                                               // Position [m].
-                        __global float4*    position_int,                                           // Position (intermediate) [m].
-                        __global float4*    velocity,                                               // Velocity [m/s].
-                        __global float4*    velocity_int,                                           // Velocity (intermediate) [m/s].
-                        __global float4*    acceleration,                                           // Acceleration [m/s^2].
-                        __global float*     stiffness,                                              // Stiffness
-                        __global float4*    resting,                                                // Resting distance [m].
-                        __global float*     friction,                                               // Friction
-                        __global float*     mass,                                                   // Mass [kg].
-                        __global int*       central,                                                // Node.
-                        __global int*       nearest,                                                // Neighbour.
-                        __global int*       offset,                                                 // Offset.
-                        __global int*       freedom,                                                // Freedom flag.
-                        __global float*     radius,                                                 // Particle radius [m].
-                        __global float*     dt_simulation)                                          // Simulation time step [s].
+__kernel void thekernel(__global float4*    color,                                    // Color [#].
+                        __global float4*    position,                                 // Position [m].
+                        __global float4*    position_int,                             // Position (intermediate) [m].
+                        __global float4*    velocity,                                 // Velocity [m/s].
+                        __global float4*    velocity_int,                             // Velocity (intermediate) [m/s].
+                        __global float4*    acceleration,                             // Acceleration [m/s^2].
+                        __global float*     stiffness,                                // Stiffness
+                        __global float*     resting,                                  // Resting distance [m].
+                        __global float*     friction,                                 // Friction
+                        __global float*     mass,                                     // Mass [kg].
+                        __global int*       central,                                  // Node.
+                        __global int*       nearest,                                  // Neighbour.
+                        __global int*       offset,                                   // Offset.
+                        __global int*       freedom,                                  // Freedom flag.
+                        __global float*     radius,                                   // Particle radius [m].
+                        __global float*     dt_simulation)                            // Simulation time step [s].
 {
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////////////////////// GLOBAL INDEX ///////////////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        unsigned long gid = get_global_id(0);                                                       // Global index [#].
+  //////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////// GLOBAL INDEX ///////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////////
+  unsigned long i = get_global_id(0);                                                 // Global index [#].
 
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        /////////////////////////// SYNERGIC MOLECULE: KINEMATIC VARIABLES ///////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        float4 p = position[gid];                                                                   // Getting point coordinates [m]...
-        float4 v = velocity[gid];                                                                   // Getting velocity [m/s]...
-        float4 a = acceleration[gid];                                                               // Getting acceleration [m/s^2]...
-        float4 c = color[gid];                                                                      // Getting color coordinates [#]...
+  //////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////// CELL VARIABLES //////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////////
+  float4        p                 = position[i];                                      // Central node position.
+  float4        v                 = velocity[i];                                      // Central node velocity.
+  float4        a                 = acceleration[i];                                  // Central node acceleration.
+  float4        p_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                 // Central node position. 
+  float         m                 = mass[i];                                          // Central node mass.
+  float         R0                = radius[0];                                        // Attractive nucleus radius.
+  float         fr                = freedom[i];                                       // Central node freedom flag.
+  float         dt                = dt_simulation[0];                                 // Simulation time step [s].
 
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////////// SYNERGIC MOLECULE: DYNAMIC VARIABLES ///////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        float m   = mass[gid];                                                                      // Current node mass.
-        float fr  = freedom[gid];                                                                   // Current freedom flag.
-        float dt  = dt_simulation[gid];                                                             // Current dt.
-        float R0  = radius[gid];                                                                    // Current particle radius.
-        float4 F;                                                                                   // Current particle force [N].
+  // APPLYING FREEDOM CONSTRAINTS:
+  if (fr == 0)
+  {
+    v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                             // Constraining velocity...
+    a = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                             // Constraining acceleration...
+  }
+        
+  //////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////// VERLET INTEGRATION //////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////////
+  // COMPUTING NEW POSITION:
+  p_new = p + v*dt + 0.5f*a*dt*dt;                                                    // Computing Taylor's approximation...
+        
+  // UPDATING INTERMEDIATE POSITION:
+  position_int[i] = p_new;                                                            // Updating intermediate position...
+  velocity_int[i] = v + a*dt;                                                         // Updating intermediate velocity...
 
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        //////////////////////////////// SYNERGIC MOLECULE: LINK INDEXES /////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        // NOTE: the index of a dummy node neighbour must be set to the index of the node.
-        long i_R = neighbour_R[gid];                                                                // Setting right neighbour index [#]...
-        long i_U = neighbour_U[gid];                                                                // Setting up neighbour index [#]...
-        long i_F = neighbour_F[gid];                                                                // Setting front neighbour index [#]...
-        long i_L = neighbour_L[gid];                                                                // Setting left neighbour index [#]...
-        long i_D = neighbour_D[gid];                                                                // Setting down neighbour index [#]...
-        long i_B = neighbour_B[gid];                                                                // Setting back neighbour index [#]...
-
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////// SYNERGIC MOLECULE: NEIGHBOUR MASSES ///////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        float m_R = mass[i_R];                                                                      // Setting right neighbour mass [kg]...
-        float m_U = mass[i_U];                                                                      // Setting up neighbour mass [kg]...
-        float m_F = mass[i_F];                                                                      // Setting front neighbour mass [kg]...
-        float m_L = mass[i_L];                                                                      // Setting left neighbour mass [kg]...
-        float m_D = mass[i_D];                                                                      // Setting down neighbour mass [kg]...
-        float m_B = mass[i_B];                                                                      // Setting back neighbour mass [kg]...
-
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////////// SYNERGIC MOLECULE: NEIGHBOUR POSITIONS /////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        float4 p_R = position[i_R];                                                                 // Setting right neighbour position coordinates [m]...
-        float4 p_U = position[i_U];                                                                 // Setting up neighbour position coordinates [m]...
-        float4 p_F = position[i_F];                                                                 // Setting front neighbour position coordinates [m]...
-        float4 p_L = position[i_L];                                                                 // Setting left neighbour position coordinates [m]...
-        float4 p_D = position[i_D];                                                                 // Setting down neighbour position coordinates [m]...
-        float4 p_B = position[i_B];                                                                 // Setting back neighbour position coordinates [m]...
-
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////// SYNERGIC MOLECULE: NEIGHBOUR RESTING DISTANCES /////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        float r_R_mag = resting[i_R].x;                                                             // Setting right neighbour position coordinates [m]...
-        float r_U_mag = resting[i_U].y;                                                             // Setting up neighbour position coordinates [m]...
-        float r_F_mag = resting[i_F].z;                                                             // Setting front neighbour position coordinates [m]...
-        float r_L_mag = resting[i_L].x;                                                             // Setting left neighbour position coordinates [m]...
-        float r_D_mag = resting[i_D].y;                                                             // Setting down neighbour position coordinates [m]...
-        float r_B_mag = resting[i_B].z;                                                             // Setting back neighbour position coordinates [m]...
-
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////// SYNERGIC MOLECULE: LINK VECTORS ///////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        float4 l_R = p_R - p;                                                                       // Right neighbour link vector.
-        float4 l_U = p_U - p;                                                                       // Up neighbour link vector.
-        float4 l_F = p_F - p;                                                                       // Front neighbour link vector.
-        float4 l_L = p_L - p;                                                                       // Left neighbour link vector.
-        float4 l_D = p_D - p;                                                                       // Down neighbour link vector.
-        float4 l_B = p_B - p;                                                                       // Back neighbour link vector.
-
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        /////////////////////////////////// SYNERGIC MOLECULE: LINK LENGTH ///////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        float l_R_mag = length(l_R);                                                                // Right neighbour link length.
-        float l_U_mag = length(l_U);                                                                // Up neighbour link length.
-        float l_F_mag = length(l_F);                                                                // Front neighbour link length.
-        float l_L_mag = length(l_L);                                                                // Left neighbour link length.
-        float l_D_mag = length(l_D);                                                                // Down neighbour link length.
-        float l_B_mag = length(l_B);                                                                // Back neighbour link length.
-
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        //////////////////////// SYNERGIC MOLECULE: LINKED PARTICLE DISPLACEMENT /////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        float4 dp_R;                                                                                // Right neighbour link displacement.
-        float4 dp_U;                                                                                // Up neighbour link displacement.
-        float4 dp_F;                                                                                // Front neighbour link displacement.
-        float4 dp_L;                                                                                // Left neighbour link displacement.
-        float4 dp_D;                                                                                // Down neighbour link displacement.
-        float4 dp_B;                                                                                // Back neighbour link displacement.
-
-        if(l_R_mag > 0.0f)
-        {
-                dp_R = (l_R_mag - r_R_mag)*normalize(l_R);                                          // Right neighbour link displacement.
-        }
-        else
-        {
-                dp_R = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                            // Right neighbour link displacement.
-        }
-
-        if(l_U_mag > 0.0f)
-        {
-                dp_U = (l_U_mag - r_U_mag)*normalize(l_U);                                          // Up neighbour link displacement.
-        }
-        else
-        {
-                dp_U = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                            // Up neighbour link displacement.
-        }
-
-        if(l_F_mag > 0.0f)
-        {
-                dp_F = (l_F_mag - r_F_mag)*normalize(l_F);                                          // Front neighbour link displacement.
-        }
-        else
-        {
-                dp_F = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                            // Front neighbour link displacement.
-        }
-
-        if(l_L_mag > 0.0f)
-        {
-                dp_L = (l_L_mag - r_L_mag)*normalize(l_L);                                          // Left neighbour link displacement.
-        }
-        else
-        {
-                dp_L = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                            // Left neighbour link displacement.
-        }
-
-        if(l_D_mag > 0.0f)
-        {
-                dp_D = (l_D_mag - r_D_mag)*normalize(l_D);                                          // Down neighbour link displacement.
-        }
-        else
-        {
-                dp_D = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                            // Down neighbour link displacement.
-        }
-
-        if(l_B_mag > 0.0f)
-        {
-                dp_B = (l_B_mag - r_B_mag)*normalize(l_B);                                          // Back neighbour link displacement.
-        }
-        else
-        {
-                dp_B = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                            // Back neighbour link displacement.
-        }
-
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        /////////////////////////////// SYNERGIC MOLECULE: LINK STIFFNESS ////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        // NOTE: the stiffness of a dummy zero-length link must be 0.
-        float K = stiffness[gid];                                                                   // Setting link stiffness...
-
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        /////////////////////////////// SYNERGIC MOLECULE: LINK FRICTION /////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        // NOTE: the friction of a dummy zero-length link must be 0.
-        float B = friction[gid];                                                                    // Setting particle friction...
-
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////////////// SYNERGIC MOLECULE: ELASTIC FORCE ///////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        float4 Fe = K*(dp_R + dp_U + dp_F + dp_L + dp_D + dp_B);                                    // Computing elastic force [N]...
-
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////////////// SYNERGIC MOLECULE: VISCOUS FORCE ///////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        // Elastic force applied to the particle:
-        float4 Fv = -B*v;                                                                           // Computing friction force [N]...
-
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////// SYNERGIC MOLECULE: GRAVITATIONAL FORCE ////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        float4 Fg;
-
-        p.w = 0.0f;                                                                                 // Adjusting projective space before 3D length...
-
-        if((m > 0.0f) && (length(p) > R0))
-        {
-                Fg = -(m*10.0f/pown(length(p), 2))*normalize(p);                                    // Computing gravitational force [N]...
-                F  = fr*(Fe + Fv + Fg);                                                             // Total force applied to the particle [N].
-                a  = F/m;                                                                           // Computing acceleration [m/s^2]...
-        }
-        else
-        {
-                a = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                               // Nullifying force [m/s^2]...
-                v = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                               // Nullifying momentum [N]...
-        }
-
-        p.w = 1.0f;                                                                                 // Adjusting projective space after 3D length...
-
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        /////////////////////////////////////// VERLET INTEGRATION ///////////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////
-        // UPDATING POSITION:
-        p += v*dt + a*dt*dt/2.0f;                                                                   // Updating position [m]...
-
-        // FIXING PROJECTIVE SPACE:
-        p.w = 1.0f;                                                                                 // Adjusting projective space...
-        v.w = 1.0f;                                                                                 // Adjusting projective space...
-        a.w = 1.0f;                                                                                 // Adjusting projective space...
-
-        // UPDATING INTERMEDIATE KINEMATICS:
-        position_int[gid] = p;                                                                      // Updating position (intermediate) [m]...
-        velocity_int[gid] = v;                                                                      // Updating position (intermediate) [m/s]...
-        acceleration_int[gid] = a;                                                                  // Updating position (intermediate) [m/s^2]...
+  // FIXING PROJECTIVE SPACE:
+  position_int[i].w = 1.0f;                                                           // Adjusting projective space...
+  velocity_int[i].w = 1.0f;                                                           // Adjusting projective space...
 }
