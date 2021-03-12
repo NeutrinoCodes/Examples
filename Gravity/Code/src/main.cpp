@@ -104,9 +104,9 @@ int main ()
 
   // SIMULATION VARIABLES:
   float              m              = 0.001f;                                                       // Node mass [kg].
-  float              K              = 100.0f;                                                       // Link elastic constant [kg/s^2].
+  float              K              = 300.0f;                                                       // Link elastic constant [kg/s^2].
   float              B              = 1.0f;                                                         // Damping [kg*s*m].
-  float              R0             = 0.2f;                                                         // Nuclesu radius [m].
+  float              R0             = 0.2f;                                                         // Nucleus radius [m].
   float              dt_critical;                                                                   // Critical time step [s].
   float              dt_simulation;                                                                 // Simulation time step [s].
 
@@ -167,6 +167,7 @@ int main ()
     for(j = j_min; j < j_max; j++)
     {
       central->data.push_back (gravity->node[i]);                                                   // Building central node vector...
+      stiffness->data.push_back (K);                                                                // Setting link stiffness...
 
       if(resting->data[j] > 0.21)
       {
@@ -177,13 +178,11 @@ int main ()
         color->data.push_back ({0.0f, 1.0f, 0.0f, 1.0f});                                           // Setting color...
       }
     }
-
-    stiffness->data.push_back (K);                                                                  // Setting stiffness...
   }
 
   for(j = 1; j < 9; j++)
   {
-    gravity->process (j, 1, NU_MSH_PNT);                                                            // Processing mesh...
+    gravity->process (j, 0, NU_MSH_PNT);                                                            // Processing mesh...
     point       = gravity->node;                                                                    // Getting nodes on border...
     point_nodes = point.size ();                                                                    // Getting the number of nodes on border...
 
