@@ -29,7 +29,6 @@ __kernel void thekernel(__global float4*    color,                              
   float4        v                 = velocity[i];                                      // Central node velocity.
   float4        a                 = acceleration[i];                                  // Central node acceleration.
   float4        p_new             = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                 // Central node position. 
-  float         m                 = mass[i];                                          // Central node mass.
   float         R0                = radius[0];                                        // Attractive nucleus radius.
   float         fr                = freedom[i];                                       // Central node freedom flag.
   float         dt                = dt_simulation[0];                                 // Simulation time step [s].
@@ -41,9 +40,6 @@ __kernel void thekernel(__global float4*    color,                              
     a = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                             // Constraining acceleration...
   }
         
-  //////////////////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////// VERLET INTEGRATION //////////////////////////////
-  //////////////////////////////////////////////////////////////////////////////////////
   // COMPUTING NEW POSITION:
   p_new = p + v*dt + 0.5f*a*dt*dt;                                                    // Computing Taylor's approximation...
         

@@ -104,9 +104,9 @@ int main ()
 
   // SIMULATION VARIABLES:
   float              m              = 0.001f;                                                       // Node mass [kg].
-  float              K              = 300.0f;                                                       // Link elastic constant [kg/s^2].
+  float              K              = 100.0f;                                                       // Link elastic constant [kg/s^2].
   float              B              = 1.0f;                                                         // Damping [kg*s*m].
-  float              R0             = 0.2f;                                                         // Nucleus radius [m].
+  float              R0             = 0.3f;                                                         // Nucleus radius [m].
   float              dt_critical;                                                                   // Critical time step [s].
   float              dt_simulation;                                                                 // Simulation time step [s].
 
@@ -135,7 +135,7 @@ int main ()
   std::cout << "links = " << gravity->neighbour_link.size () << std::endl;
 
   dt_critical     = sqrt (m/K);                                                                     // Critical time step [s].
-  dt_simulation   = 0.5f*dt_critical;                                                               // Simulation time step [s].
+  dt_simulation   = 0.2f*dt_critical;                                                               // Simulation time step [s].
 
   // SETTING NEUTRINO ARRAYS (parameters):
   friction->data.push_back (B);                                                                     // Setting friction...
@@ -145,7 +145,7 @@ int main ()
   // SETTING NEUTRINO ARRAYS ("nodes" depending):
   for(i = 0; i < nodes; i++)
   {
-    position_int->data.push_back ({0.0f, 0.0f, 0.0f, 1.0f});                                        // Setting intermediate position...
+    position_int->data.push_back (position->data[i]);                                               // Setting intermediate position...
     velocity->data.push_back ({0.0f, 0.0f, 0.0f, 1.0f});                                            // Setting velocity...
     velocity_int->data.push_back ({0.0f, 0.0f, 0.0f, 1.0f});                                        // Setting intermediate velocity...
     acceleration->data.push_back ({0.0f, 0.0f, 0.0f, 1.0f});                                        // Setting acceleration...
