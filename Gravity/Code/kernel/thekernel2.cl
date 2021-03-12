@@ -91,15 +91,15 @@ __kernel void thekernel(__global float4*    color,                              
 
     Fe += K*D;                                                                  // Building up elastic force on central node...
   }
-
-  //Fg = (float4)(0.0f, 0.0f, -0.00002f, 0.0f);
-  Fg = (float4)(-(m*0.0001f/pown(length(p_int.xyz), 2))*normalize(p_int.xyz), 1.0f);              // Computing gravitational force [N]...
+  
+  //Fg = (float4)(0.0f, 0.0f, 0.3f, 0.0f);
+  Fg = (float4)(-(m*6000.0f/pown(length(p_int.xyz), 2))*normalize(p_int.xyz), 1.0f);              // Computing gravitational force [N]...
   Fv = -B*v_int;                                                                // Computing node viscous force...
 
   // COMPUTING TOTAL FORCE:
   F  = Fe + Fv + Fg;                                                            // Total force applied to the particle [N]...
     
-  //printf("Fg = %f %f %f\ L_p_int %fn", Fg.x, Fg.y, Fg.z, length(p_int));
+  //printf("F = %f %f %f\ L_p_int %f\n", F.x, F.y, F.z, length(p_int));
 
   // COMPUTING NEW ACCELERATION ESTIMATION:
   a_est  = F/m;                                                                 // Computing acceleration [m/s^2]...
@@ -117,7 +117,7 @@ __kernel void thekernel(__global float4*    color,                              
   a_new = F_new/m;                                                              // Computing acceleration...
 
   // APPLYING FREEDOM CONSTRAINTS:
-  if (fr == 0)
+  if ((fr == 0) || (length(p_int.xyz) < R0))
   {
     a_new = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                   // Constraining acceleration...
   }
@@ -129,7 +129,6 @@ __kernel void thekernel(__global float4*    color,                              
   if ((fr == 0) || (length(p_int.xyz) < R0))
   {
     v_new = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                   // Constraining velocity...
-    a_new = (float4)(0.0f, 0.0f, 0.0f, 1.0f);                                   // Nullifying force [m/s^2]...
   }
 
   // FIXING PROJECTIVE SPACE:
