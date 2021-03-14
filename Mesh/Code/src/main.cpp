@@ -1,307 +1,189 @@
 /// @file
 
-// OPENGL:
 #define INTEROP       true                                                                          // "true" = use OpenGL-OpenCL interoperability.
-#define GUI_SIZE_X    800                                                                           // Window x-size [px].
-#define GUI_SIZE_Y    600                                                                           // Window y-size [px].
-#define GUI_NAME      "Neutrino - Mesh"                                                             // Window name.
+#define SX            800                                                                           // Window x-size [px].
+#define SY            600                                                                           // Window y-size [px].
+#define NAME          "Neutrino - Mesh"                                                             // Window name.
+#define ORB_X         0.0f                                                                          // x-axis orbit initial rotation.
+#define ORB_Y         0.0f                                                                          // y-axis orbit initial rotation.
+#define PAN_X         0.0f                                                                          // x-axis pan initial translation.
+#define PAN_Y         0.0f                                                                          // y-axis pan initial translation.
+#define PAN_Z         -2.0f                                                                         // z-axis pan initial translation.
+
+#define TAG           1                                                                             // Surface tag.
+#define DIM           2                                                                             // Surface dimension.
+#define CELL_VERTICES 3                                                                             // Number of vertices per elementary cell.
 
 #ifdef __linux__
-  #define SHADER_HOME "../Mesh/Code/shader"                                                         // Linux OpenGL shaders directory.
-  #define KERNEL_HOME "../Mesh/Code/kernel"                                                         // Linux OpenCL kernels directory.
+  #define SHADER_HOME "../Mesh/Code/shader/"                                                        // Linux OpenGL shaders directory.
+  #define KERNEL_HOME "../Mesh/Code/kernel/"                                                        // Linux OpenCL kernels directory.
   #define GMSH_HOME   "../Mesh/Code/mesh/"                                                          // Linux GMSH mesh directory.
 #endif
 
 #ifdef __APPLE__
-  #define SHADER_HOME "../Mesh/Code/shader"                                                         // Mac OpenGL shaders directory.
-  #define KERNEL_HOME "../Mesh/Code/kernel"                                                         // Mac OpenCL kernels directory.
-  #define GMSH_HOME   "../Mesh/Code/mesh/"                                                          // Mac GMSH mesh directory.
+  #define SHADER_HOME "../Mesh/Code/shader/"                                                        // Mac OpenGL shaders directory.
+  #define KERNEL_HOME "../Mesh/Code/kernel/"                                                        // Mac OpenCL kernels directory.
+  #define GMSH_HOME   "../Mesh/Code/mesh/"                                                          // Linux GMSH mesh directory.
 #endif
 
 #ifdef WIN32
-  #define SHADER_HOME "..\\..\\Mesh\\Code\\shader"                                                  // Windows OpenGL shaders directory.
-  #define KERNEL_HOME "..\\..\\Mesh\\Code\\kernel"                                                  // Windows OpenCL kernels directory.
-  #define GMSH_HOME   "..\\..\\Mesh\\Code\\mesh\\"                                                  // Windows GMSH mesh directory.
+  #define SHADER_HOME "..\\..\\Mesh\\Code\\shader\\"                                                // Windows OpenGL shaders directory.
+  #define KERNEL_HOME "..\\..\\Mesh\\Code\\kernel\\"                                                // Windows OpenCL kernels directory.
+  #define GMSH_HOME   "..\\..\\Mesh\\Code\\mesh\\"                                                  // Linux GMSH mesh directory.
 #endif
 
 #define SHADER_VERT   "voxel_vertex.vert"                                                           // OpenGL vertex shader.
 #define SHADER_GEOM   "voxel_geometry.geom"                                                         // OpenGL geometry shader.
 #define SHADER_FRAG   "voxel_fragment.frag"                                                         // OpenGL fragment shader.
+#define KERNEL        "mesh_kernel.cl"                                                              // OpenCL kernel source.
 #define GMSH_MESH     "Utah_teapot.msh"                                                             // GMSH mesh.
-
-// OPENCL:
-#define QUEUE_NUM     1                                                                             // # of OpenCL queues [#].
-#define KERNEL_NUM    1                                                                             // # of OpenCL kernel [#].
 
 // INCLUDES:
 #include "nu.hpp"                                                                                   // Neutrino's header file.
 
 int main ()
 {
-  // KERNEL FILES:
-  std::string              kernel_home;                                                             // Kernel home directory.
-  std::vector<std::string> kernel_file;                                                             // Kernel source file.
+  // INDEXES:
+  size_t     i;                                                                                     // Index [#].
+  size_t     j;                                                                                     // Index [#].
+  size_t     j_min;                                                                                 // Index [#].
+  size_t     j_max;                                                                                 // Index [#].
 
-  // DATA:
-  float                    x_min              = -1.0;                                               // "x_min" spatial boundary [m].
-  float                    x_max              = +1.0;                                               // "x_max" spatial boundary [m].
-  float                    y_min              = -1.0;                                               // "y_min" spatial boundary [m].
-  float                    y_max              = +1.0;                                               // "y_max" spatial boundary [m].
-  size_t                   gid;                                                                     // Global index [#].
+  // MOUSE PARAMETERS:
+  float      ms_orbit_rate  = 1.0f;                                                                 // Orbit rotation rate [rev/s].
+  float      ms_pan_rate    = 5.0f;                                                                 // Pan translation rate [m/s].
+  float      ms_decaytime   = 1.25f;                                                                // Pan LP filter decay time [s].
 
-  // GUI PARAMETERS (orbit):
-  float                    orbit_x_init       = 0.0f;                                               // x-axis orbit initial rotation.
-  float                    orbit_y_init       = 0.0f;                                               // y-axis orbit initial rotation.
-
-  // GUI PARAMETERS (pan):
-  float                    pan_x_init         = 0.0f;                                               // x-axis pan initial translation.
-  float                    pan_y_init         = 0.0f;                                               // y-axis pan initial translation.
-  float                    pan_z_init         = -2.0f;                                              // z-axis pan initial translation.
-
-  // GUI PARAMETERS (mouse):
-  float                    mouse_orbit_rate   = 1.0;                                                // Orbit rotation rate [rev/s].
-  float                    mouse_pan_rate     = 5.0;                                                // Pan translation rate [m/s].
-  float                    mouse_decaytime    = 1.25;                                               // Pan LP filter decay time [s].
-
-  // GUI PARAMETERS (gamepad):
-  float                    gamepad_orbit_rate = 1.0;                                                // Orbit angular rate coefficient [rev/s].
-  float                    gamepad_pan_rate   = 1.0;                                                // Pan translation rate [m/s].
-  float                    gamepad_decaytime  = 1.25;                                               // Low pass filter decay time [s].
-  float                    gamepad_deadzone   = 0.1;                                                // Gamepad joystick deadzone [0...1].
+  // GAMEPAD PARAMETERS:
+  float      gmp_orbit_rate = 1.0f;                                                                 // Orbit angular rate coefficient [rev/s].
+  float      gmp_pan_rate   = 1.0f;                                                                 // Pan translation rate [m/s].
+  float      gmp_decaytime  = 1.25f;                                                                // Low pass filter decay time [s].
+  float      gmp_deadzone   = 0.1f;                                                                 // Gamepad joystick deadzone [0...1].
 
   // NEUTRINO:
-  neutrino*                bas                = new neutrino ();                                    // Neutrino baseline.
-  opengl*                  gui                = new opengl ();                                      // OpenGL context.
-  opencl*                  ctx                = new opencl ();                                      // OpenCL context.
-  shader*                  S                  = new shader ();                                      // OpenGL shader program.
-  queue*                   Q                  = new queue ();                                       // OpenCL queue.
-  kernel*                  K1                 = new kernel ();                                      // OpenCL kernel array.
-  size_t                   kernel_sx;                                                               // Kernel dimension "x" [#].
-  size_t                   kernel_sy;                                                               // Kernel dimension "y" [#].
-  size_t                   kernel_sz;                                                               // Kernel dimension "z" [#].
+  opengl*    gl             = new opengl (NAME, SX, SY, ORB_X, ORB_Y, PAN_X, PAN_Y, PAN_Z);         // OpenGL context.
+  opencl*    cl             = new opencl (NU_GPU);                                                  // OpenCL context.
+  shader*    S              = new shader ();                                                        // OpenGL shader program.
+  kernel*    K              = new kernel ();                                                        // OpenCL kernel array.
+
+  // KERNEL VARIABLES:
+  nu_float4* color          = new nu_float4 (0);                                                    // Color [].
+  nu_float4* position       = new nu_float4 (1);                                                    // Position [m].
+  nu_int*    central        = new nu_int (2);                                                       // Central nodes.
+  nu_int*    neighbour      = new nu_int (3);                                                       // Neighbour.
+  nu_int*    offset         = new nu_int (4);                                                       // Offset.
 
   // MESH:
-  mesh*                    object             = new mesh ();                                        // Mesh object.
-  size_t                   nodes;                                                                   // Number of nodes.
-  size_t                   elements;                                                                // Number of elements.
-  size_t                   neighbours;                                                              // Number of neighbours.
-  size_t                   border_nodes;                                                            // Number of border nodes.
-  std::vector<size_t>      neighbour;                                                               // Neighbours.
-  std::vector<size_t>      border;                                                                  // Border nodes.
+  mesh*      obj            = new mesh (std::string (GMSH_HOME) + std::string (GMSH_MESH));         // Mesh obj.
+  size_t     nodes;                                                                                 // Number of nodes.
+  size_t     elements;                                                                              // Number of elements.
+  size_t     groups;                                                                                // Number of groups.
+  size_t     neighbours;                                                                            // Number of neighbours.
+  float      x_min          = -1.0f;                                                                // "x_min" spatial boundary [m].
+  float      x_max          = +1.0f;                                                                // "x_max" spatial boundary [m].
+  float      y_min          = -1.0f;                                                                // "y_min" spatial boundary [m].
+  float      y_max          = +1.0f;                                                                // "y_max" spatial boundary [m].
 
-  // NODE KINEMATICS:
-  float4G*                 color              = new float4G ();                                     // Color.
-  float4G*                 node               = new float4G ();                                     // Position [m].
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////// DATA INITIALIZATION ///////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  // MESH:
+  obj->process (TAG, DIM, NU_MSH_TRI_3);                                                            // Processing mesh...
+  position->data  = obj->node_coordinates;                                                          // Setting all node coordinates...
+  neighbour->data = obj->neighbour;                                                                 // Setting neighbour indices...
+  offset->data    = obj->neighbour_offset;                                                          // Setting neighbour offsets...
+  nodes           = obj->node.size ();                                                              // Getting the number of nodes...
+  elements        = obj->element.size ();                                                           // Getting the number of elements...
+  groups          = obj->group.size ();                                                             // Getting the number of groups...
+  neighbours      = obj->neighbour.size ();                                                         // Getting the number of neighbours...
+  std::cout << "nodes = " << nodes << std::endl;                                                    // Printing message...
+  std::cout << "elements = " << elements/CELL_VERTICES << std::endl;                                // Printing message...
+  std::cout << "groups = " << groups/CELL_VERTICES << std::endl;                                    // Printing message...
+  std::cout << "neighbours = " << neighbours << std::endl;                                          // Printing message...
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  object->init (bas, std::string (GMSH_HOME) + std::string (GMSH_MESH));                            // Initializing object mesh...
-  nodes       = object->node.size ();
-  elements    = object->element.size ();
-
-  color->init (nodes);                                                                              // Initializing depth data...
-  node->init (nodes);                                                                               // Initializing position data...
-
-  color->name = "voxel_color";                                                                      // Setting variable name for OpenGL shader...
-  node->name  = "voxel_center";                                                                     // Setting variable name for OpenGL shader...
-
-  std::cout << std::endl;                                                                           // Printing message...
-  std::cout << "#################################" << std::endl;                                    // Printing message...
-  std::cout << "############## NODES ############" << std::endl;                                    // Printing message...
-  std::cout << "#################################" << std::endl;                                    // Printing message...
-
-  for(gid = 0; gid < nodes; gid++)
+  // SETTING NEUTRINO ARRAYS ("surface" depending):
+  for(i = 0; i < nodes; i++)
   {
-    std::cout << "Node " << gid << ": has coordinates: ";                                           // Printing message...
-    std::cout << "x = " << object->node[gid].x << " ";                                              // Printing message...
-    std::cout << "y = " << object->node[gid].y << " ";                                              // Printing message...
-    std::cout << "z = " << object->node[gid].z << std::endl;                                        // Printing message...
-  }
+    std::cout << "i = " << i << ", node index = " << obj->node[i] << ", neighbour indices:";        // Printing message...
 
-  std::cout << std::endl;                                                                           // Printing message...
-  std::cout << "#################################" << std::endl;                                    // Printing message...
-  std::cout << "######## NODE NEIGHBOURS ########" << std::endl;                                    // Printing message...
-  std::cout << "#################################" << std::endl;                                    // Printing message...
-
-  for(gid = 0; gid < nodes; gid++)
-  {
-    neighbour  = object->neighbours (gid);
-    neighbours = neighbour.size ();
-    std::cout << "Node " << gid << ": has neighbour nodes: ";                                       // Printing message...
-
-    for(int i = 0; i < neighbours; i++)
+    // Computing minimum element offset index:
+    if(i == 0)
     {
-      std::cout << neighbour[i] << " ";                                                             // Printing message...
+      j_min = 0;                                                                                    // Setting minimum element offset index...
+    }
+    else
+    {
+      j_min = offset->data[i - 1];                                                                  // Setting minimum element offset index...
+    }
+
+    j_max = offset->data[i];                                                                        // Setting maximum element offset index...
+
+    for(j = j_min; j < j_max; j++)
+    {
+      central->data.push_back (obj->node[i]);                                                       // Building central node tuple...
+
+      std::cout << " " << neighbour->data[j];                                                       // Printing message...
+
+      color->data.push_back ({1.0f, 0.0f, 0.0f, 1.0f});                                             // Setting link color...
     }
 
     std::cout << std::endl;                                                                         // Printing message...
   }
 
-  std::cout << std::endl;                                                                           // Printing message...
-  std::cout << "#################################" << std::endl;                                    // Printing message...
-  std::cout << "######## PHYSICAL GROUPS ########" << std::endl;                                    // Printing message...
-  std::cout << "#################################" << std::endl;                                    // Printing message...
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////// OPENCL KERNELS INITIALIZATION //////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  K->addsource (std::string (KERNEL_HOME) + std::string (KERNEL));                                  // Setting kernel source file...
+  K->build (nodes, 0, 0);                                                                           // Building kernel program...
 
-  border       = object->physical (0, 1);
-  border_nodes = border.size ();
-  std::cout << "Physical group dim = 1, tag = 1 has nodes: ";                                       // Printing message...
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////// OPENGL SHADERS INITIALIZATION //////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_VERT), NU_VERTEX);                  // Setting shader source file...
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_GEOM), NU_GEOMETRY);                // Setting shader source file...
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_FRAG), NU_FRAGMENT);                // Setting shader source file...
+  S->build (neighbours);                                                                            // Building shader program...
 
-  for(int i = 0; i < border_nodes; i++)
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////// SETTING OPENCL KERNEL ARGUMENTS //////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  cl->write ();                                                                                     // Writing OpenCL data...
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////// APPLICATION LOOP /////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  while(!gl->closed ())                                                                             // Opening window...
   {
-    std::cout << border[i] << " ";                                                                  // Printing message...
-  }
+    cl->get_tic ();                                                                                 // Getting "tic" [us]...
+    cl->acquire ();                                                                                 // Acquiring OpenCL kernel...
+    cl->execute (K, NU_WAIT);                                                                       // Executing OpenCL kernel...
+    cl->release ();                                                                                 // Releasing OpenCL kernel...
 
-  std::cout << std::endl;                                                                           // Printing message...
+    gl->clear ();                                                                                   // Clearing gl...
+    gl->poll_events ();                                                                             // Polling gl events...
+    gl->mouse_navigation (ms_orbit_rate, ms_pan_rate, ms_decaytime);                                // Polling mouse...
+    gl->gamepad_navigation (gmp_orbit_rate, gmp_pan_rate, gmp_decaytime, gmp_deadzone);             // Polling gamepad...
+    gl->plot (S);                                                                                   // Plotting shared arguments...
+    gl->refresh ();                                                                                 // Refreshing gl...
 
-  std::cout << std::endl;                                                                           // Printing message...
-  std::cout << "#################################" << std::endl;                                    // Printing message...
-  std::cout << "############# GROUPS ############" << std::endl;                                    // Printing message...
-  std::cout << "#################################" << std::endl;                                    // Printing message...
-
-  for(gid = 0; gid < nodes; gid++)
-  {
-    std::cout << "Node " << gid << ": is in a group of elements: ";                                 // Printing message...
-
-    for(int i = 0; i < object->group[gid].element.size (); i++)
+    if(gl->button_CROSS)
     {
-      std::cout << object->group[gid].element[i] << " ";                                            // Printing message...
+      gl->close ();                                                                                 // Closing gl...
     }
 
-    std::cout << std::endl;                                                                         // Printing message...
+    cl->get_toc ();                                                                                 // Getting "toc" [us]...
   }
 
-  std::cout << std::endl;                                                                           // Printing message...
-  std::cout << "#################################" << std::endl;                                    // Printing message...
-  std::cout << "############ ELEMENTS ###########" << std::endl;                                    // Printing message...
-  std::cout << "#################################" << std::endl;                                    // Printing message...
-
-  for(gid = 0; gid < elements; gid++)
-  {
-    std::cout << "Element " << gid << ": has nodes = ";                                             // Printing message...
-
-    for(int i = 0; i < object->element[gid].node.size (); i++)
-    {
-      std::cout << object->element[gid].node[i] << " ";                                             // Printing message...
-    }
-
-    std::cout << std::endl;                                                                         // Printing message...
-  }
-
-  std::cout << std::endl;                                                                           // Printing message...
-
-  for(gid = 0; gid < nodes; gid++)
-  {
-    node->data[gid].x  = object->node[gid].x;                                                       // Setting "x" node coordinate...
-    node->data[gid].y  = object->node[gid].y;                                                       // Setting "y" node coordinate...
-    node->data[gid].z  = object->node[gid].z;                                                       // Setting "z" node coordinate...
-    node->data[gid].w  = object->node[gid].w;                                                       // Setting "w" node coordinate...
-
-    color->data[gid].x = 0.01f*(rand () % 100);                                                     // Setting "r" color coordinate...
-    color->data[gid].y = 0.01f*(rand () % 100);                                                     // Setting "g" color coordinate...
-    color->data[gid].z = 0.01f*(rand () % 100);                                                     // Setting "b" color coordinate...
-    color->data[gid].w = 1.0f;                                                                      // Setting "a" color coordinate...
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////// NEUTRINO INITIALIZATION /////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  bas->init (QUEUE_NUM, KERNEL_NUM);                                                                // Initializing Neutrino baseline...
-  gui->init                                                                                         // Initializing Neutrino GUI...
-  (
-   bas,                                                                                             // Neutrino baseline.
-   GUI_SIZE_X,                                                                                      // GUI x-size [px].
-   GUI_SIZE_Y,                                                                                      // GUI y-size [px.]
-   GUI_NAME,                                                                                        // GUI name.
-   orbit_x_init,                                                                                    // Initial x-orbit.
-   orbit_y_init,                                                                                    // Initial y-orbit.
-   pan_x_init,                                                                                      // Initial x-pan.
-   pan_y_init,                                                                                      // Initial y-pan.
-   pan_z_init                                                                                       // Initial z-pan.
-  );
-  ctx->init (bas, gui, NU_GPU);                                                                     // Initializing OpenCL context...
-  S->init (bas, SHADER_HOME, SHADER_VERT, SHADER_GEOM, SHADER_FRAG);                                // Initializing OpenGL shader...
-  Q->init (bas);                                                                                    // Initializing OpenCL queue...
-
-  kernel_sx   = nodes;                                                                              // Kernel dimension "x" [#].
-  kernel_sy   = 0;                                                                                  // Kernel dimension "y" [#].
-  kernel_sz   = 0;                                                                                  // Kernel dimension "z" [#].
-
-  kernel_home = KERNEL_HOME;                                                                        // Setting kernel home directory...
-  kernel_file.push_back ("mesh_kernel.cl");                                                         // Setting 1st source file...
-  K1->init (bas, kernel_home, kernel_file, kernel_sx, kernel_sy, kernel_sz);                        // Initializing OpenCL kernel K1...
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////// SETTING OPENCL KERNEL ARGUMENTS /////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  K1->setarg (color, 0);                                                                            // Setting color kernel argument...
-  K1->setarg (node, 1);                                                                             // Setting position kernel argument...
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////// WRITING DATA ON OPENCL QUEUE //////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  Q->write (color, 0);                                                                              // Writing color data on queue...
-  Q->write (node, 1);                                                                               // Writing position data on queue...
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////// SETTING OPENGL SHADER ARGUMENTS ////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  S->setarg (color, 0);                                                                             // Setting shader argument "0"...
-  S->setarg (node, 1);                                                                              // Setting shader argument "1"...
-  S->build ();                                                                                      // Building shader program...
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////// APPLICATION LOOP ////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  while(!gui->closed ())                                                                            // Opening window...
-  {
-    bas->get_tic ();                                                                                // Getting "tic" [us]...
-
-    gui->clear ();                                                                                  // Clearing gui...
-    gui->poll_events ();                                                                            // Polling gui events...
-
-    Q->acquire (color, 0);                                                                          // Acquiring OpenGL/CL shared argument...
-    Q->acquire (node, 1);                                                                           // Acquiring OpenGL/CL shared argument...
-    ctx->execute (K1, Q, NU_WAIT);                                                                  // Executing OpenCL kernel...
-    Q->release (color, 0);                                                                          // Releasing OpenGL/CL shared argument...
-    Q->release (node, 1);                                                                           // Releasing OpenGL/CL shared argument...
-
-    gui->mouse_navigation (
-                           mouse_orbit_rate,                                                        // Orbit angular rate coefficient [rev/s].
-                           mouse_pan_rate,                                                          // Pan translation rate [m/s].
-                           mouse_decaytime                                                          // Orbit low pass decay time [s].
-                          );
-
-    gui->gamepad_navigation (
-                             gamepad_orbit_rate,                                                    // Orbit angular rate coefficient [rev/s].
-                             gamepad_pan_rate,                                                      // Pan translation rate [m/s].
-                             gamepad_decaytime,                                                     // Low pass filter decay time [s].
-                             gamepad_deadzone                                                       // Gamepad joystick deadzone [0...1].
-                            );
-
-    if(gui->button_CROSS)
-    {
-      gui->close ();                                                                                // Closing gui...
-    }
-
-    gui->plot (S);                                                                                  // Plotting shared arguments...
-    gui->refresh ();                                                                                // Refreshing gui...
-    bas->get_toc ();                                                                                // Getting "toc" [us]...
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  /////////////////////////////////////////////// CLEANUP ////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  delete bas;                                                                                       // Deleting Neutrino baseline...
-  delete gui;                                                                                       // Deleting OpenGL gui...
-  delete ctx;                                                                                       // Deleting OpenCL context...
-
-  delete object;                                                                                    // Deleting object data...
-  delete color;                                                                                     // Deleting depth data...
-  delete node;                                                                                      // Deleting position data...
-
-  delete Q;                                                                                         // Deleting OpenCL queue...
-  delete K1;                                                                                        // Deleting OpenCL kernel...
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////// CLEANUP /////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  delete cl;                                                                                        // Deleting OpenCL context...
+  delete color;                                                                                     // Deleting color data...
+  delete position;                                                                                  // Deleting position data...
+  delete central;                                                                                   // Deleting centrals...
+  delete neighbour;                                                                                 // Deleting neighbours...
+  delete offset;                                                                                    // Deleting offset...
+  delete K;                                                                                         // Deleting OpenCL kernel...
 
   return 0;
 }
