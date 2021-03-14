@@ -1,13 +1,11 @@
 /// @file
 
-__kernel void thekernel(__global float4*    color,                                                 // Color [#].
-                        __global float4*    position                                               // Position [m].
+__kernel void thekernel(__global float4*    color,                                                  // Color [#].
+                        __global float4*    position,                                               // Position [m].
+                        __global int*       central,                                                // Node.
+                        __global int*       nearest,                                                // Neighbour.
+                        __global int*       offset                                                  // Offset.
                         )
 {
-        unsigned long gid = get_global_id(0);                                                       // Global index [#].
-        float4 C = color[gid];                                                                      // Getting color coordinates [#]...
-        float4 P = position[gid];                                                                   // Getting point coordinates [m]...
-        
-        color[gid] = C;                                                                             // Updating color...
-        position[gid] = P;                                                                          // Updating position [m]...
+  // Doing nothing!
 }
