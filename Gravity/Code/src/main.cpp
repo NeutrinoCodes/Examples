@@ -53,7 +53,7 @@ int main ()
   float              gmp_orbit_rate = 1.0f;                                                         // Orbit angular rate coefficient [rev/s].
   float              gmp_pan_rate   = 1.0f;                                                         // Pan translation rate [m/s].
   float              gmp_decaytime  = 1.25f;                                                        // Low pass filter decay time [s].
-  float              gmp_deadzone   = 0.1f;                                                         // Gamepad joystick deadzone [0...1].
+  float              gmp_deadzone   = 0.3f;                                                         // Gamepad joystick deadzone [0...1].
 
   // OPENGL:
   nu::opengl*        gl             = new nu::opengl (NAME, SX, SY, ORBX, ORBY, PANX, PANY, PANZ);  // OpenGL context.
