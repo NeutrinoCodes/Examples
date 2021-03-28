@@ -7,21 +7,15 @@
 #define SX            800                                                                           // Window x-size [px].
 #define SY            600                                                                           // Window y-size [px].
 #define NAME          "Neutrino - Gravity"                                                          // Window name.
-#define ORB_X         0.0f                                                                          // x-axis orbit initial rotation.
-#define ORB_Y         0.0f                                                                          // y-axis orbit initial rotation.
-#define PAN_X         0.0f                                                                          // x-axis pan initial translation.
-#define PAN_Y         0.0f                                                                          // y-axis pan initial translation.
-#define PAN_Z         -2.0f                                                                         // z-axis pan initial translation.
+#define ORBX          0.0f                                                                          // x-axis orbit initial rotation.
+#define ORBY          0.0f                                                                          // y-axis orbit initial rotation.
+#define PANX          0.0f                                                                          // x-axis pan initial translation.
+#define PANY          0.0f                                                                          // y-axis pan initial translation.
+#define PANZ          -2.0f                                                                         // z-axis pan initial translation.
 
 #ifdef __linux__
   #define SHADER_HOME "../Gravity/Code/shader/"                                                     // Linux OpenGL shaders directory.
   #define KERNEL_HOME "../Gravity/Code/kernel/"                                                     // Linux OpenCL kernels directory.
-  #define GMSH_HOME   "../Gravity/Code/mesh/"                                                       // Linux GMSH mesh directory.
-#endif
-
-#ifdef __APPLE__
-  #define SHADER_HOME "../Gravity/Code/shader/"                                                     // Mac OpenGL shaders directory.
-  #define KERNEL_HOME "../Gravity/Code/kernel/"                                                     // Mac OpenCL kernels directory.
   #define GMSH_HOME   "../Gravity/Code/mesh/"                                                       // Linux GMSH mesh directory.
 #endif
 
@@ -37,7 +31,7 @@
 #define KERNEL_1      "thekernel1.cl"                                                               // OpenCL kernel source.
 #define KERNEL_2      "thekernel2.cl"                                                               // OpenCL kernel source.
 #define UTILITIES     "utilities.cl"                                                                // OpenCL kernel source.
-#define GMSH_MESH     "gravity.msh"                                                                 // GMSH mesh.
+#define MESH          "gravity.msh"                                                                 // GMSH mesh.
 
 // INCLUDES:
 #include "nu.hpp"                                                                                   // Neutrino header file.
@@ -61,33 +55,33 @@ int main ()
   float              gmp_decaytime  = 1.25f;                                                        // Low pass filter decay time [s].
   float              gmp_deadzone   = 0.1f;                                                         // Gamepad joystick deadzone [0...1].
 
-  // NEUTRINO:
-  opengl*            gl             = new opengl (NAME, SX, SY, ORB_X, ORB_Y, PAN_X, PAN_Y, PAN_Z); // OpenGL context.
-  opencl*            cl             = new opencl (NU_GPU);                                          // OpenCL context.
-  shader*            S              = new shader ();                                                // OpenGL shader program.
-  kernel*            K1             = new kernel ();                                                // OpenCL kernel array.
-  kernel*            K2             = new kernel ();                                                // OpenCL kernel array.
+  // OPENGL:
+  nu::opengl*        gl             = new nu::opengl (NAME, SX, SY, ORBX, ORBY, PANX, PANY, PANZ);  // OpenGL context.
+  nu::shader*        S              = new nu::shader ();                                            // OpenGL shader program.
 
-  // KERNEL VARIABLES:
-  nu_float4*         color          = new nu_float4 (0);                                            // Color [].
-  nu_float4*         position       = new nu_float4 (1);                                            // Position [m].
-  nu_float4*         velocity       = new nu_float4 (2);                                            // Velocity [m/s].
-  nu_float4*         acceleration   = new nu_float4 (3);                                            // Acceleration [m/s^2].
-  nu_float4*         position_int   = new nu_float4 (4);                                            // Position (intermediate) [m].
-  nu_float4*         velocity_int   = new nu_float4 (5);                                            // Velocity (intermediate) [m/s].
-  nu_float*          radius         = new nu_float (6);                                             // Nucleus radius [m].
-  nu_float*          stiffness      = new nu_float (7);                                             // Stiffness.
-  nu_float*          resting        = new nu_float (8);                                             // Resting.
-  nu_float*          friction       = new nu_float (9);                                             // Friction.
-  nu_float*          mass           = new nu_float (10);                                            // Mass.
-  nu_int*            central        = new nu_int (11);                                              // Central nodes.
-  nu_int*            neighbour      = new nu_int (12);                                              // Neighbour.
-  nu_int*            offset         = new nu_int (13);                                              // Offset.
-  nu_int*            freedom        = new nu_int (14);                                              // Freedom.
-  nu_float*          dt             = new nu_float (15);                                            // Time step [s].
+  // OPENCL::
+  nu::opencl*        cl             = new nu::opencl (NU_GPU);                                      // OpenCL context.
+  nu::kernel*        K1             = new nu::kernel ();                                            // OpenCL kernel array.
+  nu::kernel*        K2             = new nu::kernel ();                                            // OpenCL kernel array.
+  nu::float4*        color          = new nu::float4 (0);                                           // Color [].
+  nu::float4*        position       = new nu::float4 (1);                                           // Position [m].
+  nu::float4*        velocity       = new nu::float4 (2);                                           // Velocity [m/s].
+  nu::float4*        acceleration   = new nu::float4 (3);                                           // Acceleration [m/s^2].
+  nu::float4*        position_int   = new nu::float4 (4);                                           // Position (intermediate) [m].
+  nu::float4*        velocity_int   = new nu::float4 (5);                                           // Velocity (intermediate) [m/s].
+  nu::float1*        radius         = new nu::float1 (6);                                           // Nucleus radius [m].
+  nu::float1*        stiffness      = new nu::float1 (7);                                           // Stiffness.
+  nu::float1*        resting        = new nu::float1 (8);                                           // Resting.
+  nu::float1*        friction       = new nu::float1 (9);                                           // Friction.
+  nu::float1*        mass           = new nu::float1 (10);                                          // Mass.
+  nu::int1*          central        = new nu::int1 (11);                                            // Central nodes.
+  nu::int1*          neighbour      = new nu::int1 (12);                                            // Neighbour.
+  nu::int1*          offset         = new nu::int1 (13);                                            // Offset.
+  nu::int1*          freedom        = new nu::int1 (14);                                            // Freedom.
+  nu::float1*        dt             = new nu::float1 (15);                                          // Time step [s].
 
   // MESH:
-  mesh*              gravity        = new mesh (std::string (GMSH_HOME) + std::string (GMSH_MESH)); // Mesh cloth.
+  nu::mesh*          gravity        = new nu::mesh (std::string (GMSH_HOME) + std::string (MESH));  // Mesh cloth.
   size_t             nodes;                                                                         // Number of nodes.
   size_t             elements;                                                                      // Number of elements.
   size_t             groups;                                                                        // Number of groups.
@@ -144,7 +138,7 @@ int main ()
   std::cout << "links = " << gravity->neighbour_link.size () << std::endl;
 
   dt_critical     = sqrt (m/K);                                                                     // Critical time step [s].
-  dt_simulation   = 0.2f*dt_critical;                                                               // Simulation time step [s].
+  dt_simulation   = 0.02f*dt_critical;                                                              // Simulation time step [s].
 
   // SETTING NEUTRINO ARRAYS (parameters):
   friction->data.push_back (B);                                                                     // Setting friction...
