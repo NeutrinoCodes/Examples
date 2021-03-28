@@ -39,6 +39,7 @@
 #define SHADER_FRAG   "voxel_fragment.frag"                                                         // OpenGL fragment shader.
 #define KERNEL_1      "thekernel_1.cl"                                                              // OpenCL kernel source.
 #define KERNEL_2      "thekernel_2.cl"                                                              // OpenCL kernel source.
+#define UTILITIES     "utilities.cl"                                                                // OpenCL utilities source.
 #define MESH          "Square_quadrangles.msh"                                                      // GMSH mesh.
 
 // INCLUDES:
@@ -191,7 +192,7 @@ int main ()
 
       if(resting->data[j] > (DS + EPSILON))
       {
-        color->data.push_back ({1.0f, 0.0f, 0.0f, 0.5f});                                           // Setting link color...
+        color->data.push_back ({1.0f, 0.0f, 0.0f, 0.1f});                                           // Setting link color...
       }
       else
       {
@@ -216,9 +217,10 @@ int main ()
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////// OPENCL KERNELS INITIALIZATION //////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////
+  K1->addsource (std::string (KERNEL_HOME) + std::string (UTILITIES));                              // Setting kernel source file...
   K1->addsource (std::string (KERNEL_HOME) + std::string (KERNEL_1));                               // Setting kernel source file...
   K1->build (nodes, 0, 0);                                                                          // Building kernel program...
-
+  K2->addsource (std::string (KERNEL_HOME) + std::string (UTILITIES));                              // Setting kernel source file...
   K2->addsource (std::string (KERNEL_HOME) + std::string (KERNEL_2));                               // Setting kernel source file...
   K2->build (nodes, 0, 0);                                                                          // Building kernel program...
 
