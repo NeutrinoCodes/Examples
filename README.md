@@ -8,7 +8,7 @@
 
 [www.neutrino.codes](https://www.neutrino.codes)
 
-© Alessandro LUCANTONIO, Erik ZORZIN - 2018-2020
+© Alessandro LUCANTONIO, Erik ZORZIN - 2018-2021
 
 # Overview
 **PLEASE NOTICE THIS INSTALLATION PROCEDURE IS BASED ON THE INSTALLATION OF THE NEUTRINO LIBRARY PRIOR TO IT, HENCE IT SHARES THE SAME HARDWARE AND SOFTWARE REQUIREMENTS. PLEASE CHECK THAT INSTALLATION BY READING THE `README.md` FILE IN THE "NEUTRINO" REPOSITORY: https://github.com/NeutrinoCodes/Neutrino.**
@@ -66,55 +66,6 @@ At this point the NeutrinoCodes directory should appear like this:
 
 Congratulations, you have installed the Neutrino examples on Linux!
 
-# Mac
-
-## Installation:
-The recommended method is by using the VScode toolchain described in the Neutrino repository. We assume Neutrino is going to be installed in a directory named *NeutrinoCodes* containing the following subdirectories according to the already done installation of Neutrino:
-- glad
-- glfw
-- gmsh
-- libnu
-- neutrino
-
-1. From the command shell (either VScode's or system's), navigate into *NeutrinoCodes* and clone the Neutrino project using the command:\
-`git clone https://github.com/NeutrinoCodes/examples.git` \
-\
-This will create the `examples` directory.
-
-2. Go to the `examples` directory and create a `.vscode` hidden directory:\
-`mkdir .vscode`\
-\
-and create a new file `settings.json` in it, then fill it with the following information:\
-`{`\
-&nbsp;&nbsp;`"C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools",`\
-&nbsp;&nbsp;`"cmake.configureArgs" : [   `\
-&nbsp;&nbsp;&nbsp;&nbsp;`"-DGLAD_PATH=your_path_to_NeutrinoCodes/glad,`\
-&nbsp;&nbsp;&nbsp;&nbsp;`"-DGLFW_PATH=your_path_to_NeutrinoCodes/glfw",`\
-&nbsp;&nbsp;&nbsp;&nbsp;`"-DGMSH_PATH=your_path_to_NeutrinoCodes/gmsh",`\
-&nbsp;&nbsp;&nbsp;&nbsp;`"-DNEUTRINO_PATH=your_path_to_NeutrinoCodes/libnu"`\
-&nbsp;&nbsp;`]`\
-`}`\
-\
-and save it.\
-\
-At this point, Neutrino is configured for your system. 
-
-3. In VScode, go to the left bar and locate the **CMake** button (it comes after the installation of the CMake Tools extension for VScode) and push it: a CMake panel will open, push the **Configure All Projects** button on it.
-
-4. In VScode, go to the bottom bar and locate the **Target** button: verify it has been selected to **[ALL_BUILD]** or select an individual example you want to build (e.g. [sinusoid]).
-
-5. In VScode, go to the bottom bar and locate the **Build** button: push it in order to build the examples you selected.\
-\
-At this point the NeutrinoCodes directory should appear like this:
-- glad
-- glfw
-- gmsh
-- libnu
-- neutrino
-- examples
-
-Congratulations, you have installed the Neutrino examples on Mac!
-
 # Windows
 
 ## Installation:
@@ -147,7 +98,7 @@ and create a new file `settings.json` in it, then fill it with the following inf
 \
 and save it.\
 \
-Notice all paths **must** be specificed with *double backslashes*, in order to correctly manage the possibility of space characters in the them.
+Notice all paths **must** be specificed with *double backslashes*, in order to correctly manage the possibility of space characters in the middle of them.
 Also notice that `your_path_to_OpenCL` might be something like this (it depends on your GPU's graphics drivers):\
 `C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v10.1`\
 \
@@ -181,11 +132,6 @@ According to your operating system, add the following lines to either the *globa
 `"editor.defaultFormatter": "LaurentTreguier.uncrustify",`\
 `"editor.formatOnSave": true`
 
-### Mac:
-`"uncrustify.executablePath.osx": "your_path_to_uncrustify",`\
-`"editor.defaultFormatter": "LaurentTreguier.uncrustify",`\
-`"editor.formatOnSave": true`
-
 ### Windows:
 `"uncrustify.executablePath.windows": "your_path_to_uncrustify.exe",`\
 `"editor.defaultFormatter": "LaurentTreguier.uncrustify",`\
@@ -195,4 +141,4 @@ To edit the *global* settings, on VScode go to the left bar: push the **Extensio
 
 To edit the *project* settings, open `settings.json` file in the `.vscode` you created for the Neutrino examples (the hidden directory inside the `examples` directory, see *Installation* on the Neutrino library instructions) and put the same lines in it. This will set Uncrustify as code formatter (together with the configuration file we provide) only for the Neutrino project.
 
-© Alessandro LUCANTONIO, Erik ZORZIN - 2018-2020
+© Alessandro LUCANTONIO, Erik ZORZIN - 2018-2021

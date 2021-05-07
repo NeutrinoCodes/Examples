@@ -4,7 +4,7 @@ _A fast and light library for GPU-based computation and interactive data visuali
 
 [www.neutrino.codes](http://www.neutrino.codes)
 
-© Alessandro LUCANTONIO, Erik ZORZIN - 2018-2020
+© Alessandro LUCANTONIO, Erik ZORZIN - 2018-2021
 
 ## Sinusoid example
 
@@ -46,4 +46,4 @@ README.md file in the "Examples" root directory.**
 **Once compiled, the executable can be found in the `Examples/build` directory.
 The `build` directory is not repositored, it will be created locally along the build process.**
 
-© Alessandro LUCANTONIO, Erik ZORZIN - 2018-2020
+© Alessandro LUCANTONIO, Erik ZORZIN - 2018-2021
