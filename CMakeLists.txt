@@ -126,7 +126,7 @@ if(UNIX AND NOT APPLE)                                                          
     "-ldl"                                                                                          # "libdl" library.
     "-lglfw"                                                                                        # GLFW library.
     "-lm"                                                                                           # "math" library.
-    "-lgmsh"                                                                                        # GMSH library.
+    ${GMSH_PATH}/lib/libgmsh.so                                                                     # GMSH library.
     ${NEUTRINO_PATH}/lib/libnu.a)                                                                   # "neutrino" library.
 endif(UNIX AND NOT APPLE)
 
@@ -160,7 +160,7 @@ if(WIN32)                                                                       
     ${TARGET_2}                                                                                     # Target name.
     ${CL_PATH}/lib/x64/OpenCL.lib                                                                   # OpenCL library.
     ${GLFW_PATH}/lib-vc2019/glfw3.lib                                                               # GLFW library.
-    ${GMSH_PATH}/lib/gmsh.lib
+    ${GMSH_PATH}/lib/gmsh.lib                                                                       # GMSH library.
     ${NEUTRINO_PATH}/lib/nu.lib)                                                                    # "neutrino" library.
 endif(WIN32)
 
@@ -203,7 +203,7 @@ if(UNIX AND NOT APPLE)                                                          
     "-ldl"                                                                                          # "libdl" library.
     "-lglfw"                                                                                        # GLFW library.
     "-lm"                                                                                           # "math" library.
-    "-lgmsh"                                                                                        # GMSH library.
+    ${GMSH_PATH}/lib/libgmsh.so                                                                     # GMSH library.
     ${NEUTRINO_PATH}/lib/libnu.a)                                                                   # "neutrino" library.
 endif(UNIX AND NOT APPLE)
 
@@ -280,7 +280,7 @@ if(UNIX AND NOT APPLE)                                                          
     "-ldl"                                                                                          # "libdl" library.
     "-lglfw"                                                                                        # GLFW library.
     "-lm"                                                                                           # "math" library.
-    "-lgmsh"                                                                                        # GMSH library.
+    ${GMSH_PATH}/lib/libgmsh.so                                                                     # GMSH library.
     ${NEUTRINO_PATH}/lib/libnu.a)                                                                   # "neutrino" library.
 endif(UNIX AND NOT APPLE)
 
