@@ -126,8 +126,8 @@ if(UNIX AND NOT APPLE)                                                          
     "-ldl"                                                                                          # "libdl" library.
     "-lglfw"                                                                                        # GLFW library.
     "-lm"                                                                                           # "math" library.
-    ${GMSH_PATH}/lib/libgmsh.so                                                                     # GMSH library.
-    ${NEUTRINO_PATH}/lib/libnu.a)                                                                   # "neutrino" library.
+    "${GMSH_PATH}/lib/libgmsh.so"                                                                   # GMSH library.
+    "${NEUTRINO_PATH}/lib/libnu.a")                                                                 # "neutrino" library.
 endif(UNIX AND NOT APPLE)
 
 if(WIN32)                                                                                           # Detecting WINDOWS...
