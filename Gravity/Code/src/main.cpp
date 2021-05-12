@@ -14,9 +14,9 @@
 #define PANZ          -2.0f                                                                         // z-axis pan initial translation.
 
 #ifdef __linux__
-  #define SHADER_HOME "../Gravity/Code/shader/"                                                     // Linux OpenGL shaders directory.
-  #define KERNEL_HOME "../Gravity/Code/kernel/"                                                     // Linux OpenCL kernels directory.
-  #define GMSH_HOME   "../Gravity/Code/mesh/"                                                       // Linux GMSH mesh directory.
+  #define SHADER_HOME "../../Gravity/Code/shader/"                                                  // Linux OpenGL shaders directory.
+  #define KERNEL_HOME "../../Gravity/Code/kernel/"                                                  // Linux OpenCL kernels directory.
+  #define GMSH_HOME   "../../Gravity/Code/mesh/"                                                    // Linux GMSH mesh directory.
 #endif
 
 #ifdef WIN32
