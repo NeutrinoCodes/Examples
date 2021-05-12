@@ -23,9 +23,9 @@
 #define CELL_VERTICES 4                                                                             // Number of vertices per elementary cell.
 
 #ifdef __linux__
-  #define SHADER_HOME "../Cloth/Code/shader/"                                                       // Linux OpenGL shaders directory.
-  #define KERNEL_HOME "../Cloth/Code/kernel/"                                                       // Linux OpenCL kernels directory.
-  #define GMSH_HOME   "../Cloth/Code/mesh/"                                                         // Linux GMSH mesh directory.
+  #define SHADER_HOME "../../Cloth/Code/shader/"                                                    // Linux OpenGL shaders directory.
+  #define KERNEL_HOME "../../Cloth/Code/kernel/"                                                    // Linux OpenCL kernels directory.
+  #define GMSH_HOME   "../../Cloth/Code/mesh/"                                                      // Linux GMSH mesh directory.
 #endif
 
 #ifdef WIN32
