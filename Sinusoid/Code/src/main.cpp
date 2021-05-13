@@ -14,8 +14,8 @@
 #define PANZ          -2.0f                                                                         // z-axis pan initial translation.
 
 #ifdef __linux__
-  #define SHADER_HOME "../Sinusoid/Code/shader/"                                                    // Linux OpenGL shaders directory.
-  #define KERNEL_HOME "../Sinusoid/Code/kernel/"                                                    // Linux OpenCL kernels directory.
+  #define SHADER_HOME "../../Sinusoid/Code/shader/"                                                 // Linux OpenGL shaders directory.
+  #define KERNEL_HOME "../../Sinusoid/Code/kernel/"                                                 // Linux OpenCL kernels directory.
 #endif
 
 #ifdef WIN32
