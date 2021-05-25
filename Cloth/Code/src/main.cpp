@@ -48,79 +48,101 @@
 int main ()
 {
   // INDICES:
-  size_t              i;                                                                            // Index [#].
-  size_t              j;                                                                            // Index [#].
-  size_t              j_min;                                                                        // Index [#].
-  size_t              j_max;                                                                        // Index [#].
+  size_t                           i;                                                               // Index [#].
+  size_t                           j;                                                               // Index [#].
+  size_t                           j_min;                                                           // Index [#].
+  size_t                           j_max;                                                           // Index [#].
 
   // MOUSE PARAMETERS:
-  float               ms_orbit_rate  = 1.0f;                                                        // Orbit rotation rate [rev/s].
-  float               ms_pan_rate    = 5.0f;                                                        // Pan translation rate [m/s].
-  float               ms_decaytime   = 1.25f;                                                       // Pan LP filter decay time [s].
+  float                            ms_orbit_rate  = 1.0f;                                           // Orbit rotation rate [rev/s].
+  float                            ms_pan_rate    = 5.0f;                                           // Pan translation rate [m/s].
+  float                            ms_decaytime   = 1.25f;                                          // Pan LP filter decay time [s].
 
   // GAMEPAD PARAMETERS:
-  float               gmp_orbit_rate = 1.0f;                                                        // Orbit angular rate coefficient [rev/s].
-  float               gmp_pan_rate   = 1.0f;                                                        // Pan translation rate [m/s].
-  float               gmp_decaytime  = 1.25f;                                                       // Low pass filter decay time [s].
-  float               gmp_deadzone   = 0.30f;                                                       // Gamepad joystick deadzone [0...1].
+  float                            gmp_orbit_rate = 1.0f;                                           // Orbit angular rate coefficient [rev/s].
+  float                            gmp_pan_rate   = 1.0f;                                           // Pan translation rate [m/s].
+  float                            gmp_decaytime  = 1.25f;                                          // Low pass filter decay time [s].
+  float                            gmp_deadzone   = 0.30f;                                          // Gamepad joystick deadzone [0...1].
 
   // OPENGL:
-  nu::opengl*         gl             = new nu::opengl (NAME, SX, SY, ORBX, ORBY, PANX, PANY, PANZ); // OpenGL context.
-  nu::shader*         S              = new nu::shader ();                                           // OpenGL shader program.
+  nu::opengl*                      gl             = new nu::opengl (
+                                                                    NAME,
+                                                                    SX,
+                                                                    SY,
+                                                                    ORBX,
+                                                                    ORBY,
+                                                                    PANX,
+                                                                    PANY,
+                                                                    PANZ
+                                                                   );                               // OpenGL context.
+  nu::shader*                      S              = new nu::shader ();                              // OpenGL shader program.
 
   // OPENCL:
-  nu::opencl*         cl             = new nu::opencl (NU_GPU);                                     // OpenCL context.
-  nu::kernel*         K1             = new nu::kernel ();                                           // OpenCL kernel array.
-  nu::kernel*         K2             = new nu::kernel ();                                           // OpenCL kernel array.
-  nu::float4*         color          = new nu::float4 (0);                                          // Color [].
-  nu::float4*         position       = new nu::float4 (1);                                          // Position [m].
-  nu::float4*         velocity       = new nu::float4 (2);                                          // Velocity [m/s].
-  nu::float4*         acceleration   = new nu::float4 (3);                                          // Acceleration [m/s^2].
-  nu::float4*         position_int   = new nu::float4 (4);                                          // Position (intermediate) [m].
-  nu::float4*         velocity_int   = new nu::float4 (5);                                          // Velocity (intermediate) [m/s].
-  nu::float4*         gravity        = new nu::float4 (6);                                          // Gravity [m/s^2].
-  nu::float1*         stiffness      = new nu::float1 (7);                                          // Stiffness.
-  nu::float1*         resting        = new nu::float1 (8);                                          // Resting.
-  nu::float1*         friction       = new nu::float1 (9);                                          // Friction.
-  nu::float1*         mass           = new nu::float1 (10);                                         // Mass [kg].
-  nu::int1*           central        = new nu::int1 (11);                                           // Central nodes.
-  nu::int1*           neighbour      = new nu::int1 (12);                                           // Neighbour.
-  nu::int1*           offset         = new nu::int1 (13);                                           // Offset.
-  nu::int1*           freedom        = new nu::int1 (14);                                           // Freedom.
-  nu::float1*         dt             = new nu::float1 (15);                                         // Time step [s].
+  nu::opencl*                      cl             = new nu::opencl (NU_GPU);                        // OpenCL context.
+  nu::kernel*                      K1             = new nu::kernel ();                              // OpenCL kernel array.
+  nu::kernel*                      K2             = new nu::kernel ();                              // OpenCL kernel array.
+  nu::float4*                      color          = new nu::float4 (0);                             // Color [].
+  nu::float4*                      position       = new nu::float4 (1);                             // Position [m].
+  nu::float4*                      velocity       = new nu::float4 (2);                             // Velocity [m/s].
+  nu::float4*                      acceleration   = new nu::float4 (3);                             // Acceleration [m/s^2].
+  nu::float4*                      position_int   = new nu::float4 (4);                             // Position (intermediate) [m].
+  nu::float4*                      velocity_int   = new nu::float4 (5);                             // Velocity (intermediate) [m/s].
+  nu::float4*                      gravity        = new nu::float4 (6);                             // Gravity [m/s^2].
+  nu::float1*                      stiffness      = new nu::float1 (7);                             // Stiffness.
+  nu::float1*                      resting        = new nu::float1 (8);                             // Resting.
+  nu::float1*                      friction       = new nu::float1 (9);                             // Friction.
+  nu::float1*                      mass           = new nu::float1 (10);                            // Mass [kg].
+  nu::int1*                        central        = new nu::int1 (11);                              // Central nodes.
+  nu::int1*                        neighbour      = new nu::int1 (12);                              // Neighbour.
+  nu::int1*                        offset         = new nu::int1 (13);                              // Offset.
+  nu::int1*                        freedom        = new nu::int1 (14);                              // Freedom.
+  nu::float1*                      dt             = new nu::float1 (15);                            // Time step [s].
 
   // MESH:
-  nu::mesh*           cloth          = new nu::mesh (std::string (GMSH_HOME) + std::string (MESH)); // Mesh cloth.
-  size_t              nodes;                                                                        // Number of nodes.
-  size_t              elements;                                                                     // Number of elements.
-  size_t              groups;                                                                       // Number of groups.
-  size_t              neighbours;                                                                   // Number of neighbours.
-  std::vector<size_t> side_x;                                                                       // Nodes on "x" side.
-  std::vector<size_t> side_y;                                                                       // Nodes on "y" side.
-  std::vector<GLint>  border;                                                                       // Nodes on border.
-  size_t              side_x_nodes;                                                                 // Number of nodes in "x" direction [#].
-  size_t              side_y_nodes;                                                                 // Number of nodes in "x" direction [#].
-  size_t              border_nodes;                                                                 // Number of border nodes.
-  float               x_min = -1.0f;                                                                // "x_min" spatial boundary [m].
-  float               x_max = +1.0f;                                                                // "x_max" spatial boundary [m].
-  float               y_min = -1.0f;                                                                // "y_min" spatial boundary [m].
-  float               y_max = +1.0f;                                                                // "y_max" spatial boundary [m].
-  float               dx;                                                                           // x-axis mesh spatial size [m].
-  float               dy;                                                                           // y-axis mesh spatial size [m].
+  nu::mesh*                        cloth          = new nu::mesh (
+                                                                  std::string (
+                                                                               GMSH_HOME
+                                                                              ) + std::string (
+                                                                                               MESH
+                                                                                              )
+                                                                 );                                 // Mesh cloth.
+  size_t                           nodes;                                                           // Number of nodes.
+  size_t                           elements;                                                        // Number of elements.
+  size_t                           groups;                                                          // Number of groups.
+  size_t                           neighbours;                                                      // Number of neighbours.
+  std::vector<size_t>              side_x;                                                          // Nodes on "x" side.
+  std::vector<size_t>              side_y;                                                          // Nodes on "y" side.
+  std::vector<GLint>               border;                                                          // Nodes on border.
+  size_t                           side_x_nodes;                                                    // Number of nodes in "x" direction [#].
+  size_t                           side_y_nodes;                                                    // Number of nodes in "x" direction [#].
+  size_t                           border_nodes;                                                    // Number of border nodes.
+  float                            x_min = -1.0f;                                                   // "x_min" spatial boundary [m].
+  float                            x_max = +1.0f;                                                   // "x_max" spatial boundary [m].
+  float                            y_min = -1.0f;                                                   // "y_min" spatial boundary [m].
+  float                            y_max = +1.0f;                                                   // "y_max" spatial boundary [m].
+  float                            dx;                                                              // x-axis mesh spatial size [m].
+  float                            dy;                                                              // y-axis mesh spatial size [m].
 
   // SIMULATION PARAMETERS:
-  float               h     = 0.01f;                                                                // Cloth's thickness [m].
-  float               rho   = 1000.0f;                                                              // Cloth's mass density [kg/m^3].
-  float               E     = 10000.0f;                                                             // Cloth's Young modulus [kg/(m*s^2)].
-  float               mu    = 1000.0f;                                                              // Cloth's viscosity [Pa*s].
-  float               g     = 9.81f;                                                                // External gravity field [m/s^2].
+  float                            h     = 0.01f;                                                   // Cloth's thickness [m].
+  float                            rho   = 1000.0f;                                                 // Cloth's mass density [kg/m^3].
+  float                            E     = 10000.0f;                                                // Cloth's Young modulus [kg/(m*s^2)].
+  float                            mu    = 1000.0f;                                                 // Cloth's viscosity [Pa*s].
+  float                            g     = 9.81f;                                                   // External gravity field [m/s^2].
 
   // SIMULATION VARIABLES:
-  float               m;                                                                            // Cloth's mass [kg].
-  float               K;                                                                            // Cloth's elastic constant [kg/s^2].
-  float               B;                                                                            // Cloth's damping [kg*s*m].
-  float               dt_critical;                                                                  // Critical time step [s].
-  float               dt_simulation;                                                                // Simulation time step [s].
+  float                            m;                                                               // Cloth's mass [kg].
+  float                            K;                                                               // Cloth's elastic constant [kg/s^2].
+  float                            B;                                                               // Cloth's damping [kg*s*m].
+  float                            dt_critical;                                                     // Critical time step [s].
+  float                            dt_simulation;                                                   // Simulation time step [s].
+
+  // BACKUP:
+  std::vector<nu_float4_structure> initial_position;                                                // Backing up initial data...
+  std::vector<nu_float4_structure> initial_position_int;                                            // Backing up initial data...
+  std::vector<nu_float4_structure> initial_velocity;                                                // Backing up initial data...
+  std::vector<nu_float4_structure> initial_velocity_int;                                            // Backing up initial data...
+  std::vector<nu_float4_structure> initial_acceleration;                                            // Backing up initial data...
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////// DATA INITIALIZATION ///////////////////////////////////////
@@ -205,14 +227,21 @@ int main ()
 
   // MESH BORDER:
   cloth->process (BORDER_TAG, BORDER_DIM, NU_MSH_PNT);                                              // Processing mesh...
-  border       = cloth->node;                                                                       // Getting nodes on border...
-  border_nodes = border.size ();                                                                    // Getting the number of nodes on border...
+  border               = cloth->node;                                                               // Getting nodes on border...
+  border_nodes         = border.size ();                                                            // Getting the number of nodes on border...
 
   // SETTING NEUTRINO ARRAYS ("border" depending):
   for(i = 0; i < border_nodes; i++)
   {
     freedom->data[border[i]] = 0;                                                                   // Resetting freedom flag...
   }
+
+  // SETTING INITIAL DATA BACKUP:
+  initial_position     = position->data;                                                            // Setting backup data...
+  initial_position_int = position_int->data;                                                        // Setting backup data...
+  initial_velocity     = velocity->data;                                                            // Setting backup data...
+  initial_velocity_int = velocity_int->data;                                                        // Setting backup data...
+  initial_acceleration = acceleration->data;                                                        // Setting backup data...
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////// OPENCL KERNELS INITIALIZATION //////////////////////////////////
@@ -260,6 +289,20 @@ int main ()
       gl->close ();                                                                                 // Closing gl...
     }
 
+    if(gl->button_TRIANGLE)
+    {
+      position->data     = initial_position;                                                        // Restoring backup...
+      position_int->data = initial_position_int;                                                    // Restoring backup...
+      velocity->data     = initial_velocity;                                                        // Restoring backup...
+      velocity_int->data = initial_velocity_int;                                                    // Restoring backup...
+      acceleration->data = initial_acceleration;                                                    // Restoring backup...
+      cl->write (1);                                                                                // Writing data...
+      cl->write (2);                                                                                // Writing data...
+      cl->write (3);                                                                                // Writing data...
+      cl->write (4);                                                                                // Writing data...
+      cl->write (5);                                                                                // Writing data...
+    }
+
     cl->get_toc ();                                                                                 // Getting "toc" [us]...
   }
 
@@ -267,6 +310,8 @@ int main ()
   /////////////////////////////////////////////// CLEANUP /////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   delete cl;                                                                                        // Deleting OpenCL context...
+  delete gl;                                                                                        // Deleting OpenGL context...
+  delete S;                                                                                         // Deleting shader...
   delete color;                                                                                     // Deleting color data...
   delete position;                                                                                  // Deleting position data...
   delete position_int;                                                                              // Deleting intermediate position data...
@@ -285,6 +330,7 @@ int main ()
   delete dt;                                                                                        // Deleting time step data...
   delete K1;                                                                                        // Deleting OpenCL kernel...
   delete K2;                                                                                        // Deleting OpenCL kernel...
+  delete cloth;                                                                                     // deleting cloth mesh...
 
   return 0;
 }
