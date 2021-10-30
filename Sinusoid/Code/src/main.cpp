@@ -7,11 +7,11 @@
 #define SX            800                                                                           // Window x-size [px].
 #define SY            600                                                                           // Window y-size [px].
 #define NAME          "Neutrino - Sinusoid"                                                         // Window name.
-#define ORBX          0.0f                                                                          // x-axis orbit initial rotation.
-#define ORBY          0.0f                                                                          // y-axis orbit initial rotation.
-#define PANX          0.0f                                                                          // x-axis pan initial translation.
-#define PANY          0.0f                                                                          // y-axis pan initial translation.
-#define PANZ          -2.0f                                                                         // z-axis pan initial translation.
+#define OX            0.0f                                                                          // x-axis orbit initial rotation.
+#define OY            0.0f                                                                          // y-axis orbit initial rotation.
+#define PX            0.0f                                                                          // x-axis pan initial translation.
+#define PY            0.0f                                                                          // y-axis pan initial translation.
+#define PZ            -2.0f                                                                         // z-axis pan initial translation.
 
 #ifdef __linux__
   #define SHADER_HOME "../../Sinusoid/Code/shader/"                                                 // Linux OpenGL shaders directory.
@@ -34,41 +34,42 @@
 int main ()
 {
   // INDICES:
-  size_t      i              = 0;                                                                   // "x" direction index.
-  size_t      j              = 0;                                                                   // "y" direction index.
+  size_t              i              = 0;                                                           // "x" direction index.
+  size_t              j              = 0;                                                           // "y" direction index.
 
   // MOUSE PARAMETERS:
-  float       ms_orbit_rate  = 1.0f;                                                                // Orbit rotation rate [rev/s].
-  float       ms_pan_rate    = 5.0f;                                                                // Pan translation rate [m/s].
-  float       ms_decaytime   = 1.25f;                                                               // Pan LP filter decay time [s].
+  float               ms_orbit_rate  = 1.0f;                                                        // Orbit rotation rate [rev/s].
+  float               ms_pan_rate    = 5.0f;                                                        // Pan translation rate [m/s].
+  float               ms_decaytime   = 1.25f;                                                       // Pan LP filter decay time [s].
 
   // GAMEPAD PARAMETERS:
-  float       gmp_orbit_rate = 1.0f;                                                                // Orbit angular rate coefficient [rev/s].
-  float       gmp_pan_rate   = 1.0f;                                                                // Pan translation rate [m/s].
-  float       gmp_decaytime  = 1.25f;                                                               // Low pass filter decay time [s].
-  float       gmp_deadzone   = 0.30f;                                                               // Gamepad joystick deadzone [0...1].
+  float               gmp_orbit_rate = 1.0f;                                                        // Orbit angular rate coefficient [rev/s].
+  float               gmp_pan_rate   = 1.0f;                                                        // Pan translation rate [m/s].
+  float               gmp_decaytime  = 1.25f;                                                       // Low pass filter decay time [s].
+  float               gmp_deadzone   = 0.30f;                                                       // Gamepad joystick deadzone [0...1].
 
   // OPENGL:
-  nu::opengl* gl             = new nu::opengl (NAME, SX, SY, ORBX, ORBY, PANX, PANY, PANZ);         // OpenGL context.
-  nu::shader* S              = new nu::shader ();                                                   // OpenGL shader program.
+  nu::opengl*         gl             = new nu::opengl (NAME, SX, SY, OX, OY, PX, PY, PZ);           // OpenGL context.
+  nu::shader*         S              = new nu::shader ();                                           // OpenGL shader program.
+  nu::projection_mode proj_mode      = nu::MONOCULAR;                                               // OpenGL projection mode.
 
   // OPENCL:
-  nu::opencl* cl             = new nu::opencl (NU_GPU);                                             // OpenCL context.
-  nu::kernel* K              = new nu::kernel ();                                                   // OpenCL kernel array.
-  nu::float4* color          = new nu::float4 (0);                                                  // Color [].
-  nu::float4* position       = new nu::float4 (1);                                                  // Position [m].
-  nu::float1* t              = new nu::float1 (2);                                                  // Time step [s].
+  nu::opencl*         cl             = new nu::opencl (nu::GPU);                                    // OpenCL context.
+  nu::kernel*         K              = new nu::kernel ();                                           // OpenCL kernel array.
+  nu::float4*         color          = new nu::float4 (0);                                          // Color [].
+  nu::float4*         position       = new nu::float4 (1);                                          // Position [m].
+  nu::float1*         t              = new nu::float1 (2);                                          // Time step [s].
 
   // SIMULATION:
-  float       x_min          = -1.0f;                                                               // "x_min" spatial boundary [m].
-  float       x_max          = +1.0f;                                                               // "x_max" spatial boundary [m].
-  float       y_min          = -1.0f;                                                               // "y_min" spatial boundary [m].
-  float       y_max          = +1.0f;                                                               // "y_max" spatial boundary [m].
-  size_t      nodes_x        = 100;                                                                 // Number of nodes in "X" direction [#].
-  size_t      nodes_y        = 100;                                                                 // Number of nodes in "Y" direction [#].
-  size_t      nodes          = nodes_x*nodes_y;                                                     // Total number of nodes [#].
-  float       dx             = (x_max - x_min)/(nodes_x - 1);                                       // x-axis mesh spatial size [m].
-  float       dy             = (y_max - y_min)/(nodes_y - 1);                                       // y-axis mesh spatial size [m].
+  float               x_min          = -1.0f;                                                       // "x_min" spatial boundary [m].
+  float               x_max          = +1.0f;                                                       // "x_max" spatial boundary [m].
+  float               y_min          = -1.0f;                                                       // "y_min" spatial boundary [m].
+  float               y_max          = +1.0f;                                                       // "y_max" spatial boundary [m].
+  size_t              nodes_x        = 100;                                                         // Number of nodes in "X" direction [#].
+  size_t              nodes_y        = 100;                                                         // Number of nodes in "Y" direction [#].
+  size_t              nodes          = nodes_x*nodes_y;                                             // Total number of nodes [#].
+  float               dx             = (x_max - x_min)/(nodes_x - 1);                               // x-axis mesh spatial size [m].
+  float               dy             = (y_max - y_min)/(nodes_y - 1);                               // y-axis mesh spatial size [m].
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
@@ -110,9 +111,9 @@ int main ()
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////// OPENGL SHADERS INITIALIZATION //////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////
-  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_VERT), NU_VERTEX);                  // Setting shader source file...
-  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_GEOM), NU_GEOMETRY);                // Setting shader source file...
-  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_FRAG), NU_FRAGMENT);                // Setting shader source file...
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_VERT), nu::VERTEX);                 // Setting shader source file...
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_GEOM), nu::GEOMETRY);               // Setting shader source file...
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_FRAG), nu::FRAGMENT);               // Setting shader source file...
   S->build (nodes);                                                                                 // Building shader program...
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,15 +128,25 @@ int main ()
   {
     cl->get_tic ();                                                                                 // Getting "tic" [us]...
     cl->acquire ();                                                                                 // Acquiring OpenCL kernel...
-    cl->execute (K, NU_WAIT);                                                                       // Executing OpenCL kernel...
+    cl->execute (K, nu::WAIT);                                                                      // Executing OpenCL kernel...
     cl->release ();                                                                                 // Releasing OpenCL kernel...
 
     gl->clear ();                                                                                   // Clearing gl...
     gl->poll_events ();                                                                             // Polling gl events...
     gl->mouse_navigation (ms_orbit_rate, ms_pan_rate, ms_decaytime);                                // Polling mouse...
     gl->gamepad_navigation (gmp_orbit_rate, gmp_pan_rate, gmp_decaytime, gmp_deadzone);             // Polling gamepad...
-    gl->plot (S);                                                                                   // Plotting shared arguments...
+    gl->plot (S, proj_mode);                                                                        // Plotting shared arguments...
     gl->refresh ();                                                                                 // Refreshing gl...
+
+    if(gl->key_1)
+    {
+      proj_mode = nu::MONOCULAR;                                                                    // Setting monocular projection...
+    }
+
+    if(gl->key_2)
+    {
+      proj_mode = nu::BINOCULAR;                                                                    // Setting binocular projection...
+    }
 
     if(gl->button_CROSS || gl->key_ESCAPE)
     {
