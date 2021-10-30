@@ -4,11 +4,11 @@
 #define SX            800                                                                           // Window x-size [px].
 #define SY            600                                                                           // Window y-size [px].
 #define NAME          "Neutrino - Mesh"                                                             // Window name.
-#define ORBX          0.0f                                                                          // x-axis orbit initial rotation.
-#define ORBY          0.0f                                                                          // y-axis orbit initial rotation.
-#define PANX          0.0f                                                                          // x-axis pan initial translation.
-#define PANY          0.0f                                                                          // y-axis pan initial translation.
-#define PANZ          -2.0f                                                                         // z-axis pan initial translation.
+#define OX            0.0f                                                                          // x-axis orbit initial rotation.
+#define OY            0.0f                                                                          // y-axis orbit initial rotation.
+#define PX            0.0f                                                                          // x-axis pan initial translation.
+#define PY            0.0f                                                                          // y-axis pan initial translation.
+#define PZ            -2.0f                                                                         // z-axis pan initial translation.
 
 #define TAG           1                                                                             // Surface tag.
 #define DIM           2                                                                             // Surface dimension.
@@ -31,7 +31,8 @@
 #define SHADER_FRAG   "voxel_fragment.frag"                                                         // OpenGL fragment shader.
 #define KERNEL        "mesh_kernel.cl"                                                              // OpenCL kernel source.
 #define UTILITIES     "utilities.cl"                                                                // OpenCL utilities source.
-#define MESH          "Utah_teapot.msh"                                                             // GMSH mesh.
+#define MESH_FILE     "Utah_teapot.msh"                                                             // GMSH mesh.
+#define MESH          GMSH_HOME MESH_FILE                                                           // GMSH mesh (full path).
 
 // INCLUDES:
 #include "nu.hpp"                                                                                   // Neutrino's header file.
@@ -39,51 +40,52 @@
 int main ()
 {
   // INDEXES:
-  size_t      i;                                                                                    // Index [#].
-  size_t      j;                                                                                    // Index [#].
-  size_t      j_min;                                                                                // Index [#].
-  size_t      j_max;                                                                                // Index [#].
+  size_t              i;                                                                            // Index [#].
+  size_t              j;                                                                            // Index [#].
+  size_t              j_min;                                                                        // Index [#].
+  size_t              j_max;                                                                        // Index [#].
 
   // MOUSE PARAMETERS:
-  float       ms_orbit_rate  = 1.0f;                                                                // Orbit rotation rate [rev/s].
-  float       ms_pan_rate    = 5.0f;                                                                // Pan translation rate [m/s].
-  float       ms_decaytime   = 1.25f;                                                               // Pan LP filter decay time [s].
+  float               ms_orbit_rate  = 1.0f;                                                        // Orbit rotation rate [rev/s].
+  float               ms_pan_rate    = 5.0f;                                                        // Pan translation rate [m/s].
+  float               ms_decaytime   = 1.25f;                                                       // Pan LP filter decay time [s].
 
   // GAMEPAD PARAMETERS:
-  float       gmp_orbit_rate = 1.0f;                                                                // Orbit angular rate coefficient [rev/s].
-  float       gmp_pan_rate   = 1.0f;                                                                // Pan translation rate [m/s].
-  float       gmp_decaytime  = 1.25f;                                                               // Low pass filter decay time [s].
-  float       gmp_deadzone   = 0.1f;                                                                // Gamepad joystick deadzone [0...1].
+  float               gmp_orbit_rate = 1.0f;                                                        // Orbit angular rate coefficient [rev/s].
+  float               gmp_pan_rate   = 1.0f;                                                        // Pan translation rate [m/s].
+  float               gmp_decaytime  = 1.25f;                                                       // Low pass filter decay time [s].
+  float               gmp_deadzone   = 0.1f;                                                        // Gamepad joystick deadzone [0...1].
 
   // OPENGL:
-  nu::opengl* gl             = new nu::opengl (NAME, SX, SY, ORBX, ORBY, PANX, PANY, PANZ);         // OpenGL context.
-  nu::shader* S              = new nu::shader ();                                                   // OpenGL shader program.
+  nu::opengl*         gl             = new nu::opengl (NAME, SX, SY, OX, OY, PX, PY, PZ);           // OpenGL context.
+  nu::shader*         S              = new nu::shader ();                                           // OpenGL shader program.
+  nu::projection_mode proj_mode      = nu::MONOCULAR;                                               // OpenGL projection mode.
 
   // OPENCL:
-  nu::opencl* cl             = new nu::opencl (NU_GPU);                                             // OpenCL context.
-  nu::kernel* K              = new nu::kernel ();                                                   // OpenCL kernel array.
-  nu::float4* color          = new nu::float4 (0);                                                  // Color [].
-  nu::float4* position       = new nu::float4 (1);                                                  // Position [m].
-  nu::int1*   central        = new nu::int1 (2);                                                    // Central nodes.
-  nu::int1*   neighbour      = new nu::int1 (3);                                                    // Neighbour.
-  nu::int1*   offset         = new nu::int1 (4);                                                    // Offset.
+  nu::opencl*         cl             = new nu::opencl (nu::GPU);                                    // OpenCL context.
+  nu::kernel*         K              = new nu::kernel ();                                           // OpenCL kernel array.
+  nu::float4*         color          = new nu::float4 (0);                                          // Color [].
+  nu::float4*         position       = new nu::float4 (1);                                          // Position [m].
+  nu::int1*           central        = new nu::int1 (2);                                            // Central nodes.
+  nu::int1*           neighbour      = new nu::int1 (3);                                            // Neighbour.
+  nu::int1*           offset         = new nu::int1 (4);                                            // Offset.
 
   // MESH:
-  nu::mesh*   obj            = new nu::mesh (std::string (GMSH_HOME) + std::string (MESH));         // Mesh obj.
-  size_t      nodes;                                                                                // Number of nodes.
-  size_t      elements;                                                                             // Number of elements.
-  size_t      groups;                                                                               // Number of groups.
-  size_t      neighbours;                                                                           // Number of neighbours.
-  float       x_min          = -1.0f;                                                               // "x_min" spatial boundary [m].
-  float       x_max          = +1.0f;                                                               // "x_max" spatial boundary [m].
-  float       y_min          = -1.0f;                                                               // "y_min" spatial boundary [m].
-  float       y_max          = +1.0f;                                                               // "y_max" spatial boundary [m].
+  nu::mesh*           obj            = new nu::mesh (MESH);                                         // Mesh obj.
+  size_t              nodes;                                                                        // Number of nodes.
+  size_t              elements;                                                                     // Number of elements.
+  size_t              groups;                                                                       // Number of groups.
+  size_t              neighbours;                                                                   // Number of neighbours.
+  float               x_min          = -1.0f;                                                       // "x_min" spatial boundary [m].
+  float               x_max          = +1.0f;                                                       // "x_max" spatial boundary [m].
+  float               y_min          = -1.0f;                                                       // "y_min" spatial boundary [m].
+  float               y_max          = +1.0f;                                                       // "y_max" spatial boundary [m].
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////// DATA INITIALIZATION //////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   // MESH:
-  obj->process (TAG, DIM, NU_MSH_TRI_3);                                                            // Processing mesh...
+  obj->process (TAG, DIM, nu::MSH_TRI_3);                                                           // Processing mesh...
   position->data  = obj->node_coordinates;                                                          // Setting all node coordinates...
   neighbour->data = obj->neighbour;                                                                 // Setting neighbour indices...
   offset->data    = obj->neighbour_offset;                                                          // Setting neighbour offsets...
@@ -135,9 +137,9 @@ int main ()
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////// OPENGL SHADERS INITIALIZATION /////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////////////////
-  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_VERT), NU_VERTEX);                  // Setting shader source file...
-  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_GEOM), NU_GEOMETRY);                // Setting shader source file...
-  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_FRAG), NU_FRAGMENT);                // Setting shader source file...
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_VERT), nu::VERTEX);                 // Setting shader source file...
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_GEOM), nu::GEOMETRY);               // Setting shader source file...
+  S->addsource (std::string (SHADER_HOME) + std::string (SHADER_FRAG), nu::FRAGMENT);               // Setting shader source file...
   S->build (neighbours);                                                                            // Building shader program...
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,15 +154,25 @@ int main ()
   {
     cl->get_tic ();                                                                                 // Getting "tic" [us]...
     cl->acquire ();                                                                                 // Acquiring OpenCL kernel...
-    cl->execute (K, NU_WAIT);                                                                       // Executing OpenCL kernel...
+    cl->execute (K, nu::WAIT);                                                                      // Executing OpenCL kernel...
     cl->release ();                                                                                 // Releasing OpenCL kernel...
 
     gl->clear ();                                                                                   // Clearing gl...
     gl->poll_events ();                                                                             // Polling gl events...
     gl->mouse_navigation (ms_orbit_rate, ms_pan_rate, ms_decaytime);                                // Polling mouse...
     gl->gamepad_navigation (gmp_orbit_rate, gmp_pan_rate, gmp_decaytime, gmp_deadzone);             // Polling gamepad...
-    gl->plot (S);                                                                                   // Plotting shared arguments...
+    gl->plot (S, proj_mode);                                                                        // Plotting shared arguments...
     gl->refresh ();                                                                                 // Refreshing gl...
+
+    if(gl->key_1)
+    {
+      proj_mode = nu::MONOCULAR;                                                                    // Setting monocular projection...
+    }
+
+    if(gl->key_2)
+    {
+      proj_mode = nu::BINOCULAR;                                                                    // Setting binocular projection...
+    }
 
     if(gl->button_CROSS || gl->key_ESCAPE)
     {

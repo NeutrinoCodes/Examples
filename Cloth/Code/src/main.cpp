@@ -4,11 +4,11 @@
 #define SX            800                                                                           // Window x-size [px].
 #define SY            600                                                                           // Window y-size [px].
 #define NAME          "Neutrino - Cloth"                                                            // Window name.
-#define ORBX          0.0f                                                                          // x-axis orbit initial rotation.
-#define ORBY          0.0f                                                                          // y-axis orbit initial rotation.
-#define PANX          0.0f                                                                          // x-axis pan initial translation.
-#define PANY          0.0f                                                                          // y-axis pan initial translation.
-#define PANZ          -2.0f                                                                         // z-axis pan initial translation.
+#define OX            0.0f                                                                          // x-axis orbit initial rotation.
+#define OY            0.0f                                                                          // y-axis orbit initial rotation.
+#define PX            0.0f                                                                          // x-axis pan initial translation.
+#define PY            0.0f                                                                          // y-axis pan initial translation.
+#define PZ            -2.0f                                                                         // z-axis pan initial translation.
 
 #define SURFACE_TAG   2                                                                             // Surface tag.
 #define BORDER_TAG    6                                                                             // Border tag.
@@ -40,7 +40,8 @@
 #define KERNEL_1      "thekernel_1.cl"                                                              // OpenCL kernel source.
 #define KERNEL_2      "thekernel_2.cl"                                                              // OpenCL kernel source.
 #define UTILITIES     "utilities.cl"                                                                // OpenCL utilities source.
-#define MESH          "Square_quadrangles.msh"                                                      // GMSH mesh.
+#define MESH_FILE     "Square_quadrangles.msh"                                                      // GMSH mesh.
+#define MESH          GMSH_HOME MESH_FILE                                                           // GMSH mesh (full path).
 
 // INCLUDES:
 #include "nu.hpp"                                                                                   // Neutrino's header file.
@@ -65,16 +66,7 @@ int main ()
   float                            gmp_deadzone   = 0.30f;                                          // Gamepad joystick deadzone [0...1].
 
   // OPENGL:
-  nu::opengl*                      gl             = new nu::opengl (
-                                                                    NAME,
-                                                                    SX,
-                                                                    SY,
-                                                                    ORBX,
-                                                                    ORBY,
-                                                                    PANX,
-                                                                    PANY,
-                                                                    PANZ
-                                                                   );                               // OpenGL context.
+  nu::opengl*                      gl             = new nu::opengl (NAME,SX,SY,OX,OY,PX,PY,PZ);     // OpenGL context.
   nu::shader*                      S              = new nu::shader ();                              // OpenGL shader program.
   nu::projection_mode              proj_mode      = nu::MONOCULAR;                                  // OpenGL projection mode.
 
@@ -100,13 +92,7 @@ int main ()
   nu::float1*                      dt             = new nu::float1 (15);                            // Time step [s].
 
   // MESH:
-  nu::mesh*                        cloth          = new nu::mesh (
-                                                                  std::string (
-                                                                               GMSH_HOME
-                                                                              ) + std::string (
-                                                                                               MESH
-                                                                                              )
-                                                                 );                                 // Mesh cloth.
+  nu::mesh*                        cloth          = new nu::mesh (MESH);                            // Mesh cloth.
   size_t                           nodes;                                                           // Number of nodes.
   size_t                           elements;                                                        // Number of elements.
   size_t                           groups;                                                          // Number of groups.
@@ -291,12 +277,6 @@ int main ()
     ImGui::Begin ("FREE LATTICE PARAMETERS", NULL, ImGuiWindowFlags_AlwaysAutoResize);              // Beginning window...
     ImGui::PushItemWidth (200);                                                                     // Setting window width [px]...
 
-    float h   = 0.01f;                                                                              // Cloth's thickness [m].
-    float rho = 1000.0f;                                                                            // Cloth's mass density [kg/m^3].
-    float E   = 10000.0f;                                                                           // Cloth's Young modulus [kg/(m*s^2)].
-    float mu  = 1000.0f;                                                                            // Cloth's viscosity [Pa*s].
-    float g   = 9.81f;                                                                              // External gravity field [m/s^2].
-
     ImGui::PushStyleColor (ImGuiCol_Text, IM_COL32 (0,255,0,255));                                  // Setting text color...
     ImGui::Text ("Thickness:       ");                                                              // Writing text...
     ImGui::PopStyleColor ();                                                                        // Restoring text color...
@@ -327,7 +307,7 @@ int main ()
     ImGui::SameLine ();                                                                             // Staying on same line...
     ImGui::Text ("mu =  ");                                                                         // Writing text...
     ImGui::SameLine ();                                                                             // Staying on same line...
-    ImGui::InputFloat (" [Pa*2]", &mu);                                                             // Adding input field...
+    ImGui::InputFloat (" [Pa*s]", &mu);                                                             // Adding input field...
 
     ImGui::PushStyleColor (ImGuiCol_Text, IM_COL32 (0,255,0,255));                                  // Setting text color...
     ImGui::Text ("Gravity:         ");                                                              // Writing text...
@@ -360,12 +340,12 @@ int main ()
 
     if(gl->key_1)
     {
-      proj_mode = nu::MONOCULAR;
+      proj_mode = nu::MONOCULAR;                                                                    // Setting monocular projection...
     }
 
     if(gl->key_2)
     {
-      proj_mode = nu::BINOCULAR;
+      proj_mode = nu::BINOCULAR;                                                                    // Setting binocular projection...
     }
 
     if(gl->button_CROSS || gl->key_ESCAPE)
