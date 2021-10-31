@@ -334,7 +334,7 @@ int main ()
     ImGui::SameLine ();                                                                             // Staying on same line...
     ImGui::InputFloat (" [m]", &R0);                                                                // Adding input field...
 
-    if(ImGui::Button ("Update"))
+    if(ImGui::Button ("(U)pdate") || gl->key_U)
     {
       dt_critical       = sqrt (m/K);                                                               // Critical time step [s].
       dt_simulation     = 0.02f*dt_critical;                                                        // Simulation time step [s].
@@ -374,14 +374,9 @@ int main ()
       cl->write (15);                                                                               // Writing OpenCL data...
     }
 
-    ImGui::End ();                                                                                  // Finishing window...
+    ImGui::SameLine (100);
 
-    ImGui::Render ();                                                                               // Rendering windows...
-    ImGui_ImplOpenGL3_RenderDrawData (ImGui::GetDrawData ());                                       // Rendering windows...
-
-    gl->refresh ();                                                                                 // Refreshing gl...
-
-    if(gl->button_TRIANGLE || gl->key_R)
+    if(ImGui::Button ("(R)estart") || gl->button_TRIANGLE || gl->key_R)
     {
       position->data     = initial_position;                                                        // Restoring backup...
       position_int->data = initial_position_int;                                                    // Restoring backup...
@@ -395,20 +390,33 @@ int main ()
       cl->write (5);                                                                                // Writing data...
     }
 
-    if(gl->key_M)
+    ImGui::SameLine (200);
+
+    if(ImGui::Button ("(M)onocular") || gl->key_M)
     {
       proj_mode = nu::MONOCULAR;                                                                    // Setting monocular projection...
     }
 
-    if(gl->key_B)
+    ImGui::SameLine (300);
+
+    if(ImGui::Button ("(B)inocular") || gl->key_B)
     {
       proj_mode = nu::BINOCULAR;                                                                    // Setting binocular projection...
     }
 
-    if(gl->button_CROSS || gl->key_ESCAPE)
+    ImGui::SameLine (400);
+
+    if(ImGui::Button ("(E)xit") || gl->button_CROSS || gl->key_E)
     {
       gl->close ();                                                                                 // Closing gl...
     }
+
+    ImGui::End ();                                                                                  // Finishing window...
+
+    ImGui::Render ();                                                                               // Rendering windows...
+    ImGui_ImplOpenGL3_RenderDrawData (ImGui::GetDrawData ());                                       // Rendering windows...
+
+    gl->refresh ();                                                                                 // Refreshing gl...
 
     cl->get_toc ();                                                                                 // Getting "toc" [us]...
   }

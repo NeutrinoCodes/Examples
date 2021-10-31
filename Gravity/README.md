@@ -37,8 +37,8 @@ the screen).
 The simulation can be terminated by pressing "ESC" on the keyboard or by pressing the "CROSS" button
 on the gamepad.
 
-Pressing "3" on the keyboard, the 3D graphics output will switch to a side-by-side 3D stereoscopic projection.
-Pressing "2" on the keyboard will restore the usual 3D monoscopic projection.
+Pressing "B" on the keyboard, the 3D graphics output will switch to a side-by-side 3D binocular projection.
+Pressing "M" on the keyboard will restore the usual 3D monocular projection.
 
 **For the compilation of this example please follow the generic instructions written in the
 README.md file in the "Examples" root directory.**
