@@ -348,7 +348,7 @@ int main ()
 
         for(j = j_min; j < j_max; j++)
         {
-          stiffness->data[i*(j_max - j_min) + j] = K;                                               // Setting link stiffness...
+          stiffness->data[j] = K;                                                                   // Setting link stiffness...
         }
       }
 

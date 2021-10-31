@@ -108,12 +108,13 @@ int main ()
   int                              VOLUME         = 1;                                              // Entire volume.
 
   // SIMULATION VARIABLES:
-  float                            m              = 10.0f;                                          // Node mass [kg].
+  float                            m              = 20.0f;                                          // Node mass [kg].
   float                            K              = 100.0f;                                         // Link elastic constant [kg/s^2].
-  float                            B              = 1.0f;                                           // Damping [kg*s*m].
+  float                            B              = 100.0f;                                         // Damping [kg*s*m].
   float                            R0             = 0.3f;                                           // Nucleus radius [m].
   float                            dt_critical;                                                     // Critical time step [s].
   float                            dt_simulation;                                                   // Simulation time step [s].
+  float                            safety_CFL     = 0.1f;                                           // Courant-Friedrichs-Lewy safety coefficient [].
 
   // BACKUP:
   std::vector<nu_float4_structure> initial_position;                                                // Backing up initial data...
@@ -147,7 +148,7 @@ int main ()
   std::cout << "links = " << gravity->neighbour_link.size () << std::endl;
 
   dt_critical     = sqrt (m/K);                                                                     // Critical time step [s].
-  dt_simulation   = 0.02f*dt_critical;                                                              // Simulation time step [s].
+  dt_simulation   = safety_CFL*dt_critical;                                                         // Simulation time step [s].
 
   // SETTING NEUTRINO ARRAYS (parameters):
   friction->data.push_back (B);                                                                     // Setting friction...
@@ -181,7 +182,7 @@ int main ()
       central->data.push_back (gravity->node[i]);                                                   // Building central node vector...
       stiffness->data.push_back (K);                                                                // Setting link stiffness...
 
-      if(resting->data[j] > 0.21)
+      if(resting->data[j] > 0.11)
       {
         color->data.push_back ({0.0f, 0.0f, 0.0f, 0.0f});                                           // Setting color...
       }
@@ -337,7 +338,7 @@ int main ()
     if(ImGui::Button ("(U)pdate") || gl->key_U)
     {
       dt_critical       = sqrt (m/K);                                                               // Critical time step [s].
-      dt_simulation     = 0.02f*dt_critical;                                                        // Simulation time step [s].
+      dt_simulation     = safety_CFL*dt_critical;                                                   // Simulation time step [s].
 
       // RECOMPUTING NEUTRINO ARRAYS (parameters):
       friction->data[0] = B;                                                                        // Setting friction...
@@ -363,7 +364,7 @@ int main ()
 
         for(j = j_min; j < j_max; j++)
         {
-          stiffness->data[i*(j_max - j_min) + j] = K;                                               // Setting link stiffness...
+          stiffness->data[j] = K;                                                                   // Setting link stiffness...
         }
       }
 
@@ -421,8 +422,6 @@ int main ()
     cl->get_toc ();                                                                                 // Getting "toc" [us]...
   }
 
-  ImGui_ImplOpenGL3_Shutdown ();                                                                    // Deinitializing ImGui...
-  ImGui_ImplGlfw_Shutdown ();                                                                       // Deinitializing ImGui...
   ImGui::DestroyContext ();                                                                         // Deinitializing ImGui...
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
