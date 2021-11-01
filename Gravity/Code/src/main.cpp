@@ -407,7 +407,7 @@ int main ()
 
     ImGui::SameLine (400);
 
-    if(ImGui::Button ("(E)xit") || gl->button_CROSS || gl->key_E)
+    if(ImGui::Button ("(E)xit") || gl->button_CIRCLE || gl->key_E)
     {
       gl->close ();                                                                                 // Closing gl...
     }
@@ -422,6 +422,8 @@ int main ()
     cl->get_toc ();                                                                                 // Getting "toc" [us]...
   }
 
+  ImGui_ImplOpenGL3_Shutdown ();                                                                    // Deinitializing ImGui...
+  ImGui_ImplGlfw_Shutdown ();                                                                       // Deinitializing ImGui...
   ImGui::DestroyContext ();                                                                         // Deinitializing ImGui...
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
