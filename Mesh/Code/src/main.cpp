@@ -164,17 +164,17 @@ int main ()
     gl->plot (S, proj_mode);                                                                        // Plotting shared arguments...
     gl->refresh ();                                                                                 // Refreshing gl...
 
-    if(gl->key_1)
+    if(gl->key_M)
     {
       proj_mode = nu::MONOCULAR;                                                                    // Setting monocular projection...
     }
 
-    if(gl->key_2)
+    if(gl->key_B)
     {
       proj_mode = nu::BINOCULAR;                                                                    // Setting binocular projection...
     }
 
-    if(gl->button_CROSS || gl->key_ESCAPE)
+    if(gl->button_CROSS || gl->key_E)
     {
       gl->close ();                                                                                 // Closing gl...
     }
