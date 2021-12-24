@@ -28,6 +28,8 @@ The Neutrino examples can be installed on Linux (see: [Linux installation](./Ins
 - GLAD (https://glad.dav1d.de/)
 - GLFW (https://www.glfw.org/)
 - GMSH (https://gmsh.info/)
+- IMGUI (https://github.com/ocornut/imgui)
+- IMPLOT (https://github.com/epezent/implot)
 - GCC (https://gcc.gnu.org) if using Linux
 - Visual Studio (https://visualstudio.microsoft.com/) is using Windows
 - CMake (https://cmake.org)
