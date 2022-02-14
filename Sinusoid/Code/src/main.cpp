@@ -6,7 +6,7 @@
 #define INTEROP       true                                                                          // "true" = use OpenGL-OpenCL interoperability.
 #define SX            800                                                                           // Window x-size [px].
 #define SY            600                                                                           // Window y-size [px].
-#define NAME          "Neutrino - Sinusoid"                                                         // Window name.
+#define NM            "Neutrino - Sinusoid"                                                         // Window name.
 #define OX            0.0f                                                                          // x-axis orbit initial rotation.
 #define OY            0.0f                                                                          // y-axis orbit initial rotation.
 #define PX            0.0f                                                                          // x-axis pan initial translation.
@@ -49,7 +49,7 @@ int main ()
   float               gmp_deadzone   = 0.30f;                                                       // Gamepad joystick deadzone [0...1].
 
   // OPENGL:
-  nu::opengl*         gl             = new nu::opengl (NAME, SX, SY, OX, OY, PX, PY, PZ);           // OpenGL context.
+  nu::opengl*         gl             = new nu::opengl (NM, SX, SY, OX, OY, PX, PY, PZ);             // OpenGL context.
   nu::shader*         S              = new nu::shader ();                                           // OpenGL shader program.
   nu::projection_mode proj_mode      = nu::MONOCULAR;                                               // OpenGL projection mode.
 
