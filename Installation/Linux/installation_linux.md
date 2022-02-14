@@ -30,6 +30,8 @@ Please verify the presence of the `cl_khr_gl_sharing` extension. Some old GPU mo
 - GLAD (https://glad.dav1d.de/) *
 - GLFW (https://www.glfw.org/)
 - GMSH (https://gmsh.info/)
+- IMGUI (https://github.com/ocornut/imgui)
+- IMPLOT (https://github.com/epezent/implot)
 - VScode (https://code.visualstudio.com/) **
 - CMake (https://cmake.org) **
 - GraphViz (https://graphviz.org/)
@@ -48,6 +50,8 @@ We assume Neutrino is going to be installed in a directory named *NeutrinoCodes*
 - glad
 - glfw
 - gmsh
+- imgui
+- implot
 
 From the command shell (either VScode's or system's), navigate into *NeutrinoCodes* and create a `libnu` directory using the command:\
 `mkdir libnu`\
@@ -67,11 +71,13 @@ and create a new file `settings.json` in it, then fill it with the following inf
 `{`\
 &nbsp;&nbsp;`"cmake.configureSettings":`\
 &nbsp;&nbsp;`{`\
-&nbsp;&nbsp;&nbsp;&nbsp;`"GLAD_PATH": "your_path_to_NeutrinoCodes\\glad",`\
-&nbsp;&nbsp;&nbsp;&nbsp;`"GLFW_PATH": "your_path_to_NeutrinoCodes\\glfw",`\
-&nbsp;&nbsp;&nbsp;&nbsp;`"GMSH_PATH": "your_path_to_NeutrinoCodes\\gmsh",`\
+&nbsp;&nbsp;&nbsp;&nbsp;`"GLAD_PATH": "your_path_to_NeutrinoCodes/glad",`\
+&nbsp;&nbsp;&nbsp;&nbsp;`"GLFW_PATH": "your_path_to_NeutrinoCodes/glfw",`\
+&nbsp;&nbsp;&nbsp;&nbsp;`"GMSH_PATH": "your_path_to_NeutrinoCodes/gmsh",`\
 &nbsp;&nbsp;&nbsp;&nbsp;`"CL_PATH": "your_path_to_OpenCL",`\
-&nbsp;&nbsp;&nbsp;&nbsp;`"NEUTRINO_PATH": "your_path_to_NeutrinoCodes\\libnu"`\
+&nbsp;&nbsp;&nbsp;&nbsp;`"IMGUI_PATH": "your_path_to_NeutrinoCodes/imgui",`\
+&nbsp;&nbsp;&nbsp;&nbsp;`"IMPLOT_PATH": "your_path_to_NeutrinoCodes/implot",`\
+&nbsp;&nbsp;&nbsp;&nbsp;`"NEUTRINO_PATH": "your_path_to_NeutrinoCodes/libnu"`\
 &nbsp;&nbsp;`}`\
 `}`\
 \
@@ -116,6 +122,8 @@ Into the Neutrino examples project directory, create a configuration script file
 `-DGLFW_PATH=your_path_to_glfw \`\
 `-DGMSH_PATH=your_path_to_gmsh \`\
 `-DCL_PATH=your_path_to_opencl \`\
+`-DIMGUI_PATH=your_path_to_imgui \`\
+`-DIMPLOT_PATH=your_path_to_implot \`\
 `-DNEUTRINO_PATH=your_path_to_neutrino`\
 \
 and specify the paths accordingly, where:

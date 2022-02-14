@@ -5,62 +5,20 @@ Neutrino is a C++ library that facilitates writing parallel code running on GPU 
 
 The Neutrino examples can be successfully installed and used on Windows by using the **Visual Studio** IDE or **VScode** editor toolchain.
 
-## Hardware requirements:
-A GPU having the **OpenCL-OpenGL interoperability GPU mode** is necessary.
+These are some examples for the Neutrino library.
 
-This can be verified by installing and using the `clinfo` command line tool (https://github.com/Oblomov/clinfo). After its installation, on a command terminal do:\
-`clinfo`\
-\
-In the text output (it can be long!) there should be a section regarding your GPU, similar to this one:\
-...\
-`Name:                                          GeForce GTX 1060 6GB`\
-`Vendor:                                        NVIDIA Corporation`\
-`Driver version:                                451.67`\
-`Profile:                                       FULL_PROFILE`\
-`Version:                                       OpenCL 1.2 CUDA`\
-`Extensions:                                    cl_khr_global_int32_base_atomics cl_khr_global_int32_extended_atomics cl_khr_local_int32_base_atomics cl_khr_local_int32_extended_atomics cl_khr_fp64 cl_khr_byte_addressable_store cl_khr_icd cl_khr_gl_sharing cl_nv_compiler_options cl_nv_device_attribute_query cl_nv_pragma_unroll cl_nv_d3d10_sharing cl_khr_d3d10_sharing cl_nv_d3d11_sharing cl_nv_copy_opts cl_nv_create_buffer cl_khr_int64_base_atomics cl_khr_int64_extended_atomics`\
-...\
-\
-Please verify the presence of the `cl_khr_gl_sharing` extension. Some old GPU models do not have it: those ones would not be compatible with Neutrino.
+## Hardware and software requirements:
+The Neutrino library and all its dependencies.
+Please see: https://github.com/NeutrinoCodes/Neutrino for the Neutrino library installation instructions.
 
-## Software requirements:
-- OpenCL (runtime/loader + headers), coming along the installation of the graphics drivers.
-- OpenGL (library + headers), coming along the installation of the graphics drivers.
-- GIT (https://git-scm.com)
-- GLAD (https://glad.dav1d.de/) *
-- GLFW (https://www.glfw.org/)
-- GMSH (https://gmsh.info/)
-- Visual Studio (https://visualstudio.microsoft.com/) **
-- CMake (https://cmake.org) **
-- GraphViz (https://graphviz.org/)
-- Doxygen (https://www.doxygen.nl/)
-
-\* The GLAD loader should be generated from its webpage using the following settings:
-- Language = C/C++
-- gl = Version 4.6 (or higher)
-- Profile = Core
-
-After having generated it, download the zip file containing the code and extract it in a custom directory (see *Installation*).
-
-\** When using the **VScode editor**, please follow the instructions (https://code.visualstudio.com/docs/cpp/config-msvc) in order to install it and verify the installation of Visual Studio, as well as the instructions (https://code.visualstudio.com/docs/cpp/cmake-linux, there are no specific instructions for Windows) to verify the installation of Cmake and to install the Cmake Tools extension for VSCode. If using only the **Visual Studio** IDE instead of the VScode editor, please install also the Cmake Tools extension for Visual Studio.
-
-**IMPORTANT NOTE FOR GMSH INSTALLATION ON WINDOWS**: GMSH is used in Neutrino as an API library. Under a Windows purely native environment (which is the case of Windows + the Visual Studio compiler) there is a limitation (see https://gitlab.onelab.info/gmsh/gmsh/-/issues/894) and because of this the GMSH API can used only as an external DLL. In order to install it on Windows, please download the GMSH's *Software Development Kit (SDK) for Windows* (64-bit or 32-bit, according to your operating system) and follow this procedure:
-- after having downloaded the GMSH's SDK `.zip` file, extract it and copy the `gmsh` directory into the `NeutrinoCodes` directory.
-- go to the `include` directory in the `gmsh` directory and rename the `gmsh.h` file `gmsh.h_original`.
-- in the same directory, rename the `gmsh.h_cwrap` file to `gmsh.h`.
-- go to the `lib` directory in the `gmsh` directory and copy che GMSH DLL file into `C.\Windows\System32`.
-
-This should make the GMSH's API working on Windows.
-
-We assume Neutrino is going to be installed in a directory named *NeutrinoCodes* containing the following subdirectories:
+We assume Neutrino **has already be installed** in a directory named *NeutrinoCodes* containing the following subdirectories:
 - glad
 - glfw
 - gmsh
-
-From the command shell (either VScode's or system's), navigate into *NeutrinoCodes* and create a `libnu` directory using the command:\
-`mkdir libnu`\
-\
-This will create the `libnu` directory.
+- imgui
+- implot
+- libnu
+- neutrino
 
 From the command shell (either VScode's or system's), navigate into *NeutrinoCodes* and clone the Neutrino project using the command:\
 `git clone https://github.com/NeutrinoCodes/examples.git` \
@@ -79,6 +37,8 @@ and create a new file `settings.json` in it, then fill it with the following inf
 &nbsp;&nbsp;&nbsp;&nbsp;`"GLFW_PATH": "your_path_to_NeutrinoCodes\\glfw",`\
 &nbsp;&nbsp;&nbsp;&nbsp;`"GMSH_PATH": "your_path_to_NeutrinoCodes\\gmsh",`\
 &nbsp;&nbsp;&nbsp;&nbsp;`"CL_PATH": "your_path_to_OpenCL",`\
+&nbsp;&nbsp;&nbsp;&nbsp;`"IMGUI_PATH": "your_path_to_NeutrinoCodes\\imgui",`\
+&nbsp;&nbsp;&nbsp;&nbsp;`"IMPLOT_PATH": "your_path_to_NeutrinoCodes\\implot",`\
 &nbsp;&nbsp;&nbsp;&nbsp;`"NEUTRINO_PATH": "your_path_to_NeutrinoCodes\\libnu"`\
 &nbsp;&nbsp;`}`\
 `}`\
@@ -89,7 +49,7 @@ Notice all paths **must** be specificed with *double backslashes*, in order to c
 Also notice that `your_path_to_OpenCL` might be something like this (it depends on your GPU's graphics drivers):\
 `C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v10.1`\
 \
-At this point, Neutrino is configured for your system. 
+At this point, Neutrino is configured for your system also for its Examples. 
 
 In VScode, open a folder from the file menu and select NeutrinoCodes. Go to the left bar and locate the **CMake** button (it comes after the installation of the CMake Tools extension for VScode) and push it: a CMake panel will open, push the **Configure All Projects** button on it.
 
@@ -100,9 +60,12 @@ Go to the bottom bar and locate:
 - the **Build** button: push it in order to build the Neutrino project.
 
 At this point the NeutrinoCodes directory should appear like this:
+- examples
 - glad
 - glfw
 - gmsh
+- imgui
+- implot
 - libnu
 - neutrino
 
