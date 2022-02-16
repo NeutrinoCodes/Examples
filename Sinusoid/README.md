@@ -6,6 +6,8 @@ _A fast and light library for GPU-based computation and interactive data visuali
 
 © Alessandro LUCANTONIO, Erik ZORZIN - 2018-2021
 
+[![Neutrino - Sinusoid](../Logos/Neutrino-Sinusoid.png)](https://www.youtube.com/watch?v=m1v9UXB3lYE)
+
 ## Sinusoid example
 
 This example is the "Hello world!" of Neutrino.

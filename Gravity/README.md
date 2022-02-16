@@ -6,6 +6,8 @@ _A fast and light library for GPU-based computation and interactive data visuali
 
 © Alessandro LUCANTONIO, Erik ZORZIN - 2018-2021
 
+[![Neutrino - Gravity](../Logos/Neutrino-Gravity.png)](https://www.youtube.com/watch?v=FQlTP2k5KQc)
+
 ## Gravity example
 
 This example computes the real-time simulation of a 3D continuum elastic body subjected to the presence
