@@ -6,6 +6,8 @@ _A fast and light library for GPU-based computation and interactive data visuali
 
 © Alessandro LUCANTONIO, Erik ZORZIN - 2018-2021
 
+[![Neutrino - Cloth](../Logos/Neutrino-Cloth.png)](https://www.youtube.com/watch?v=jYHdJxtJkGM)
+
 ## Cloth example
 
 This example computes the real-time simulation of a square piece of cloth anchored by its four sides
