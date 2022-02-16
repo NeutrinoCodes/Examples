@@ -86,7 +86,7 @@ Make the configuration script to be **executable** (at the command shell type: `
 Enter the cmake directory and type `make install` (use `make clean` to remove old build files if necessary).
 
 ### **VScode:**
-Alternatively, open a **VScode shell terminal** and go to the `neutrino` directory, then create a `.vscode` hidden directory:\
+Alternatively, open a **VScode shell terminal** and go to the `examples` directory, then create a `.vscode` hidden directory:\
 `mkdir .vscode`\
 
 Now create a new file `settings.json` in it, then fill it with the following information:\
@@ -125,7 +125,7 @@ e.g. `your_path_to_OpenCL` might be something like this (it depends on your GPU'
 `C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.5`
 
 ### **Visual Studio**:
-Go to the `neutrino` directory: create and edit a `CMakeSettings.json` file in it, then fill it with the following information:\
+Go to the `examples` directory: create and edit a `CMakeSettings.json` file in it, then fill it with the following information:\
 `{`\
 &nbsp;&nbsp;`"configurations": [`\
 &nbsp;&nbsp;&nbsp;&nbsp;`{`\
@@ -137,14 +137,8 @@ Go to the `neutrino` directory: create and edit a `CMakeSettings.json` file in i
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`"cmakeCommandArgs": "-DGLAD_PATH=\"your_path_to_NeutrinoCodes\\glad\" -DGLFW_PATH=\"your_path_to_NeutrinoCodes\\glfw\" -DGMSH_PATH=\"your_path_to_NeutrinoCodes\\gmsh\" -DCL_PATH=\"your_path_to_OpenCL\\opencl\" -DIMGUI_PATH=\"your_path_to_NeutrinoCodes\\imgui" -DIMPLOT_PATH=\"your_path_to_NeutrinoCodes\\implot" -DNEUTRINO_PATH=\"your_path_to_NeutrinoCodes\\libnu\"",`\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`"buildCommandArgs": "",`\
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`"ctestCommandArgs": "",`\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`"inheritEnvironments": [ "msvc_x64_x64" ],`\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`"variables": [`\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`{`\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`"name": "CMAKE_INSTALL_PREFIX",`\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`"value": "E:/BookHouseBoys/ezor/NeutrinoCodes/libnu",`\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`"type": "PATH"`\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`}`\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`]`\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`"inheritEnvironments": [ "msvc_x64_x64" ]`\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`"variables": [ "msvc_x64_x64" ]`\
 &nbsp;&nbsp;&nbsp;&nbsp;`}`\
 &nbsp;&nbsp;`]`\
 `}`\
@@ -158,7 +152,7 @@ Alternatively, the same file can edited within Visual Studio by right-clicking t
 Then in Visual Studio, **open a folder** from the file menu and select NeutrinoCodes. Visual Studio will invoke Cmake. After it finished configuring the project, go to the Build menu and push the **Build** button. Once the Neutrino library has been built, it has to be installed: to do so, go to the Build menu and push the **Install** button.
 
 ### **VScode**:
-Go to the `neutrino` directory and create a `.vscode` hidden directory:\
+Go to the `examples` directory and create a `.vscode` hidden directory:\
 `mkdir .vscode`\
 \
 and create a new file `settings.json` in it, then fill it with the following information:\
@@ -204,6 +198,6 @@ Add the following lines to either the *global* or *project* **settings.json** fi
 
 To edit the *global* settings, on VScode go to the left bar: push the **Extensions** button and select the Uncrustify extension. Then go to **Manage --> Extension Settings** (gear-like icon) and edit the `settings.json` file by clicking one of the links in that section. This will set the Uncrustify code formatter globally in all your VScode projects (but still with per-project custom uncrustify configuration files).\
 \
-To edit the *project* settings, open `settings.json` file in the `.vscode` you created for Neutrino (the hidden directory inside the `Neutrino` directory) and put the same lines in it. This will set Uncrustify as code formatter (together with the configuration file we provide) only for the Neutrino project.
+To edit the *project* settings, open `settings.json` file in the `.vscode` you created for Neutrino (the hidden directory inside the `examples` directory) and put the same lines in it. This will set Uncrustify as code formatter (together with the configuration file we provide) only for the Neutrino project.
 
 © Alessandro LUCANTONIO, Erik ZORZIN - 2018-2022
