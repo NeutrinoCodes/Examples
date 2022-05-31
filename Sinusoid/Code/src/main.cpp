@@ -51,7 +51,8 @@ int main ()
   // OPENGL:
   nu::opengl*         gl             = new nu::opengl (NM, SX, SY, OX, OY, PX, PY, PZ);             // OpenGL context.
   nu::shader*         S              = new nu::shader ();                                           // OpenGL shader program.
-  nu::projection_mode proj_mode      = nu::MONOCULAR;                                               // OpenGL projection mode.
+  nu::projection_mode pmode          = nu::MONOCULAR;                                               // OpenGL projection mode.
+  nu::view_mode       vmode          = nu::DIRECT;                                                  // OpenGL view mode.
 
   // OPENCL:
   nu::opencl*         cl             = new nu::opencl (nu::GPU);                                    // OpenCL context.
@@ -135,16 +136,16 @@ int main ()
     gl->poll_events ();                                                                             // Polling gl events...
     gl->mouse_navigation (ms_orbit_rate, ms_pan_rate, ms_decaytime);                                // Polling mouse...
     gl->gamepad_navigation (gmp_orbit_rate, gmp_pan_rate, gmp_decaytime, gmp_deadzone);             // Polling gamepad...
-    gl->plot (S, proj_mode);                                                                        // Plotting shared arguments...
+    gl->plot (S, pmode, vmode);                                                                     // Plotting shared arguments...
 
     if(gl->key_M)
     {
-      proj_mode = nu::MONOCULAR;                                                                    // Setting monocular projection...
+      pmode = nu::MONOCULAR;                                                                        // Setting monocular projection...
     }
 
     if(gl->key_B)
     {
-      proj_mode = nu::BINOCULAR;                                                                    // Setting binocular projection...
+      pmode = nu::BINOCULAR;                                                                        // Setting binocular projection...
     }
 
     if(gl->button_CROSS || gl->key_E)
